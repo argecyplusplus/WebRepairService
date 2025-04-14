@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35931.197 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebRepairService", "WebRepairService\WebRepairService.csproj", "{388384B3-7E44-4422-8493-81D5DB5C8010}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{388384B3-7E44-4422-8493-81D5DB5C8010}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{388384B3-7E44-4422-8493-81D5DB5C8010}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{388384B3-7E44-4422-8493-81D5DB5C8010}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{388384B3-7E44-4422-8493-81D5DB5C8010}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {50570C47-F4DC-40F4-A423-C45D0B27B613}
+	EndGlobalSection
+EndGlobal
