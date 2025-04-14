@@ -1,6 +1,10 @@
-﻿namespace WebRepairService.ViewModels
+﻿using System.ComponentModel.DataAnnotations;
+
+public class StatusViewModel
 {
-    public class Class
-    {
-    }
+    public int StatusId { get; set; }
+
+    [Required]
+    [MaxLength(50)]
+    public string Name { get; set; } = string.Empty;
 }
