@@ -19,17 +19,24 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         // Order relationships
         builder.Entity<Order>(entity =>
         {
+            // Обновленные связи с пользователями
+            entity.HasOne(o => o.Operator)
+                .WithMany()
+                .HasForeignKey(o => o.OperatorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(o => o.Engineer)
+                .WithMany()
+                .HasForeignKey(o => o.EngineerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             entity.HasIndex(o => o.StatusId);
             entity.HasIndex(o => o.CreationDate);
-            entity.HasIndex(o => o.UserId);
 
             entity.Property(o => o.Model).HasMaxLength(100);
             entity.Property(o => o.Details).HasMaxLength(1000);
             entity.Property(o => o.ClientEmail).HasMaxLength(100);
 
-            entity.HasOne(o => o.User)
-                .WithMany(u => u.Orders)
-                .HasForeignKey(o => o.UserId);
 
             entity.HasOne(o => o.Status)
                 .WithMany(s => s.Orders)

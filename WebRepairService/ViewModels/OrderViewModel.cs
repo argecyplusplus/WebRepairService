@@ -6,6 +6,16 @@ public class OrderViewModel
 {
     public int IdOrder { get; set; }
 
+    // Информация о пользователях
+    [Required(ErrorMessage = "Необходимо указать оператора")]
+    public string OperatorId { get; set; } = string.Empty;
+
+    public string? EngineerId { get; set; } // Может быть null, если еще не назначен
+
+    public UserViewModel? Operator { get; set; }
+    public UserViewModel? Engineer { get; set; }
+
+
     [Required(ErrorMessage = "Статус заказа обязателен")]
     public int StatusId { get; set; }
 
@@ -46,9 +56,6 @@ public class OrderViewModel
 
     [Required(ErrorMessage = "Тип услуги обязателен")]
     public int ServiceTypeId { get; set; }
-
-    [Required(ErrorMessage = "ID пользователя обязательно")]
-    public string UserId { get; set; } = string.Empty;
 
     // Опционально: можно включить связанные данные, если они нужны во View
     public UserViewModel? User { get; set; }
