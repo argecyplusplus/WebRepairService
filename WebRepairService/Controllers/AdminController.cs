@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using WebRepairService.Models;
@@ -31,9 +32,11 @@ namespace WebRepairService.Controllers
             {
                 var thisViewModel = new UserRoleViewModel
                 {
+                    Username = user.UserName,
                     UserId = user.Id,
                     Email = user.Email,
                     FullName = user.FullName,
+                    PhoneNumber = user.PhoneNumber,
                     RegistrationDate = user.RegistrationDate,
                     Roles = await _userManager.GetRolesAsync(user)
                 };
@@ -95,8 +98,16 @@ namespace WebRepairService.Controllers
     public class UserRoleViewModel
     {
         public string UserId { get; set; }
+
+        public string Username {  get; set; }
         public string Email { get; set; }
         public string FullName { get; set; }
+
+        [Required]
+        [Phone]
+        [Display(Name = "Телефон")]
+        public string PhoneNumber { get; set; }
+
         public DateTime RegistrationDate { get; set; }
         public IList<string> Roles { get; set; } // Изменили на IList<string>
 

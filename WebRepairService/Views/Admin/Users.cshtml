@@ -10,8 +10,10 @@
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Email</th>
+                <th>Юзернейм</th>
                 <th>ФИО</th>
+                <th>Email</th>
+                <th>Телефон</th>
                 <th>Дата регистрации</th>
                 <th>Текущая роль</th>
                 <th>Установить роль</th>
@@ -21,8 +23,10 @@
             @foreach (var user in Model)
             {
                 <tr>
-                    <td>@user.Email</td>
+                    <td>@user.Username</td>
                     <td>@user.FullName</td>
+                    <td>@user.Email</td>
+                    <td>@user.PhoneNumber</td>
                     <td>@user.RegistrationDate.ToString("dd.MM.yyyy")</td>
                     <td>
                         @string.Join(", ", user.Roles)

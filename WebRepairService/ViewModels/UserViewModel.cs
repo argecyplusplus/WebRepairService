@@ -14,6 +14,11 @@ public class UserViewModel
     [Display(Name = "Email")]
     public string Email { get; set; }
 
+    [Required]
+    [Phone]
+    [Display(Name = "Телефон")]
+    public string PhoneNumber { get; set; }
+
     [Display(Name = "Роли")]
     public List<RoleViewModel> Roles { get; set; } = new();
 }
