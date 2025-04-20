@@ -64,6 +64,32 @@ namespace WebRepairService.Controllers
 
             return RedirectToAction("Users");
         }
+
+
+        [HttpPost]
+        public async Task<IActionResult> SetRole(string userId, string selectedRole)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var currentRoles = await _userManager.GetRolesAsync(user);
+
+            // Удаляем все текущие роли
+            await _userManager.RemoveFromRolesAsync(user, currentRoles);
+
+            // Добавляем выбранную роль, если она указана (не "Без роли")
+            if (!string.IsNullOrEmpty(selectedRole))
+            {
+                await _userManager.AddToRoleAsync(user, selectedRole);
+            }
+
+            return RedirectToAction("Users");
+        }
+
+
     }
 
     public class UserRoleViewModel

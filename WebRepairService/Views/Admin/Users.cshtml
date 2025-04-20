@@ -13,8 +13,8 @@
                 <th>Email</th>
                 <th>ФИО</th>
                 <th>Дата регистрации</th>
-                <th>Роли</th>
-                <th>Действия</th>
+                <th>Текущая роль</th>
+                <th>Установить роль</th>
             </tr>
         </thead>
         <tbody>
@@ -28,26 +28,20 @@
                         @string.Join(", ", user.Roles)
                     </td>
                     <td>
-                        <form asp-action="UpdateRole" method="post">
+                        <form asp-action="SetRole" method="post">
                             <input type="hidden" name="userId" value="@user.UserId" />
 
-                            <div class="form-group">
-                                <select name="role" class="form-control">
-                                    @foreach (var role in ViewBag.AllRoles)
-                                    {
-                                        <option value="@role">@role</option>
-                                    }
-                                </select>
-                            </div>
+                            <select name="selectedRole" class="form-control">
+                                <option value="">Без роли</option>
+                                @foreach (var role in ViewBag.AllRoles as List<string>)
+                                {
+                                    <option value="@role" selected="@(user.Roles.Contains(role) ? "selected" : null)">
+                                        @role
+                                    </option>
+                                }
+                            </select>
 
-                            <div class="btn-group">
-                                <button type="submit" name="isSelected" value="true" class="btn btn-success btn-sm">
-                                    Добавить роль
-                                </button>
-                                <button type="submit" name="isSelected" value="false" class="btn btn-danger btn-sm">
-                                    Удалить роль
-                                </button>
-                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm mt-1">Сохранить</button>
                         </form>
                     </td>
                 </tr>
