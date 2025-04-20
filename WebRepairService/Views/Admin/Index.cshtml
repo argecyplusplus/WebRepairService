@@ -1,0 +1,35 @@
+﻿@{
+    ViewData["Title"] = "Панель администратора";
+}
+
+<div class="admin-dashboard">
+    <h1>Панель администратора</h1>
+    <div class="welcome-message">
+        <h3>Добро пожаловать, Администратор!</h3>
+        <p class="text-muted">@DateTime.Now.ToString("dd.MM.yyyy HH:mm")</p>
+    </div>
+
+    <div class="admin-actions mt-5">
+        <h4>Действия:</h4>
+        <div class="list-group">
+            <a asp-controller="Admin" asp-action="Users" class="list-group-item list-group-item-action">
+                <i class="fas fa-users-cog"></i> Управление пользователями
+            </a>
+            <!-- Другие ссылки по мере необходимости -->
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .admin-dashboard {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .welcome-message {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+    </style>
+}
