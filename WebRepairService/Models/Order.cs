@@ -1,6 +1,6 @@
 ﻿public class Order
 {
-    public int IdOrder { get; set; }
+    public int OrderId { get; set; }
     public int StatusId { get; set; }
     public DateTime CreationDate { get; set; } = DateTime.UtcNow;
     public DateTime? CompletionDate { get; set; } // Nullable, если заказ не завершен
