@@ -8,45 +8,88 @@
     ViewData["Title"] = "Главная страница";
 }
 
-<h1>Добро пожаловать!</h1>
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Добро пожаловать в систему Service!</h1>
 
-@if (User?.Identity?.IsAuthenticated == true)
-{
-    <p>Вы вошли как: @User.Identity.Name</p>
-}
-else
-{
-    <p>Пожалуйста, войдите в систему.</p>
-}
-
-<ul class="navbar-nav">
-    @if (SignInManager?.IsSignedIn(User) == true)
+    @if (User?.Identity?.IsAuthenticated == true)
     {
-        var user = await UserManager.GetUserAsync(User);
-        @if (user != null)
-        {
-            @if (await UserManager.IsInRoleAsync(user, "Admin"))
-            {
-                <li class="nav-item">
-                    <a class="nav-link text-dark" asp-controller="Admin" asp-action="Index">Перейти в панель администратора</a>
-                </li>
+        <div class="alert alert-success text-center">
+            <p>Вы вошли как: <strong>@User.Identity.Name</strong></p>
+        </div>
+
+        <ul class="nav flex-column">
+            @{
+                var user = await UserManager.GetUserAsync(User);
+                if (user != null)
+                {
+                    @if (await UserManager.IsInRoleAsync(user, "Admin"))
+                    {
+                        <li class="nav-item mb-2">
+                            <a class="btn btn-primary w-100" asp-controller="Admin" asp-action="Index">
+                                <i class="fas fa-user-shield"></i> Панель администратора
+                            </a>
+                        </li>
+                    }
+                    @if (await UserManager.IsInRoleAsync(user, "Operator"))
+                    {
+                        <li class="nav-item mb-2">
+                            <a class="btn btn-info w-100" asp-controller="Operator" asp-action="Index">
+                                <i class="fas fa-headset"></i> Панель оператора
+                            </a>
+                        </li>
+                    }
+                    @if (await UserManager.IsInRoleAsync(user, "Engineer"))
+                    {
+                        <li class="nav-item mb-2">
+                            <a class="btn btn-warning w-100" asp-controller="Engineer" asp-action="Index">
+                                <i class="fas fa-tools"></i> Панель инженера
+                            </a>
+                        </li>
+                    }
+                }
             }
-            @if (await UserManager.IsInRoleAsync(user, "Operator"))
-            {
-                <li class="nav-item">
-                    <a class="nav-link text-dark" asp-controller="Operator" asp-action="Index">Перейти в панель оператора</a>
-                </li>
-            }
-            @if (await UserManager.IsInRoleAsync(user, "Engineer"))
-            {
-                <li class="nav-item">
-                    <a class="nav-link text-dark" asp-controller="Engineer" asp-action="Index">Перейти в панель инженера</a>
-                </li>
-            }
-        }
-        
+            <li class="nav-item">
+                <form class="form-inline" asp-controller="Account" asp-action="Logout">
+                    <button type="submit" class="btn btn-danger w-100">
+                        <i class="fas fa-sign-out-alt"></i> Выйти
+                    </button>
+                </form>
+            </li>
+        </ul>
     }
     else
     {
+        <div class="card mx-auto" style="max-width: 400px;">
+            <div class="card-body text-center">
+                <h5 class="card-title mb-4">Для продолжения работы</h5>
+                <div class="d-grid gap-3">
+                    <a class="btn btn-primary btn-lg" asp-controller="Account" asp-action="Login">
+                        <i class="fas fa-sign-in-alt"></i> Войти в систему
+                    </a>
+                    <a class="btn btn-outline-primary btn-lg" asp-controller="Account" asp-action="Register">
+                        <i class="fas fa-user-plus"></i> Зарегистрироваться
+                    </a>
+                </div>
+            </div>
+        </div>
     }
-</ul>
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border: none;
+        }
+
+        .btn-lg {
+            padding: 0.5rem 1rem;
+            font-size: 1.1rem;
+        }
+    </style>
+}
+
+@section Scripts {
+    <!-- Подключение Font Awesome для иконок -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+}

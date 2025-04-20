@@ -31,6 +31,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+
+
 app.UseAuthentication(); // Добавляем аутентификацию
 app.UseAuthorization();  // Добавляем авторизацию
 
@@ -53,5 +55,12 @@ using (var scope = app.Services.CreateScope())
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+
+app.MapControllerRoute(
+    name: "admin",
+    pattern: "Admin/{action=Index}/{id?}",
+    defaults: new { controller = "Admin" });
+
 
 app.Run();
