@@ -1,42 +1,50 @@
-﻿@model UserViewModel
+﻿@using WebRepairService.Controllers
+@model EditUserViewModel
+@{
+    ViewData["Title"] = "Редактирование пользователя";
+}
 
-<h2>Редактирование пользователя</h2>
+<div class="container">
+    <h1>Редактирование пользователя</h1>
 
-<form asp-action="EditUser" method="post">
-    <input type="hidden" asp-for="Id" />
+    <form asp-action="EditUser" method="post" class="mt-4">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
 
-    <div class="form-group">
-        <label asp-for="FullName"></label>
-        <input asp-for="FullName" class="form-control" />
-        <span asp-validation-for="FullName" class="text-danger"></span>
-    </div>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    <div class="form-group">
-        <label asp-for="Email"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
+        <div class="form-group">
+            <label asp-for="Email"></label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
 
-    <h4>Роли:</h4>
-    <div class="form-group">
-        @for (var i = 0; i < Model.Roles.Count; i++)
-        {
-            <div class="form-check">
-                <input type="hidden" asp-for="@Model.Roles[i].Name" />
-                <input asp-for="@Model.Roles[i].IsSelected" class="form-check-input" />
-                <label asp-for="@Model.Roles[i].IsSelected" class="form-check-label">
-                    @Model.Roles[i].Name
-                </label>
-            </div>
-        }
-    </div>
+        <div class="form-group">
+            <label asp-for="FullName"></label>
+            <input asp-for="FullName" class="form-control" />
+            <span asp-validation-for="FullName" class="text-danger"></span>
+        </div>
 
-    <div class="form-group">
-        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
-        <a asp-action="Users" class="btn btn-secondary">Отмена</a>
-    </div>
-</form>
+        <div class="form-group">
+            <label asp-for="CurrentRole"></label>
+            <select asp-for="CurrentRole" class="form-control">
+                <option value="">-- Без роли --</option>
+                @foreach (var role in Model.AllRoles)
+                {
+                    <option value="@role">@role</option>
+                }
+            </select>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+            <a asp-action="Users" class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
