@@ -36,20 +36,6 @@ namespace WebRepairService.Controllers
 
                 if (result.Succeeded)
                 {
-                    /*var user = await _userManager.FindByEmailAsync(model.Email);
-                    if (await _userManager.IsInRoleAsync(user, "Admin"))
-                    {
-                        return RedirectToAction("Index", "Admin");
-                    }
-                    else if (await _userManager.IsInRoleAsync(user, "Operator"))
-                    {
-                        return RedirectToAction("Index", "Operator");
-                    }
-                    else if (await _userManager.IsInRoleAsync(user, "Engineer"))
-                    {
-                        return RedirectToAction("Index", "Engineer");
-                    }*/
-
                     return RedirectToAction("Index", "Home");
                 }
 

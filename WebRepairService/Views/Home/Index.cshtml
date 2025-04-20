@@ -1,6 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using Service
-@using Service.Models
+@using WebRepairService.Components
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
@@ -45,6 +45,10 @@
                                 <i class="fas fa-tools"></i> Панель инженера
                             </a>
                         </li>
+                    }
+                    @if (await UserManager.HasNoRolesAsync(user))
+                    {
+                        <h3>Администратор еще не выдал Вам роль. Необходимо подождать верификацию вашего аккаунта</h3>
                     }
                 }
             }
