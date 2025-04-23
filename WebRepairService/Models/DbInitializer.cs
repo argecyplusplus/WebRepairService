@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using static System.Formats.Asn1.AsnWriter;
 
 
 namespace WebRepairService.Models
@@ -10,6 +11,7 @@ namespace WebRepairService.Models
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var context = serviceProvider.GetRequiredService<ApplicationDbContext>();
 
             // Создание ролей
             string[] roleNames = { "Admin", "Operator", "Engineer" };
@@ -81,6 +83,66 @@ namespace WebRepairService.Models
                 {
                     await userManager.AddToRoleAsync(engineerUser, "Engineer");
                 }
+            }
+
+            //Создание других полей сущностей
+
+
+
+            //Типы устройств
+
+            if (!context.DeviceTypes.Any())
+            {
+                context.DeviceTypes.AddRange(
+                    new DeviceType { Name = "Смартфон" },
+                    new DeviceType { Name = "Планшет" },
+                    new DeviceType { Name = "Ноутбук" },
+                    new DeviceType { Name = "Стационарный компьютер" },
+                    new DeviceType { Name = "Моноблок" },
+                    new DeviceType { Name = "Игровая консоль" },
+                    new DeviceType { Name = "Умные часы" },
+                    new DeviceType { Name = "Фитнес-браслет" },
+                    new DeviceType { Name = "Фотоаппарат" },
+                    new DeviceType { Name = "Видеокамера" },
+                    new DeviceType { Name = "Телевизор" },
+                    new DeviceType { Name = "Монитор" },
+                    new DeviceType { Name = "Принтер" },
+                    new DeviceType { Name = "Сканер" },
+                    new DeviceType { Name = "МФУ" },
+                    new DeviceType { Name = "Роутер" },
+                    new DeviceType { Name = "Внешний жесткий диск" },
+                    new DeviceType { Name = "SSD накопитель" },
+                    new DeviceType { Name = "USB флеш-накопитель" },
+                    new DeviceType { Name = "Аудиосистема" },
+                    new DeviceType { Name = "Другое" }
+                );
+                await context.SaveChangesAsync();
+            }
+
+            //Типы услуг
+            if (!context.ServiceTypes.Any())
+            {
+                context.ServiceTypes.AddRange(
+                    new ServiceType { Name = "", MinimalPrice = , MinimalWorktime = },
+
+                );
+
+                await context.SaveChangesAsync();
+
+            }
+
+
+
+            //Статусы
+            if (!context.Statuses.Any())
+            {
+                context.Statuses.AddRange(
+                    new Status { Name = "" },
+
+                );
+
+                await context.SaveChangesAsync();
+
             }
         }
     }

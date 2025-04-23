@@ -55,10 +55,11 @@ namespace WebRepairService.Controllers
         // POST: Operator/Create - Создание заказа
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Order order)
+        public async Task<IActionResult> Create(Order order, List<IFormFile> photos)
         {
             if (ModelState.IsValid)
             {
+                // Сохраняем основные данные заказа
                 var currentUser = await _userManager.GetUserAsync(User);
                 order.OperatorId = currentUser.Id;
                 order.CreationDate = DateTime.UtcNow;
@@ -66,6 +67,35 @@ namespace WebRepairService.Controllers
 
                 _context.Add(order);
                 await _context.SaveChangesAsync();
+
+                // Обрабатываем фото, если они есть
+                if (photos != null && photos.Count > 0)
+                {
+                    var uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "uploads", "orders", order.OrderId.ToString());
+                    Directory.CreateDirectory(uploadsFolder);
+
+                    foreach (var photo in photos)
+                    {
+                        if (photo.Length > 0)
+                        {
+                            var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(photo.FileName)}";
+                            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                            using (var stream = new FileStream(filePath, FileMode.Create))
+                            {
+                                await photo.CopyToAsync(stream);
+                            }
+
+                            _context.Photos.Add(new Photo
+                            {
+                                OrderId = order.OrderId,
+                                Link = $"/uploads/orders/{order.OrderId}/{uniqueFileName}"
+                            });
+                        }
+                    }
+                    await _context.SaveChangesAsync();
+                }
+
                 return RedirectToAction(nameof(Index));
             }
 

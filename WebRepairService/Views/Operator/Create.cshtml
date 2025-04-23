@@ -6,7 +6,7 @@
 <div class="container">
     <h1>Создание заказа</h1>
 
-    <form asp-action="Create" method="post" enctype="multipart/form-data">
+    <form asp-action="Create" method="post" enctype="multipart/form-data" id="orderForm">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
         <div class="row">
@@ -92,6 +92,18 @@
                     </select>
                 </div>
 
+                <!-- Блок загрузки фотографий -->
+                <div class="form-group mb-3">
+                    <label class="form-label">Фотографии устройства</label>
+                    <input type="file" name="photos" id="photoUpload" class="form-control"
+                           accept="image/*" multiple />
+                    <small class="text-muted">Можно выбрать несколько файлов (макс. 5MB каждый)</small>
+                </div>
+
+                <div id="photoPreview" class="row mb-3">
+                    <!-- Здесь будут отображаться превью загружаемых фото -->
+                </div>
+
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save"></i> Создать заказ
@@ -109,4 +121,80 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        $(document).ready(function() {
+            // Превью фотографий перед загрузкой
+            $('#photoUpload').change(function() {
+                $('#photoPreview').empty();
+                var files = this.files;
+
+                if (files.length > 10) {
+                    alert('Максимальное количество фотографий - 10');
+                    $(this).val('');
+                    return;
+                }
+
+                for (var i = 0; i < files.length; i++) {
+                    var file = files[i];
+
+                    // Проверка размера файла (макс. 5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert('Файл "' + file.name + '" слишком большой (макс. 5MB)');
+                        $(this).val('');
+                        return;
+                    }
+
+                    if (!file.type.match('image.*')) continue;
+
+                    var reader = new FileReader();
+                    reader.onload = (function(file) {
+                        return function(e) {
+                            var previewHtml = `
+                                <div class="col-md-2 mb-2">
+                                    <div class="card">
+                                        <img src="${e.target.result}" class="card-img-top"
+                                            alt="Превью" style="height: 100px; object-fit: cover;">
+                                        <div class="card-body p-1">
+                                            <small class="text-muted d-block text-truncate">${file.name}</small>
+                                            <small class="text-muted">${(file.size/1024).toFixed(1)} KB</small>
+                                        </div>
+                                    </div>
+                                </div>`;
+                            $('#photoPreview').append(previewHtml);
+                        };
+                    })(file);
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Валидация формы перед отправкой
+            $('#orderForm').submit(function() {
+                var files = $('#photoUpload')[0].files;
+                for (var i = 0; i < files.length; i++) {
+                    if (files[i].size > 5 * 1024 * 1024) {
+                        alert('Файл "' + files[i].name + '" превышает максимальный размер 5MB');
+                        return false;
+                    }
+                }
+                return true;
+            });
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        #photoPreview .card {
+            height: 100%;
+        }
+        #photoPreview .card-img-top {
+            object-fit: cover;
+        }
+        .text-truncate {
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    </style>
 }
