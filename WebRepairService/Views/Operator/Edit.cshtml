@@ -1,0 +1,147 @@
+﻿@model Order
+@{
+    ViewData["Title"] = "Редактирование заказа";
+}
+
+<div class="container">
+    <h1>Редактирование заказа</h1>
+
+    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="OrderId" />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <h4>Данные клиента</h4>
+
+                <div class="form-group mb-3">
+                    <label asp-for="ClientFullName" class="form-label"></label>
+                    <input asp-for="ClientFullName" class="form-control" />
+                    <span asp-validation-for="ClientFullName" class="text-danger"></span>
+                </div>
+
+                <!-- Остальные поля клиента как в Create.cshtml -->
+            </div>
+
+            <div class="col-md-6">
+                <h4>Данные заказа</h4>
+
+                <div class="form-group mb-3">
+                    <label asp-for="StatusId" class="form-label"></label>
+                    <select asp-for="StatusId" class="form-control">
+                        @foreach (var item in (ViewBag.Statuses as List<SelectListItem>))
+                        {
+                                <option value="@item.Value" selected="@(item.Value == Model.StatusId.ToString())">
+                                @item.Text
+                                </option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Остальные поля заказа как в Create.cshtml -->
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <h4>Фотографии</h4>
+
+                <div class="mb-3">
+                    <label class="form-label">Добавить фото</label>
+                    <input type="file" id="photoUpload" class="form-control" accept="image/*" multiple />
+                    <button type="button" id="uploadBtn" class="btn btn-secondary mt-2">
+                        <i class="fas fa-upload"></i> Загрузить
+                    </button>
+                </div>
+
+                <div id="photoGallery" class="row">
+                    @foreach (var photo in Model.Photos)
+                    {
+                            <div class="col-md-3 mb-3 photo-item" data-id="@photo.PhotoId">
+                                <div class="card">
+                                    <img src="@photo.Link" class="card-img-top" alt="Фото заказа">
+                                    <div class="card-body p-2 text-center">
+                                        <button type="button" class="btn btn-sm btn-danger delete-photo">
+                                            <i class="fas fa-trash-alt"></i> Удалить
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group mt-4">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Сохранить изменения
+            </button>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Назад к списку
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+        <script>
+        $(document).ready(function() {
+            // Загрузка фото
+            $('#uploadBtn').click(function() {
+                var files = $('#photoUpload')[0].files;
+                if (files.length === 0) return;
+
+                var formData = new FormData();
+                formData.append('orderId', '@Model.OrderId');
+
+                for (var i = 0; i < files.length; i++) {
+                    formData.append('file', files[i]);
+                }
+
+                $.ajax({
+                    url: '@Url.Action("UploadPhoto", "Operator")',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(data) {
+                        location.reload(); // Просто перезагружаем страницу после загрузки
+                    },
+                    error: function(xhr) {
+                        alert('Ошибка при загрузке фото: ' + xhr.responseText);
+                    }
+                });
+            });
+
+            // Удаление фото
+            $('.delete-photo').click(function() {
+                var photoId = $(this).closest('.photo-item').data('id');
+                if (!confirm('Удалить это фото?')) return;
+
+                $.post('@Url.Action("DeletePhoto", "Operator")', { photoId: photoId })
+                    .done(function() {
+                        location.reload();
+                    })
+                    .fail(function(xhr) {
+                        alert('Ошибка при удалении фото: ' + xhr.responseText);
+                    });
+            });
+        });
+        </script>
+}
+
+@section Styles {
+        <style>
+            .photo-item .card {
+                height: 100%;
+            }
+            .photo-item img {
+                height: 150px;
+                object-fit: cover;
+            }
+        </style>
+}

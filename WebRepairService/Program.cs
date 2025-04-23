@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebRepairService.Models;
@@ -15,6 +16,12 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddControllersWithViews();
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 104857600; // 100MB лимит
+});
+
 
 var app = builder.Build();
 
@@ -61,6 +68,8 @@ app.MapControllerRoute(
     name: "admin",
     pattern: "Admin/{action=Index}/{id?}",
     defaults: new { controller = "Admin" });
+
+
 
 
 app.Run();

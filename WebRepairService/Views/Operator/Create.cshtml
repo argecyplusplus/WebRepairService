@@ -1,0 +1,112 @@
+﻿@model Order
+@{
+    ViewData["Title"] = "Создание заказа";
+}
+
+<div class="container">
+    <h1>Создание заказа</h1>
+
+    <form asp-action="Create" method="post" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <h4>Данные клиента</h4>
+
+                <div class="form-group mb-3">
+                    <label asp-for="ClientFullName" class="form-label"></label>
+                    <input asp-for="ClientFullName" class="form-control" />
+                    <span asp-validation-for="ClientFullName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="ClientPhone" class="form-label"></label>
+                    <input asp-for="ClientPhone" class="form-control" />
+                    <span asp-validation-for="ClientPhone" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="ClientEmail" class="form-label"></label>
+                    <input asp-for="ClientEmail" class="form-control" />
+                    <span asp-validation-for="ClientEmail" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <h4>Данные устройства</h4>
+
+                <div class="form-group mb-3">
+                    <label asp-for="DeviceTypeId" class="form-label"></label>
+                    <select asp-for="DeviceTypeId" class="form-control">
+                        <option value="">-- Выберите тип устройства --</option>
+                        @foreach (var item in (ViewBag.DeviceTypes as List<SelectListItem>))
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    </select>
+                    <span asp-validation-for="DeviceTypeId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Model" class="form-label"></label>
+                    <input asp-for="Model" class="form-control" />
+                    <span asp-validation-for="Model" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="ServiceTypeId" class="form-label"></label>
+                    <select asp-for="ServiceTypeId" class="form-control">
+                        <option value="">-- Выберите тип услуги --</option>
+                        @foreach (var item in (ViewBag.ServiceTypes as List<SelectListItem>))
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    </select>
+                    <span asp-validation-for="ServiceTypeId" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="form-group mb-3">
+                    <label asp-for="Details" class="form-label"></label>
+                    <textarea asp-for="Details" class="form-control" rows="4"></textarea>
+                    <span asp-validation-for="Details" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Price" class="form-label"></label>
+                    <input asp-for="Price" class="form-control" />
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="EngineerId" class="form-label"></label>
+                    <select asp-for="EngineerId" class="form-control">
+                        <option value="">-- Не назначен --</option>
+                        @foreach (var item in (ViewBag.Engineers as List<SelectListItem>))
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Создать заказ
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Назад к списку
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,7 +1,60 @@
-﻿@{
-    ViewData["Title"] = "Панель оператора";
+﻿@model IEnumerable<Order>
+@{
+    ViewData["Title"] = "Список заказов";
 }
 
-<h1>Панель оператора</h1>
+<div class="container">
+    <h1>Список заказов</h1>
 
-<h3>Добро пожаловать, Оператор!</h3>
+    <p>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Создать новый заказ
+        </a>
+    </p>
+
+    <table class="table table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>Клиент</th>
+                <th>Устройство</th>
+                <th>Статус</th>
+                <th>Дата создания</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.OrderId</td>
+                    <td>
+                        @item.ClientFullName<br>
+                        <small class="text-muted">@item.ClientPhone</small>
+                    </td>
+                    <td>
+                        @item.DeviceType?.Name (@item.Model)
+                    </td>
+                    <td><span class="badge bg-secondary">@item.Status?.Name</span></td>
+                    <td>@item.CreationDate.ToString("dd.MM.yyyy HH:mm")</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.OrderId" class="btn btn-sm btn-warning">
+                            <i class="fas fa-edit"></i> Редактировать
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@item.OrderId" class="btn btn-sm btn-danger">
+                            <i class="fas fa-trash-alt"></i> Удалить
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Styles {
+    <style>
+        .table th, .table td {
+            vertical-align: middle;
+        }
+    </style>
+}

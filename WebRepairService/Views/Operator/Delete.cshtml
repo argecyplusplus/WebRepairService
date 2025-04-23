@@ -1,0 +1,43 @@
+﻿@model Order
+@{
+    ViewData["Title"] = "Удаление заказа";
+}
+
+<div class="container">
+    <h1>Удаление заказа</h1>
+
+    <h3>Вы уверены, что хотите удалить этот заказ?</h3>
+    <div class="alert alert-warning">
+        <strong>Внимание!</strong> Будут также удалены все связанные фотографии.
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h4 class="card-title">Детали заказа #@Model.OrderId</h4>
+
+            <dl class="row">
+                <dt class="col-sm-3">Клиент:</dt>
+                <dd class="col-sm-9">@Model.ClientFullName (@Model.ClientPhone)</dd>
+
+                <dt class="col-sm-3">Устройство:</dt>
+                <dd class="col-sm-9">@Model.DeviceType?.Name (@Model.Model)</dd>
+
+                <dt class="col-sm-3">Статус:</dt>
+                <dd class="col-sm-9">@Model.Status?.Name</dd>
+
+                <dt class="col-sm-3">Дата создания:</dt>
+                <dd class="col-sm-9">@Model.CreationDate.ToString("dd.MM.yyyy HH:mm")</dd>
+            </dl>
+        </div>
+    </div>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="OrderId" />
+        <button type="submit" class="btn btn-danger">
+            <i class="fas fa-trash-alt"></i> Удалить
+        </button>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Назад к списку
+        </a>
+    </form>
+</div>
