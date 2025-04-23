@@ -108,13 +108,9 @@ namespace WebRepairService.Models
                     new DeviceType { Name = "Акустика/Наушники" },
                     new DeviceType { Name = "Фотоаппарат/Видеокамера" },
                     new DeviceType { Name = "Дрон/Квадрокоптер" },
-                    new DeviceType { Name = "Холодильник" },
-                    new DeviceType { Name = "Стиральная машина" },
-                    new DeviceType { Name = "Посудомоечная машина" },
                     new DeviceType { Name = "Микроволновая печь" },
                     new DeviceType { Name = "Кофемашина" },
                     new DeviceType { Name = "Робот-пылесос" },
-                    new DeviceType { Name = "Кондиционер" },
                     new DeviceType { Name = "Другое" }
                 );
                 await context.SaveChangesAsync();
