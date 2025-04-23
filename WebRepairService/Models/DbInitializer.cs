@@ -97,23 +97,24 @@ namespace WebRepairService.Models
                     new DeviceType { Name = "Смартфон" },
                     new DeviceType { Name = "Планшет" },
                     new DeviceType { Name = "Ноутбук" },
-                    new DeviceType { Name = "Стационарный компьютер" },
-                    new DeviceType { Name = "Моноблок" },
-                    new DeviceType { Name = "Игровая консоль" },
-                    new DeviceType { Name = "Умные часы" },
-                    new DeviceType { Name = "Фитнес-браслет" },
-                    new DeviceType { Name = "Фотоаппарат" },
-                    new DeviceType { Name = "Видеокамера" },
-                    new DeviceType { Name = "Телевизор" },
-                    new DeviceType { Name = "Монитор" },
-                    new DeviceType { Name = "Принтер" },
-                    new DeviceType { Name = "Сканер" },
-                    new DeviceType { Name = "МФУ" },
-                    new DeviceType { Name = "Роутер" },
-                    new DeviceType { Name = "Внешний жесткий диск" },
-                    new DeviceType { Name = "SSD накопитель" },
-                    new DeviceType { Name = "USB флеш-накопитель" },
-                    new DeviceType { Name = "Аудиосистема" },
+                    new DeviceType { Name = "ПК/комплектующие" },
+                    new DeviceType { Name = "Компьютерная перифирия" },
+                    new DeviceType { Name = "Игровая консоль/приставка" },
+                    new DeviceType { Name = "Умные часы/браслет" },
+                    new DeviceType { Name = "Монитор/ТВ" },
+                    new DeviceType { Name = "Принтер/МФУ/Сканер" },
+                    new DeviceType { Name = "Роутер/Сетевое оборудование" },
+                    new DeviceType { Name = "Дисковый накопитель (HDD/SSD/USB)" },
+                    new DeviceType { Name = "Акустика/Наушники" },
+                    new DeviceType { Name = "Фотоаппарат/Видеокамера" },
+                    new DeviceType { Name = "Дрон/Квадрокоптер" },
+                    new DeviceType { Name = "Холодильник" },
+                    new DeviceType { Name = "Стиральная машина" },
+                    new DeviceType { Name = "Посудомоечная машина" },
+                    new DeviceType { Name = "Микроволновая печь" },
+                    new DeviceType { Name = "Кофемашина" },
+                    new DeviceType { Name = "Робот-пылесос" },
+                    new DeviceType { Name = "Кондиционер" },
                     new DeviceType { Name = "Другое" }
                 );
                 await context.SaveChangesAsync();
@@ -123,8 +124,32 @@ namespace WebRepairService.Models
             if (!context.ServiceTypes.Any())
             {
                 context.ServiceTypes.AddRange(
-                    new ServiceType { Name = "", MinimalPrice = , MinimalWorktime = },
-
+                    new ServiceType { Name = "Комплексная диагностика", MinimalPrice = 500, MinimalWorktime = TimeSpan.FromHours(0.5) },
+                    new ServiceType { Name = "Чистка от пыли и загрязнений", MinimalPrice = 1000, MinimalWorktime = TimeSpan.FromHours(1) },
+                    new ServiceType { Name = "Обновление прошивки/ПО", MinimalPrice = 1000, MinimalWorktime = TimeSpan.FromHours(1) },
+                    new ServiceType { Name = "Восстановление заводских настроек", MinimalPrice = 700, MinimalWorktime = TimeSpan.FromHours(0.5) },
+                    new ServiceType { Name = "Тестирование компонентов (аппаратное)", MinimalPrice = 900, MinimalWorktime = TimeSpan.FromHours(1) },
+                    new ServiceType { Name = "Чистка разъемов", MinimalPrice = 300, MinimalWorktime = TimeSpan.FromHours(0.5) },
+                    new ServiceType { Name = "Ремонт/замена разъемов питания", MinimalPrice = 1500, MinimalWorktime = TimeSpan.FromHours(1.5) },
+                    new ServiceType { Name = "Устранение окислений после попадания влаги", MinimalPrice = 2000, MinimalWorktime = TimeSpan.FromHours(2) },
+                    new ServiceType { Name = "Ремонт корпуса", MinimalPrice = 1200, MinimalWorktime = TimeSpan.FromHours(1) },
+                    new ServiceType { Name = "Резервное копирование данных", MinimalPrice = 1000, MinimalWorktime = TimeSpan.FromHours(1) },
+                    new ServiceType { Name = "Перенос данных на новый носитель", MinimalPrice = 1200, MinimalWorktime = TimeSpan.FromHours(1) },
+                    new ServiceType { Name = "Удаление вирусов и вредоносного ПО", MinimalPrice = 1500, MinimalWorktime = TimeSpan.FromHours(1) },
+                    new ServiceType { Name = "Базовая настройка устройства", MinimalPrice = 800, MinimalWorktime = TimeSpan.FromHours(0.5) },
+                    new ServiceType { Name = "Оптимизация работы системы", MinimalPrice = 1000, MinimalWorktime = TimeSpan.FromHours(1) },
+                    new ServiceType { Name = "Настройка подключения к сети", MinimalPrice = 300, MinimalWorktime = TimeSpan.FromHours(0.5) },
+                    new ServiceType { Name = "Калибровка сенсоров/экрана", MinimalPrice = 900, MinimalWorktime = TimeSpan.FromHours(1) },
+                    new ServiceType { Name = "Профилактический осмотр устройства", MinimalPrice = 500, MinimalWorktime = TimeSpan.FromHours(0.5) },
+                    new ServiceType { Name = "Смазка механических частей", MinimalPrice = 800, MinimalWorktime = TimeSpan.FromHours(1) },
+                    new ServiceType { Name = "Замена термопасты/термопрокладок", MinimalPrice = 1200, MinimalWorktime = TimeSpan.FromHours(1) },
+                    new ServiceType { Name = "Проверка аккумулятора и замена при необходимости", MinimalPrice = 1000, MinimalWorktime = TimeSpan.FromHours(1) },
+                    new ServiceType { Name = "Калибровка аккумулятора", MinimalPrice = 600, MinimalWorktime = TimeSpan.FromHours(0.5) },
+                    new ServiceType { Name = "Замена аккумулятора", MinimalPrice = 1500, MinimalWorktime = TimeSpan.FromHours(1) },
+                    new ServiceType { Name = "Диагностика системы питания", MinimalPrice = 800, MinimalWorktime = TimeSpan.FromHours(0.5) },
+                    new ServiceType { Name = "Консультация по эксплуатации устройства", MinimalPrice = 300, MinimalWorktime = TimeSpan.FromHours(0.3) },
+                    new ServiceType { Name = "Подбор совместимых аксессуаров", MinimalPrice = 500, MinimalWorktime = TimeSpan.FromHours(0.5) },
+                    new ServiceType { Name = "Установка защитного стекла/пленки", MinimalPrice = 400, MinimalWorktime = TimeSpan.FromHours(0.3) }
                 );
 
                 await context.SaveChangesAsync();
@@ -137,9 +162,12 @@ namespace WebRepairService.Models
             if (!context.Statuses.Any())
             {
                 context.Statuses.AddRange(
-                    new Status { Name = "" },
-
-                );
+                    new Status { Name = "Принят оператором" },
+                    new Status { Name = "Принят инженером" },
+                    new Status { Name = "В процессе" },
+                    new Status { Name = "Завершен" },
+                    new Status { Name = "Отменен" }
+                   );
 
                 await context.SaveChangesAsync();
 
