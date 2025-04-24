@@ -1,7 +1,8 @@
 ﻿public class Order
 {
     public int OrderId { get; set; }
-    public int StatusId { get; set; }
+    public int StatusId { get; set; } = 1;
+
     public DateTime CreationDate { get; set; } = DateTime.UtcNow;
     public DateTime? CompletionDate { get; set; } // Nullable, если заказ не завершен
 
@@ -18,10 +19,10 @@
 
     // Измененные пользовательские связи
     public string OperatorId { get; set; } = string.Empty; // Кто принял заказ
-    public string EngineerId { get; set; } = string.Empty; // Кто выполняет
+    public string? EngineerId { get; set; } // Теперь может быть null
 
     public virtual ApplicationUser Operator { get; set; } = null!;
-    public virtual ApplicationUser Engineer { get; set; } = null!;
+    public virtual ApplicationUser? Engineer { get; set; } // Тоже может быть null
     public virtual Status Status { get; set; } = null!;
     public virtual DeviceType DeviceType { get; set; } = null!;
     public virtual ServiceType ServiceType { get; set; } = null!;

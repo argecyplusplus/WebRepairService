@@ -18,16 +18,65 @@ namespace WebRepairService.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _hostingEnvironment;
+        private readonly ILogger<OperatorController> _logger;
 
         public OperatorController(
             ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
-            IWebHostEnvironment hostingEnvironment)
+            IWebHostEnvironment hostingEnvironment,
+            ILogger<OperatorController> logger)
         {
             _context = context;
             _userManager = userManager;
             _hostingEnvironment = hostingEnvironment;
+            _logger = logger;
         }
+
+        private async Task<List<SelectListItem>> GetDeviceTypes()
+        {
+            return await _context.DeviceTypes
+                .Select(d => new SelectListItem
+                {
+                    Value = d.DeviceTypeId.ToString(),
+                    Text = d.Name
+                })
+                .ToListAsync();
+        }
+
+        private async Task<List<SelectListItem>> GetServiceTypes()
+        {
+            return await _context.ServiceTypes
+                .Select(s => new SelectListItem
+                {
+                    Value = s.ServiceTypeId.ToString(),
+                    Text = s.Name
+                })
+                .ToListAsync();
+        }
+
+        private async Task<List<SelectListItem>> GetStatuses()
+        {
+            return await _context.Statuses
+                .Select(s => new SelectListItem
+                {
+                    Value = s.StatusId.ToString(),
+                    Text = s.Name
+                })
+                .ToListAsync();
+        }
+
+        private async Task<List<SelectListItem>> GetEngineers()
+        {
+            var engineers = await _userManager.GetUsersInRoleAsync("Engineer");
+            return engineers.Select(e => new SelectListItem
+            {
+                Value = e.Id,
+                Text = e.FullName ?? e.UserName
+            }).ToList();
+        }
+
+
+
 
         // GET: Operator/Orders - Список всех заказов
         public async Task<IActionResult> Index()
@@ -46,118 +95,212 @@ namespace WebRepairService.Controllers
         }
 
         // GET: Operator/Create - Форма создания заказа
+        [HttpGet]
         public async Task<IActionResult> Create()
         {
-            await LoadDropdowns();
-            return View();
+            var model = new OrderViewModel
+            {
+                DeviceTypes = await GetDeviceTypes(),
+                ServiceTypes = await GetServiceTypes(),
+                Statuses = await GetStatuses(),
+                Engineers = await GetEngineers(),
+                //StatusId = 1 // Установите статус "Новый" по умолчанию
+            };
+
+            return View(model);
         }
 
         // POST: Operator/Create - Создание заказа
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Order order, List<IFormFile> photos)
+        public async Task<IActionResult> Create(OrderViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                // Сохраняем основные данные заказа
-                var currentUser = await _userManager.GetUserAsync(User);
-                order.OperatorId = currentUser.Id;
-                order.CreationDate = DateTime.UtcNow;
-                order.StatusId = 1; // Статус "Новый"
+                var errors = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .SelectMany(x => x.Value.Errors.Select(e => e.ErrorMessage))
+                    .ToList();
 
-                _context.Add(order);
+                _logger.LogWarning("Ошибки валидации: {Errors}", string.Join(", ", errors));
+
+                model.DeviceTypes = await GetDeviceTypes();
+                model.ServiceTypes = await GetServiceTypes();
+                model.Statuses = await GetStatuses();
+                model.Engineers = await GetEngineers();
+
+                return View(model);
+            }
+
+            try
+            {
+                var currentUser = await _userManager.GetUserAsync(User);
+
+                var order = new Order
+                {
+                    ClientFullName = model.ClientFullName,
+                    ClientPhone = model.ClientPhone,
+                    ClientEmail = model.ClientEmail,
+                    Model = model.DeviceModel,
+                    Details = model.Details,
+                    Price = model.Price,
+                    DeviceTypeId = model.DeviceTypeId,
+                    ServiceTypeId = model.ServiceTypeId,
+                    StatusId = 1, //Устанавливаем при создании всегда первый статус
+                    EngineerId = model.EngineerId,
+                    OperatorId = currentUser.Id,
+                    CreationDate = DateTime.UtcNow
+                };
+
+                _context.Orders.Add(order);
                 await _context.SaveChangesAsync();
 
-                // Обрабатываем фото, если они есть
-                if (photos != null && photos.Count > 0)
+                // Обработка фото
+                if (model.Photos != null && model.Photos.Count > 0)
                 {
-                    var uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "uploads", "orders", order.OrderId.ToString());
-                    Directory.CreateDirectory(uploadsFolder);
-
-                    foreach (var photo in photos)
-                    {
-                        if (photo.Length > 0)
-                        {
-                            var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(photo.FileName)}";
-                            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                            using (var stream = new FileStream(filePath, FileMode.Create))
-                            {
-                                await photo.CopyToAsync(stream);
-                            }
-
-                            _context.Photos.Add(new Photo
-                            {
-                                OrderId = order.OrderId,
-                                Link = $"/uploads/orders/{order.OrderId}/{uniqueFileName}"
-                            });
-                        }
-                    }
-                    await _context.SaveChangesAsync();
+                    await ProcessPhotos(order.OrderId, model.Photos);
                 }
 
                 return RedirectToAction(nameof(Index));
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при создании заказа");
+                ModelState.AddModelError("", "Произошла ошибка при создании заказа");
 
-            await LoadDropdowns();
-            return View(order);
+                model.DeviceTypes = await GetDeviceTypes();
+                model.ServiceTypes = await GetServiceTypes();
+                model.Statuses = await GetStatuses();
+                model.Engineers = await GetEngineers();
+
+                return View(model);
+            }
+        }
+
+        private async Task ProcessPhotos(int orderId, List<IFormFile> photos)
+        {
+            var uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "uploads", "orders", orderId.ToString());
+            Directory.CreateDirectory(uploadsFolder);
+
+            foreach (var photo in photos)
+            {
+                if (photo.Length == 0) continue;
+
+                var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(photo.FileName)}";
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await photo.CopyToAsync(stream);
+                }
+
+                _context.Photos.Add(new Photo
+                {
+                    OrderId = orderId,
+                    Link = $"/uploads/orders/{orderId}/{uniqueFileName}"
+                });
+            }
+
+            await _context.SaveChangesAsync();
         }
 
         // GET: Operator/Edit/5 - Форма редактирования
+        [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var order = await _context.Orders
                 .Include(o => o.Photos)
                 .FirstOrDefaultAsync(o => o.OrderId == id);
 
+            if (order == null) return NotFound();
+
+            var model = new OrderEditDto
+            {
+                OrderId = order.OrderId,
+                ClientFullName = order.ClientFullName,
+                ClientPhone = order.ClientPhone,
+                ClientEmail = order.ClientEmail,
+                DeviceModel = order.Model,
+                Details = order.Details,
+                Price = order.Price,
+                DeviceTypeId = order.DeviceTypeId,
+                ServiceTypeId = order.ServiceTypeId,
+                StatusId = order.StatusId,
+                EngineerId = order.EngineerId,
+                DeviceTypes = await GetDeviceTypes(),
+                ServiceTypes = await GetServiceTypes(),
+                Statuses = await GetStatuses(),
+                Engineers = await GetEngineers(),
+                Photos = order.Photos.Select(p => new PhotoViewModel
+                {
+                    PhotoId = p.PhotoId,
+                    Link = p.Link,
+                    OrderId = p.OrderId
+                }).ToList()
+            };
+
+            return View(model);
+        }
+
+        // POST: Operator/Edit/5 - Сохранение изменений
+        [HttpPost]
+        [ValidateAntiForgeryToken] // Добавьте это
+        public async Task<IActionResult> Edit(int id, OrderEditDto model)
+        {
+            // Загружаем списки для выпадающих меню при ошибках
+            model.DeviceTypes = await GetDeviceTypes();
+            model.ServiceTypes = await GetServiceTypes();
+            model.Statuses = await GetStatuses();
+            model.Engineers = await GetEngineers();
+
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .SelectMany(x => x.Value.Errors.Select(e => e.ErrorMessage))
+                    .ToList();
+
+                _logger.LogWarning("Ошибки валидации: {Errors}", string.Join(", ", errors));
+                return View(model);
+            }
+
+            var order = await _context.Orders.FindAsync(id);
             if (order == null)
             {
                 return NotFound();
             }
 
-            await LoadDropdowns();
-            return View(order);
-        }
-
-        // POST: Operator/Edit/5 - Сохранение изменений
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Order order)
-        {
-            if (id != order.OrderId)
+            try
             {
-                return NotFound();
-            }
+                // Обновляем только изменяемые поля
+                order.ClientFullName = model.ClientFullName;
+                order.ClientPhone = model.ClientPhone;
+                order.ClientEmail = model.ClientEmail;
+                order.Model = model.DeviceModel;
+                order.Details = model.Details;
+                order.Price = model.Price;
+                order.DeviceTypeId = model.DeviceTypeId;
+                order.ServiceTypeId = model.ServiceTypeId;
+                order.StatusId = model.StatusId;
+                order.EngineerId = model.EngineerId;
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(order);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!OrderExists(order.OrderId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                _context.Update(order);
+                await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
-
-            await LoadDropdowns();
-            return View(order);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при редактировании заказа");
+                ModelState.AddModelError("", "Ошибка при сохранении");
+                return View(model);
+            }
         }
+
+
+
 
         // GET: Operator/Delete/5 - Подтверждение удаления
         public async Task<IActionResult> Delete(int? id)

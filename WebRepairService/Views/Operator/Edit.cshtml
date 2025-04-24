@@ -1,14 +1,13 @@
-﻿@model Order
+﻿@model OrderEditDto
 @{
-    ViewData["Title"] = "Редактирование заказа";
+    ViewData["Title"] = "Редактирование заказа #" + Model.OrderId;
 }
 
 <div class="container">
-    <h1>Редактирование заказа</h1>
+    <h1>@ViewData["Title"]</h1>
 
-    <form asp-action="Edit" method="post" enctype="multipart/form-data">
+    <form asp-action="Edit" method="post" class="mt-4">
         <input type="hidden" asp-for="OrderId" />
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
         <div class="row">
             <div class="col-md-6">
@@ -20,45 +19,86 @@
                     <span asp-validation-for="ClientFullName" class="text-danger"></span>
                 </div>
 
-                <!-- Остальные поля клиента как в Create.cshtml -->
+                <div class="form-group mb-3">
+                    <label asp-for="ClientPhone" class="form-label"></label>
+                    <input asp-for="ClientPhone" class="form-control" />
+                    <span asp-validation-for="ClientPhone" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="ClientEmail" class="form-label"></label>
+                    <input asp-for="ClientEmail" class="form-control" />
+                    <span asp-validation-for="ClientEmail" class="text-danger"></span>
+                </div>
             </div>
 
             <div class="col-md-6">
-                <h4>Данные заказа</h4>
+                <h4>Данные устройства</h4>
 
                 <div class="form-group mb-3">
-                    <label asp-for="StatusId" class="form-label"></label>
-                    <select asp-for="StatusId" class="form-control">
-                        @foreach (var item in (ViewBag.Statuses as List<SelectListItem>))
-                        {
-                                <option value="@item.Value" selected="@(item.Value == Model.StatusId.ToString())">
-                                @item.Text
-                                </option>
-                        }
-                    </select>
+                    <label asp-for="DeviceModel" class="form-label"></label>
+                    <input asp-for="DeviceModel" class="form-control" />
+                    <span asp-validation-for="DeviceModel" class="text-danger"></span>
                 </div>
 
-                <!-- Остальные поля заказа как в Create.cshtml -->
+                <div class="form-group mb-3">
+                    <label asp-for="DeviceTypeId" class="form-label"></label>
+                    <select asp-for="DeviceTypeId" asp-items="Model.DeviceTypes" class="form-select">
+                        <option value="">-- Выберите тип устройства --</option>
+                    </select>
+                    <span asp-validation-for="DeviceTypeId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="ServiceTypeId" class="form-label"></label>
+                    <select asp-for="ServiceTypeId" asp-items="Model.ServiceTypes" class="form-select">
+                        <option value="">-- Выберите тип услуги --</option>
+                    </select>
+                    <span asp-validation-for="ServiceTypeId" class="text-danger"></span>
+                </div>
             </div>
         </div>
 
-        <div class="row mt-4">
+        <div class="row mt-3">
             <div class="col-12">
-                <h4>Фотографии</h4>
-
-                <div class="mb-3">
-                    <label class="form-label">Добавить фото</label>
-                    <input type="file" id="photoUpload" class="form-control" accept="image/*" multiple />
-                    <button type="button" id="uploadBtn" class="btn btn-secondary mt-2">
-                        <i class="fas fa-upload"></i> Загрузить
-                    </button>
+                <div class="form-group mb-3">
+                    <label asp-for="Details" class="form-label"></label>
+                    <textarea asp-for="Details" class="form-control" rows="4"></textarea>
+                    <span asp-validation-for="Details" class="text-danger"></span>
                 </div>
 
-                <div id="photoGallery" class="row">
-                    @foreach (var photo in Model.Photos)
-                    {
+                <div class="form-group mb-3">
+                    <label asp-for="Price" class="form-label"></label>
+                    <input asp-for="Price" class="form-control" />
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="StatusId" class="form-label"></label>
+                    <select asp-for="StatusId" asp-items="Model.Statuses" class="form-select"></select>
+                    <span asp-validation-for="StatusId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="EngineerId" class="form-label"></label>
+                    <select asp-for="EngineerId" asp-items="Model.Engineers" class="form-select">
+                        <option value="">-- Не назначен --</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Блок для работы с фотографиями -->
+        @if (Model.Photos != null && Model.Photos.Count > 0)
+        {
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h4>Текущие фотографии</h4>
+                    <div class="row">
+                        @foreach (var photo in Model.Photos)
+                        {
                             <div class="col-md-3 mb-3 photo-item" data-id="@photo.PhotoId">
-                                <div class="card">
+                                <div class="card h-100">
                                     <img src="@photo.Link" class="card-img-top" alt="Фото заказа">
                                     <div class="card-body p-2 text-center">
                                         <button type="button" class="btn btn-sm btn-danger delete-photo">
@@ -67,7 +107,20 @@
                                     </div>
                                 </div>
                             </div>
-                    }
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="form-group">
+                    <label class="form-label">Добавить новые фото</label>
+                    <input type="file" id="photoUpload" class="form-control" accept="image/*" multiple />
+                    <button type="button" id="uploadBtn" class="btn btn-secondary mt-2">
+                        <i class="fas fa-upload"></i> Загрузить
+                    </button>
                 </div>
             </div>
         </div>
@@ -84,22 +137,23 @@
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @await Html.PartialAsync("_ValidationScriptsPartial")
 
-        <script>
+    <script>
         $(document).ready(function() {
             // Загрузка фото
             $('#uploadBtn').click(function() {
                 var files = $('#photoUpload')[0].files;
-                if (files.length === 0) return;
+                if (files.length === 0) {
+                    alert('Выберите хотя бы один файл');
+                    return;
+                }
 
                 var formData = new FormData();
                 formData.append('orderId', '@Model.OrderId');
 
                 for (var i = 0; i < files.length; i++) {
-                    formData.append('file', files[i]);
+                    formData.append('files', files[i]);
                 }
 
                 $.ajax({
@@ -109,16 +163,16 @@
                     processData: false,
                     contentType: false,
                     success: function(data) {
-                        location.reload(); // Просто перезагружаем страницу после загрузки
+                        location.reload();
                     },
                     error: function(xhr) {
-                        alert('Ошибка при загрузке фото: ' + xhr.responseText);
+                        alert('Ошибка: ' + xhr.responseText);
                     }
                 });
             });
 
             // Удаление фото
-            $('.delete-photo').click(function() {
+            $(document).on('click', '.delete-photo', function() {
                 var photoId = $(this).closest('.photo-item').data('id');
                 if (!confirm('Удалить это фото?')) return;
 
@@ -127,21 +181,22 @@
                         location.reload();
                     })
                     .fail(function(xhr) {
-                        alert('Ошибка при удалении фото: ' + xhr.responseText);
+                        alert('Ошибка: ' + xhr.responseText);
                     });
             });
         });
-        </script>
+    </script>
 }
 
 @section Styles {
-        <style>
-            .photo-item .card {
-                height: 100%;
-            }
-            .photo-item img {
-                height: 150px;
-                object-fit: cover;
-            }
-        </style>
+    <style>
+        .photo-item .card-img-top {
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .form-select {
+            padding: 0.375rem 2.25rem 0.375rem 0.75rem;
+        }
+    </style>
 }

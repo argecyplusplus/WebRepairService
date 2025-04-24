@@ -1,46 +1,45 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
-public class OrderViewModel
+public class OrderEditDto
 {
     public int OrderId { get; set; }
 
-    // Основные поля
     [Required(ErrorMessage = "ФИО клиента обязательно")]
-    public string ClientFullName { get; set; } = string.Empty;
+    public string ClientFullName { get; set; }
 
     [Required(ErrorMessage = "Телефон клиента обязателен")]
-    public string ClientPhone { get; set; } = string.Empty;
+    public string ClientPhone { get; set; }
 
-    [Required(ErrorMessage = "Email клиента обязателен")]
-    [EmailAddress]
-    public string ClientEmail { get; set; } = string.Empty;
+    [EmailAddress(ErrorMessage = "Неверный формат email")]
+    public string ClientEmail { get; set; }
 
     [Required(ErrorMessage = "Модель устройства обязательна")]
-    public string DeviceModel { get; set; } = string.Empty;
+    public string DeviceModel { get; set; }
 
-    [Required(ErrorMessage = "Описание обязательно")]
-    public string Details { get; set; } = string.Empty;
+    public string Details { get; set; }
 
-    [Required(ErrorMessage = "Цена обязательна")]
-    [Range(0, 1000000)]
+    [Range(0, double.MaxValue, ErrorMessage = "Цена должна быть положительной")]
     public decimal Price { get; set; }
 
-    // Связи (только ID)
     [Required(ErrorMessage = "Тип устройства обязателен")]
     public int DeviceTypeId { get; set; }
 
     [Required(ErrorMessage = "Тип услуги обязателен")]
     public int ServiceTypeId { get; set; }
 
-    public string? EngineerId { get; set; } // Не обязательно при создании
+    [Required(ErrorMessage = "Статус обязателен")]
+    public int StatusId { get; set; }
 
-    // Для выпадающих списков
+    public string? EngineerId { get; set; }
+
+    // Списки для выпадающих меню
     public List<SelectListItem> DeviceTypes { get; set; } = new();
     public List<SelectListItem> ServiceTypes { get; set; } = new();
     public List<SelectListItem> Statuses { get; set; } = new();
     public List<SelectListItem> Engineers { get; set; } = new();
 
-    // Фото
-    public List<IFormFile>? Photos { get; set; }
+    // Фотографии
+    public List<PhotoViewModel> Photos { get; set; } = new();
 }
+

@@ -1,4 +1,4 @@
-﻿@model Order
+﻿@model OrderViewModel
 @{
     ViewData["Title"] = "Создание заказа";
 }
@@ -37,30 +37,22 @@
 
                 <div class="form-group mb-3">
                     <label asp-for="DeviceTypeId" class="form-label"></label>
-                    <select asp-for="DeviceTypeId" class="form-control">
+                    <select asp-for="DeviceTypeId" asp-items="Model.DeviceTypes" class="form-control">
                         <option value="">-- Выберите тип устройства --</option>
-                        @foreach (var item in (ViewBag.DeviceTypes as List<SelectListItem>))
-                        {
-                            <option value="@item.Value">@item.Text</option>
-                        }
                     </select>
                     <span asp-validation-for="DeviceTypeId" class="text-danger"></span>
                 </div>
 
                 <div class="form-group mb-3">
-                    <label asp-for="Model" class="form-label"></label>
-                    <input asp-for="Model" class="form-control" />
-                    <span asp-validation-for="Model" class="text-danger"></span>
+                    <label asp-for="DeviceModel" class="form-label"></label>
+                    <input asp-for="DeviceModel " class="form-control" />
+                    <span asp-validation-for="DeviceModel" class="text-danger"></span>
                 </div>
 
                 <div class="form-group mb-3">
                     <label asp-for="ServiceTypeId" class="form-label"></label>
-                    <select asp-for="ServiceTypeId" class="form-control">
+                    <select asp-for="ServiceTypeId" asp-items="Model.ServiceTypes" class="form-control">
                         <option value="">-- Выберите тип услуги --</option>
-                        @foreach (var item in (ViewBag.ServiceTypes as List<SelectListItem>))
-                        {
-                            <option value="@item.Value">@item.Text</option>
-                        }
                     </select>
                     <span asp-validation-for="ServiceTypeId" class="text-danger"></span>
                 </div>
@@ -83,26 +75,18 @@
 
                 <div class="form-group mb-3">
                     <label asp-for="EngineerId" class="form-label"></label>
-                    <select asp-for="EngineerId" class="form-control">
+                    <select asp-for="EngineerId" asp-items="Model.Engineers" class="form-control">
                         <option value="">-- Не назначен --</option>
-                        @foreach (var item in (ViewBag.Engineers as List<SelectListItem>))
-                        {
-                            <option value="@item.Value">@item.Text</option>
-                        }
                     </select>
                 </div>
 
-                <!-- Блок загрузки фотографий -->
                 <div class="form-group mb-3">
                     <label class="form-label">Фотографии устройства</label>
-                    <input type="file" name="photos" id="photoUpload" class="form-control"
-                           accept="image/*" multiple />
+                    <input asp-for="Photos" type="file" class="form-control" multiple accept="image/*" />
                     <small class="text-muted">Можно выбрать несколько файлов (макс. 5MB каждый)</small>
                 </div>
 
-                <div id="photoPreview" class="row mb-3">
-                    <!-- Здесь будут отображаться превью загружаемых фото -->
-                </div>
+                <div id="photoPreview" class="row mb-3"></div>
 
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary">
@@ -118,13 +102,10 @@
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @await Html.PartialAsync("_ValidationScriptsPartial")
     <script>
-        $(document).ready(function() {
-            // Превью фотографий перед загрузкой
-            $('#photoUpload').change(function() {
+        $(document).ready(function () {
+            $('#photoUpload').change(function () {
                 $('#photoPreview').empty();
                 var files = this.files;
 
@@ -136,8 +117,6 @@
 
                 for (var i = 0; i < files.length; i++) {
                     var file = files[i];
-
-                    // Проверка размера файла (макс. 5MB)
                     if (file.size > 5 * 1024 * 1024) {
                         alert('Файл "' + file.name + '" слишком большой (макс. 5MB)');
                         $(this).val('');
@@ -147,16 +126,15 @@
                     if (!file.type.match('image.*')) continue;
 
                     var reader = new FileReader();
-                    reader.onload = (function(file) {
-                        return function(e) {
+                    reader.onload = (function (file) {
+                        return function (e) {
                             var previewHtml = `
                                 <div class="col-md-2 mb-2">
                                     <div class="card">
-                                        <img src="${e.target.result}" class="card-img-top"
-                                            alt="Превью" style="height: 100px; object-fit: cover;">
+                                        <img src="${e.target.result}" class="card-img-top" alt="Превью" style="height: 100px; object-fit: cover;">
                                         <div class="card-body p-1">
                                             <small class="text-muted d-block text-truncate">${file.name}</small>
-                                            <small class="text-muted">${(file.size/1024).toFixed(1)} KB</small>
+                                            <small class="text-muted">${(file.size / 1024).toFixed(1)} KB</small>
                                         </div>
                                     </div>
                                 </div>`;
@@ -167,8 +145,7 @@
                 }
             });
 
-            // Валидация формы перед отправкой
-            $('#orderForm').submit(function() {
+            $('#orderForm').submit(function () {
                 var files = $('#photoUpload')[0].files;
                 for (var i = 0; i < files.length; i++) {
                     if (files[i].size > 5 * 1024 * 1024) {
@@ -187,9 +164,11 @@
         #photoPreview .card {
             height: 100%;
         }
+
         #photoPreview .card-img-top {
             object-fit: cover;
         }
+
         .text-truncate {
             max-width: 100%;
             overflow: hidden;
