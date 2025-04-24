@@ -69,7 +69,10 @@ app.MapControllerRoute(
     pattern: "Admin/{action=Index}/{id?}",
     defaults: new { controller = "Admin" });
 
-
+app.MapControllerRoute(
+    name: "engineer",
+    pattern: "Engineer/{action=Index}/{id?}",
+    defaults: new { controller = "Engineer" });
 
 
 app.Run();
