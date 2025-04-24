@@ -145,7 +145,8 @@ namespace WebRepairService.Models
                     new ServiceType { Name = "Диагностика системы питания", MinimalPrice = 800, MinimalWorktime = TimeSpan.FromHours(0.5) },
                     new ServiceType { Name = "Консультация по эксплуатации устройства", MinimalPrice = 300, MinimalWorktime = TimeSpan.FromHours(0.3) },
                     new ServiceType { Name = "Подбор совместимых аксессуаров", MinimalPrice = 500, MinimalWorktime = TimeSpan.FromHours(0.5) },
-                    new ServiceType { Name = "Установка защитного стекла/пленки", MinimalPrice = 400, MinimalWorktime = TimeSpan.FromHours(0.3) }
+                    new ServiceType { Name = "Установка защитного стекла/пленки", MinimalPrice = 400, MinimalWorktime = TimeSpan.FromHours(0.3) },
+                    new ServiceType { Name = "Другое", MinimalPrice = 0, MinimalWorktime = TimeSpan.Zero }
                 );
 
                 await context.SaveChangesAsync();
