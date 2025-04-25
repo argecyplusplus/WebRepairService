@@ -111,6 +111,11 @@ namespace WebRepairService.Controllers
                 // Обновляем только разрешенные поля
                 order.StatusId = model.StatusId;
                 order.EngineerId = model.EngineerId;
+                // Если готов - присваивается дата завершения заказа
+                if (order.StatusId == 4)
+                {
+                    order.CompletionDate = DateTime.UtcNow;
+                }
 
                 try
                 {
