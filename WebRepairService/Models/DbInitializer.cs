@@ -45,49 +45,47 @@ namespace WebRepairService.Models
                 }
             }
 
-            // Создание оператора
-            var operatorUser = new ApplicationUser
-            {
-                UserName = "operator@example.com",
-                Email = "operator@example.com",
-                FullName = "Operator"
-            };
+            //// Создание оператора
+            //var operatorUser = new ApplicationUser
+            //{
+            //    UserName = "operator@example.com",
+            //    Email = "operator@example.com",
+            //    FullName = "Operator"
+            //};
 
-            string operatorPassword = "Operator123!";
-            user = await userManager.FindByEmailAsync(operatorUser.Email);
+            //string operatorPassword = "Operator123!";
+            //user = await userManager.FindByEmailAsync(operatorUser.Email);
 
-            if (user == null)
-            {
-                var createOperator = await userManager.CreateAsync(operatorUser, operatorPassword);
-                if (createOperator.Succeeded)
-                {
-                    await userManager.AddToRoleAsync(operatorUser, "Operator");
-                }
-            }
+            //if (user == null)
+            //{
+            //    var createOperator = await userManager.CreateAsync(operatorUser, operatorPassword);
+            //    if (createOperator.Succeeded)
+            //    {
+            //        await userManager.AddToRoleAsync(operatorUser, "Operator");
+            //    }
+            //}
 
-            // Создание инженера
-            var engineerUser = new ApplicationUser
-            {
-                UserName = "engineer@example.com",
-                Email = "engineer@example.com",
-                FullName = "Engineer"
-            };
+            //// Создание инженера
+            //var engineerUser = new ApplicationUser
+            //{
+            //    UserName = "engineer@example.com",
+            //    Email = "engineer@example.com",
+            //    FullName = "Engineer"
+            //};
 
-            string engineerPassword = "Engineer123!";
-            user = await userManager.FindByEmailAsync(engineerUser.Email);
+            //string engineerPassword = "Engineer123!";
+            //user = await userManager.FindByEmailAsync(engineerUser.Email);
 
-            if (user == null)
-            {
-                var createEngineer = await userManager.CreateAsync(engineerUser, engineerPassword);
-                if (createEngineer.Succeeded)
-                {
-                    await userManager.AddToRoleAsync(engineerUser, "Engineer");
-                }
-            }
+            //if (user == null)
+            //{
+            //    var createEngineer = await userManager.CreateAsync(engineerUser, engineerPassword);
+            //    if (createEngineer.Succeeded)
+            //    {
+            //        await userManager.AddToRoleAsync(engineerUser, "Engineer");
+            //    }
+            //}
 
             //Создание других полей сущностей
-
-
 
             //Типы устройств
 

@@ -35,6 +35,8 @@ public class OrderEditDto
 
     public List<IFormFile>? NewPhotos { get; set; } = new List<IFormFile>();
 
+    public string? DeletedPhotos { get; set; } = string.Empty;
+
 
     // Списки для выпадающих меню
     public List<SelectListItem> DeviceTypes { get; set; } = new();

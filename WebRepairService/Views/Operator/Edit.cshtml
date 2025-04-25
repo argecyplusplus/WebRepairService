@@ -8,6 +8,7 @@
 
     <form asp-action="Edit" method="post" class="mt-4" enctype="multipart/form-data">
         <input type="hidden" asp-for="OrderId" />
+        <input type="hidden" id="deletedPhotos" name="DeletedPhotos" value="" />
 
         <div class="row">
             <div class="col-md-6">
@@ -94,7 +95,7 @@
             <div class="row mt-4">
                 <div class="col-12">
                     <h4>Текущие фотографии</h4>
-                    <div class="row">
+                    <div id="currentPhotosContainer" class="row">
                         @foreach (var photo in Model.Photos)
                         {
                             <div class="col-md-3 mb-3 photo-item" data-id="@photo.PhotoId">
@@ -103,6 +104,9 @@
                                     <div class="card-body p-2 text-center">
                                         <button type="button" class="btn btn-sm btn-danger delete-photo">
                                             <i class="fas fa-trash-alt"></i> Удалить
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-secondary restore-photo d-none">
+                                            <i class="fas fa-undo"></i> Восстановить
                                         </button>
                                     </div>
                                 </div>
@@ -140,18 +144,38 @@
 
     <script>
         $(document).ready(function() {
-            // Удаление фото через AJAX
-            $(document).on('click', '.delete-photo', function() {
-                var photoId = $(this).closest('.photo-item').data('id');
-                if (!confirm('Вы уверены, что хотите удалить это фото?')) return;
+            var deletedPhotos = [];
 
-                $.post('@Url.Action("DeletePhoto", "Operator")', { photoId: photoId })
-                    .done(function() {
-                        location.reload();
-                    })
-                    .fail(function(xhr) {
-                        alert('Ошибка при удалении фото: ' + xhr.responseText);
-                    });
+            // Удаление фото (отметка для удаления)
+            $(document).on('click', '.delete-photo', function() {
+                var $photoItem = $(this).closest('.photo-item');
+                var photoId = $photoItem.data('id');
+
+                // Помечаем фото для удаления
+                if (!deletedPhotos.includes(photoId)) {
+                    deletedPhotos.push(photoId);
+                    $('#deletedPhotos').val(deletedPhotos.join(','));
+                }
+
+                // Визуальные изменения
+                $photoItem.addClass('to-be-deleted');
+                $(this).addClass('d-none');
+                $photoItem.find('.restore-photo').removeClass('d-none');
+            });
+
+            // Восстановление фото
+            $(document).on('click', '.restore-photo', function() {
+                var $photoItem = $(this).closest('.photo-item');
+                var photoId = $photoItem.data('id');
+
+                // Удаляем из списка на удаление
+                deletedPhotos = deletedPhotos.filter(id => id !== photoId);
+                $('#deletedPhotos').val(deletedPhotos.join(','));
+
+                // Визуальные изменения
+                $photoItem.removeClass('to-be-deleted');
+                $(this).addClass('d-none');
+                $photoItem.find('.delete-photo').removeClass('d-none');
             });
         });
     </script>
@@ -168,12 +192,18 @@
             transition: all 0.3s ease;
         }
 
-            .photo-item .card:hover {
-                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            }
+        .photo-item:hover .card {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
 
-        .delete-photo {
+        .photo-item.to-be-deleted .card {
+            opacity: 0.5;
+            border: 2px dashed #dc3545;
+        }
+
+        .delete-photo, .restore-photo {
             width: 100%;
+            margin-top: 5px;
         }
 
         .form-select {

@@ -293,6 +293,26 @@ namespace WebRepairService.Controllers
                     await ProcessPhotos(order.OrderId, model.NewPhotos);
                 }
 
+
+                // Обработка удаленных фото
+                if (!string.IsNullOrEmpty(model.DeletedPhotos))
+                {
+                    var photoIds = model.DeletedPhotos.Split(',')
+                                      .Select(int.Parse)
+                                      .ToList();
+
+                    var photosToDelete = await _context.Photos
+                        .Where(p => photoIds.Contains(p.PhotoId))
+                        .ToListAsync();
+
+                    foreach (var photo in photosToDelete)
+                    {
+                        DeletePhotoFile(photo.Link);
+                        _context.Photos.Remove(photo);
+                    }
+                }
+
+
                 await _context.SaveChangesAsync();
 
                 return RedirectToAction(nameof(Index));
