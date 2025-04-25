@@ -246,10 +246,9 @@ namespace WebRepairService.Controllers
 
         // POST: Operator/Edit/5 - Сохранение изменений
         [HttpPost]
-        [ValidateAntiForgeryToken] // Добавьте это
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, OrderEditDto model)
         {
-            // Загружаем списки для выпадающих меню при ошибках
             model.DeviceTypes = await GetDeviceTypes();
             model.ServiceTypes = await GetServiceTypes();
             model.Statuses = await GetStatuses();
@@ -274,7 +273,7 @@ namespace WebRepairService.Controllers
 
             try
             {
-                // Обновляем только изменяемые поля
+                // Обновляем данные заказа
                 order.ClientFullName = model.ClientFullName;
                 order.ClientPhone = model.ClientPhone;
                 order.ClientEmail = model.ClientEmail;
@@ -287,6 +286,13 @@ namespace WebRepairService.Controllers
                 order.EngineerId = model.EngineerId;
 
                 _context.Update(order);
+
+                // Обработка новых фотографий
+                if (model.NewPhotos != null && model.NewPhotos.Count > 0)
+                {
+                    await ProcessPhotos(order.OrderId, model.NewPhotos);
+                }
+
                 await _context.SaveChangesAsync();
 
                 return RedirectToAction(nameof(Index));

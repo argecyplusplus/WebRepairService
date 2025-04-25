@@ -6,7 +6,7 @@
 <div class="container">
     <h1>@ViewData["Title"]</h1>
 
-    <form asp-action="Edit" method="post" class="mt-4">
+    <form asp-action="Edit" method="post" class="mt-4" enctype="multipart/form-data">
         <input type="hidden" asp-for="OrderId" />
 
         <div class="row">
@@ -88,7 +88,7 @@
             </div>
         </div>
 
-        <!-- Блок для работы с фотографиями -->
+        <!-- Блок текущих фотографий -->
         @if (Model.Photos != null && Model.Photos.Count > 0)
         {
             <div class="row mt-4">
@@ -113,14 +113,13 @@
             </div>
         }
 
+        <!-- Блок загрузки новых фотографий -->
         <div class="row mt-3">
             <div class="col-12">
                 <div class="form-group">
-                    <label class="form-label">Добавить новые фото</label>
-                    <input type="file" id="photoUpload" class="form-control" accept="image/*" multiple />
-                    <button type="button" id="uploadBtn" class="btn btn-secondary mt-2">
-                        <i class="fas fa-upload"></i> Загрузить
-                    </button>
+                    <label asp-for="NewPhotos" class="form-label">Добавить новые фото</label>
+                    <input asp-for="NewPhotos" type="file" class="form-control" accept="image/*" multiple />
+                    <span asp-validation-for="NewPhotos" class="text-danger"></span>
                 </div>
             </div>
         </div>
@@ -141,47 +140,17 @@
 
     <script>
         $(document).ready(function() {
-            // Загрузка фото
-            $('#uploadBtn').click(function() {
-                var files = $('#photoUpload')[0].files;
-                if (files.length === 0) {
-                    alert('Выберите хотя бы один файл');
-                    return;
-                }
-
-                var formData = new FormData();
-                formData.append('orderId', '@Model.OrderId');
-
-                for (var i = 0; i < files.length; i++) {
-                    formData.append('files', files[i]);
-                }
-
-                $.ajax({
-                    url: '@Url.Action("UploadPhoto", "Operator")',
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function(data) {
-                        location.reload();
-                    },
-                    error: function(xhr) {
-                        alert('Ошибка: ' + xhr.responseText);
-                    }
-                });
-            });
-
-            // Удаление фото
+            // Удаление фото через AJAX
             $(document).on('click', '.delete-photo', function() {
                 var photoId = $(this).closest('.photo-item').data('id');
-                if (!confirm('Удалить это фото?')) return;
+                if (!confirm('Вы уверены, что хотите удалить это фото?')) return;
 
                 $.post('@Url.Action("DeletePhoto", "Operator")', { photoId: photoId })
                     .done(function() {
                         location.reload();
                     })
                     .fail(function(xhr) {
-                        alert('Ошибка: ' + xhr.responseText);
+                        alert('Ошибка при удалении фото: ' + xhr.responseText);
                     });
             });
         });
@@ -193,6 +162,18 @@
         .photo-item .card-img-top {
             height: 180px;
             object-fit: cover;
+        }
+
+        .photo-item .card {
+            transition: all 0.3s ease;
+        }
+
+            .photo-item .card:hover {
+                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            }
+
+        .delete-photo {
+            width: 100%;
         }
 
         .form-select {

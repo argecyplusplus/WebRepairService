@@ -33,6 +33,9 @@ public class OrderEditDto
 
     public string? EngineerId { get; set; }
 
+    public List<IFormFile>? NewPhotos { get; set; } = new List<IFormFile>();
+
+
     // Списки для выпадающих меню
     public List<SelectListItem> DeviceTypes { get; set; } = new();
     public List<SelectListItem> ServiceTypes { get; set; } = new();
