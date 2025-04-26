@@ -1,10 +1,41 @@
 ﻿@model IEnumerable<Order>
 @{
     ViewData["Title"] = "Список заказов";
+    var statuses = ViewBag.Statuses as IEnumerable<Status>;
+    var statusColors = new Dictionary<string, string>
+    {
+        {"Принят оператором", "bg-primary"},
+        {"Принят инженером", "bg-info"},
+        {"В процессе", "bg-warning text-dark"},
+        {"Завершен", "bg-success"},
+        {"Отменен", "bg-danger"}
+    };
 }
 
 <div class="container">
-    <h1>Список заказов</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>@ViewData["Title"]</h1>
+        <a asp-action="MyOrders" class="btn btn-primary">
+            <i class="fas fa-user"></i> Мои заказы
+        </a>
+    </div>
+
+    <!-- Фильтр по статусу -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="row g-2">
+                <div class="col-md-12">
+                    <select id="statusFilter" class="form-select">
+                        <option value="">Все статусы</option>
+                        @foreach (var status in statuses)
+                        {
+                            <option value="@status.Name">@status.Name</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <table class="table table-striped">
         <thead class="thead-dark">
@@ -29,15 +60,25 @@
                     <td>
                         @item.DeviceType?.Name (@item.Model)
                     </td>
-                    <td><span class="badge bg-secondary">@item.Status?.Name</span></td>
+                    <td>
+                        @{
+                            var statusName = item.Status?.Name ?? "";
+                            var statusClass = statusColors.GetValueOrDefault(statusName, "bg-secondary");
+                        }
+                        <span class="badge @statusClass">
+                            @statusName
+                        </span>
+                    </td>
                     <td>@item.CreationDate.ToString("dd.MM.yyyy HH:mm")</td>
                     <td>
-                        <a asp-action="Details" asp-route-id="@item.OrderId" class="btn btn-sm btn-info">
+                        <div class="btn-group" role="group">
+                            <a asp-action="Details" asp-route-id="@item.OrderId" class="btn btn-sm btn-info">
                             <i class="fas fa-eye"></i> Подробнее
-                        </a>
-                        <a asp-action="Edit" asp-route-id="@item.OrderId" class="btn btn-sm btn-warning">
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@item.OrderId" class="btn btn-sm btn-warning">
                             <i class="fas fa-edit"></i> Изменить
-                        </a>
+                            </a>
+                        </div>
                     </td>
                 </tr>
             }
@@ -50,5 +91,38 @@
         .table th, .table td {
             vertical-align: middle;
         }
+
+        .badge {
+            font-size: 0.9em;
+            padding: 0.35em 0.65em;
+            min-width: 100px;
+            display: inline-block;
+        }
+
+        .btn-group .btn {
+            padding: 0.25rem 0.5rem;
+        }
     </style>
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const statusFilter = document.getElementById('statusFilter');
+            const rows = document.querySelectorAll('tbody tr');
+
+            statusFilter.addEventListener('change', function () {
+                const selectedStatus = this.value;
+
+                rows.forEach(row => {
+                    const statusText = row.querySelector('td:nth-child(4) span').innerText.trim();
+                    if (!selectedStatus || statusText === selectedStatus) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
 }

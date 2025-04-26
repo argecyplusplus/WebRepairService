@@ -12,6 +12,11 @@
         </a>
     </p>
 
+    <!-- Добавляем поле поиска -->
+    <div class="mb-3">
+        <input type="text" id="searchInput" class="form-control" placeholder="Поиск по ФИО клиента..." />
+    </div>
+
     <table class="table table-striped">
         <thead class="thead-dark">
             <tr>
@@ -23,13 +28,13 @@
                 <th>Действия</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="ordersTableBody">
             @foreach (var item in Model)
             {
                 <tr>
                     <td>@item.OrderId</td>
                     <td>
-                        @item.ClientFullName<br>
+                        <span class="client-name">@item.ClientFullName</span><br>
                         <small class="text-muted">@item.ClientPhone</small>
                     </td>
                     <td>
@@ -57,4 +62,27 @@
             vertical-align: middle;
         }
     </style>
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const tableBody = document.getElementById('ordersTableBody');
+            const rows = tableBody.getElementsByTagName('tr');
+
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+
+                Array.from(rows).forEach(function(row) {
+                    const clientName = row.querySelector('.client-name').textContent.toLowerCase();
+                    if (clientName.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
 }

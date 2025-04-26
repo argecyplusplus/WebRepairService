@@ -34,8 +34,33 @@ namespace WebRepairService.Controllers
                 .OrderByDescending(o => o.CreationDate)
                 .ToListAsync();
 
+            ViewBag.Statuses = await _context.Statuses.ToListAsync();
+
             return View(orders);
         }
+
+        // GET: Engineer/MyOrders - Список заказов текущего инженера
+        [Authorize(Roles = "Engineer")]
+        public async Task<IActionResult> MyOrders()
+        {
+            var currentUserId = _userManager.GetUserId(User);
+
+            var orders = await _context.Orders
+                .Where(o => o.EngineerId == currentUserId)
+                .Include(o => o.Status)
+                .Include(o => o.DeviceType)
+                .Include(o => o.ServiceType)
+                .Include(o => o.Operator)
+                .Include(o => o.Photos)
+                .OrderByDescending(o => o.CreationDate)
+                .ToListAsync();
+
+            ViewBag.Statuses = await _context.Statuses.ToListAsync();
+
+            return View(orders);
+        }
+
+
 
         // GET: Engineer/Details/5 - Просмотр полной информации о заказе
         public async Task<IActionResult> Details(int? id)
