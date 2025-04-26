@@ -35,6 +35,7 @@ namespace WebRepairService.Controllers
         private async Task<List<SelectListItem>> GetDeviceTypes()
         {
             return await _context.DeviceTypes
+                .OrderBy(d => d.Name)
                 .Select(d => new SelectListItem
                 {
                     Value = d.DeviceTypeId.ToString(),
@@ -45,13 +46,21 @@ namespace WebRepairService.Controllers
 
         private async Task<List<SelectListItem>> GetServiceTypes()
         {
-            return await _context.ServiceTypes
+            var serviceTypes = await _context.ServiceTypes
+                .Select(s => new { s.ServiceTypeId, s.Name })
+                .ToListAsync();
+
+            var orderedServiceTypes = serviceTypes
+                .OrderBy(s => s.Name.Trim().ToLower() == "другое" ? 1 : 0) // "Другое" в конец
+                .ThenBy(s => s.Name) // остальные по алфавиту
                 .Select(s => new SelectListItem
                 {
                     Value = s.ServiceTypeId.ToString(),
                     Text = s.Name
                 })
-                .ToListAsync();
+                .ToList();
+
+            return orderedServiceTypes;
         }
 
         private async Task<List<SelectListItem>> GetStatuses()
@@ -68,7 +77,9 @@ namespace WebRepairService.Controllers
         private async Task<List<SelectListItem>> GetEngineers()
         {
             var engineers = await _userManager.GetUsersInRoleAsync("Engineer");
-            return engineers.Select(e => new SelectListItem
+            return engineers
+                .OrderBy(e => e.FullName)
+                .Select(e => new SelectListItem
             {
                 Value = e.Id,
                 Text = e.FullName ?? e.UserName
