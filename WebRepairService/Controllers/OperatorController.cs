@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace WebRepairService.Controllers
 {
-    [Authorize(Roles = "Operator")]
+    [Authorize(Roles = "Operator,Admin")]
     public class OperatorController : Controller
     {
         private readonly ApplicationDbContext _context;

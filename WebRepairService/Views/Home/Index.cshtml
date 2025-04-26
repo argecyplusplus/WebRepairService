@@ -26,7 +26,17 @@
                     {
                         <li class="nav-item mb-2">
                             <a class="btn btn-primary w-100" asp-controller="Admin" asp-action="Users">
-                                <i class="fas fa-user-shield"></i> Панель администратора (Управление пользователями)
+                                <i class="fas fa-user-shield"></i> Управление пользователями
+                            </a>
+                        </li>
+                        <li class="nav-item mb-2">
+                            <a class="btn btn-info w-100" asp-controller="Operator" asp-action="Index">
+                                <i class="fas fa-headset"></i> Список заказов (вид оператора)
+                            </a>
+                        </li>
+                        <li class="nav-item mb-2">
+                            <a class="btn btn-info w-100" asp-controller="ServiceTypes" asp-action="Index">
+                                <i class="fas fa-headset"></i> Прайс-лист услуг
                             </a>
                         </li>
                     }
@@ -34,7 +44,12 @@
                     {
                         <li class="nav-item mb-2">
                             <a class="btn btn-info w-100" asp-controller="Operator" asp-action="Index">
-                                <i class="fas fa-headset"></i> Панель оператора
+                                <i class="fas fa-headset"></i> Список заказов (вид оператора)
+                            </a>
+                        </li>
+                        <li class="nav-item mb-2">
+                            <a class="btn btn-info w-100" asp-controller="ServiceTypes" asp-action="Index">
+                                <i class="fas fa-headset"></i> Прайс-лист услуг
                             </a>
                         </li>
                     }
@@ -42,7 +57,7 @@
                     {
                         <li class="nav-item mb-2">
                             <a class="btn btn-warning w-100" asp-controller="Engineer" asp-action="Index">
-                                <i class="fas fa-tools"></i> Панель инженера
+                                <i class="fas fa-tools"></i> Список заказов (вид инженера)
                             </a>
                         </li>
                     }
