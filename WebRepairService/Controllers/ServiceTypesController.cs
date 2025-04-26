@@ -16,6 +16,7 @@ public class ServiceTypesController : Controller
     public async Task<IActionResult> Index()
     {
         var serviceTypes = await _context.ServiceTypes
+            .Where(st => st.Name != "Другое")
             .Select(st => new ServiceTypeViewModel
             {
                 ServiceTypeId = st.ServiceTypeId,
@@ -39,6 +40,11 @@ public class ServiceTypesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ServiceTypeViewModel model)
     {
+        if (model.Name?.Trim() == "Другое")
+        {
+            ModelState.AddModelError(nameof(model.Name), "Нельзя использовать имя \"Другое\".");
+        }
+
         if (ModelState.IsValid)
         {
             var serviceType = new ServiceType
@@ -81,6 +87,15 @@ public class ServiceTypesController : Controller
     {
         if (id != model.ServiceTypeId) return NotFound();
 
+        var isOtherName = await _context.ServiceTypes
+       .AnyAsync(st => st.Name.Trim().ToLower() == "другое");
+
+        if (model.Name?.Trim().ToLower() == "другое" || isOtherName)
+        {
+            ModelState.AddModelError(nameof(model.Name), "Имя \"Другое\" недопустимо.");
+        }
+        
+
         if (ModelState.IsValid)
         {
             try
@@ -116,19 +131,31 @@ public class ServiceTypesController : Controller
         var serviceType = await _context.ServiceTypes.FindAsync(id);
         if (serviceType != null)
         {
+            if (serviceType.Name.Trim().ToLower() == "другое")
+            {
+                TempData["ErrorMessage"] = "Тип услуги \"Другое\" нельзя удалить.";
+                return RedirectToAction(nameof(Index));
+            }
+
             try
             {
                 _context.ServiceTypes.Remove(serviceType);
                 await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Тип услуги успешно удален";
+                TempData["SuccessMessage"] = "Тип услуги успешно удален.";
             }
             catch (DbUpdateException)
             {
                 TempData["ErrorMessage"] = "Не удалось удалить тип услуги. Возможно, он используется в заказах.";
             }
         }
+        else
+        {
+            TempData["ErrorMessage"] = "Тип услуги не найден.";
+        }
+
         return RedirectToAction(nameof(Index));
     }
+
 
     private bool ServiceTypeExists(int id)
     {
