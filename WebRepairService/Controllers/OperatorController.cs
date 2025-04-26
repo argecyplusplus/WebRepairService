@@ -35,7 +35,8 @@ namespace WebRepairService.Controllers
         private async Task<List<SelectListItem>> GetDeviceTypes()
         {
             return await _context.DeviceTypes
-                .OrderBy(d => d.Name)
+                .OrderBy(d => d.Name.Trim().ToLower() == "другое" ? 1 : 0) // "Другое" в конец
+                .ThenBy(d => d.Name) // остальные по алфавиту
                 .Select(d => new SelectListItem
                 {
                     Value = d.DeviceTypeId.ToString(),
