@@ -48,7 +48,7 @@ namespace WebRepairService.Controllers
         private async Task<List<SelectListItem>> GetServiceTypes()
         {
             var serviceTypes = await _context.ServiceTypes
-                .Select(s => new { s.ServiceTypeId, s.Name })
+                .Select(s => new { s.ServiceTypeId, s.Name, s.MinimalPrice }) // Добавляем MinimalPrice
                 .ToListAsync();
 
             var orderedServiceTypes = serviceTypes
@@ -57,7 +57,7 @@ namespace WebRepairService.Controllers
                 .Select(s => new SelectListItem
                 {
                     Value = s.ServiceTypeId.ToString(),
-                    Text = s.Name
+                    Text = s.MinimalPrice > 0 ? $"{s.Name} (от {s.MinimalPrice} руб.)" : s.Name
                 })
                 .ToList();
 
