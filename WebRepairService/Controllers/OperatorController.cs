@@ -127,6 +127,13 @@ namespace WebRepairService.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(OrderViewModel model)
         {
+            // Получаем минимальную цену для выбранного типа услуги
+            var serviceType = await _context.ServiceTypes.FindAsync(model.ServiceTypeId);
+            if (serviceType != null && model.Price < serviceType.MinimalPrice)
+            {
+                ModelState.AddModelError("Price", $"Цена не может быть меньше минимальной ({serviceType.MinimalPrice} руб.)");
+            }
+
             if (!ModelState.IsValid)
             {
                 var errors = ModelState
@@ -261,6 +268,13 @@ namespace WebRepairService.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, OrderEditDto model)
         {
+            // Получаем минимальную цену для выбранного типа услуги
+            var serviceType = await _context.ServiceTypes.FindAsync(model.ServiceTypeId);
+            if (serviceType != null && model.Price < serviceType.MinimalPrice)
+            {
+                ModelState.AddModelError("Price", $"Цена не может быть меньше минимальной ({serviceType.MinimalPrice} руб.)");
+            }
+
             model.DeviceTypes = await GetDeviceTypes();
             model.ServiceTypes = await GetServiceTypes();
             model.Statuses = await GetStatuses();
@@ -305,7 +319,6 @@ namespace WebRepairService.Controllers
                     await ProcessPhotos(order.OrderId, model.NewPhotos);
                 }
 
-
                 // Обработка удаленных фото
                 if (!string.IsNullOrEmpty(model.DeletedPhotos))
                 {
@@ -323,7 +336,6 @@ namespace WebRepairService.Controllers
                         _context.Photos.Remove(photo);
                     }
                 }
-
 
                 await _context.SaveChangesAsync();
 
