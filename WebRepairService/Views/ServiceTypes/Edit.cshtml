@@ -1,0 +1,48 @@
+﻿@model ServiceTypeViewModel
+@{
+    ViewData["Title"] = "Редактировать тип услуги";
+}
+
+<div class="container">
+    <h1>@ViewData["Title"]</h1>
+
+    <form asp-action="Edit">
+        <input type="hidden" asp-for="ServiceTypeId" />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <!-- Те же поля, что и в Create -->
+        <div class="form-group mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="MinimalPrice" class="form-label"></label>
+            <input asp-for="MinimalPrice" class="form-control" />
+            <span asp-validation-for="MinimalPrice" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="MinimalWorktime" class="form-label"></label>
+            <input asp-for="MinimalWorktime" type="time" class="form-control" step="300"
+                   value="@Model.MinimalWorktime.ToString(@"hh\:mm")" />
+            <span asp-validation-for="MinimalWorktime" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Сохранить
+            </button>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Назад к списку
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
