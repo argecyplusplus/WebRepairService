@@ -15,7 +15,22 @@ namespace WebRepairService.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            if (User.IsInRole("Admin"))
+            {
+                return RedirectToAction("Users", "Admin");
+            }
+            else if (User.IsInRole("Operator"))
+            {
+                return RedirectToAction("Index", "Operator");
+            }
+            else if (User.IsInRole("Engineer"))
+            {
+                return RedirectToAction("Index", "Engineer");
+            }
+            else
+            {
+                return View("Index");
+            }
         }
 
         public IActionResult Privacy()
