@@ -133,10 +133,8 @@ namespace WebRepairService.Controllers
 
             if (ModelState.IsValid)
             {
-                // Обновляем только разрешенные поля
                 order.StatusId = model.StatusId;
                 order.EngineerId = model.EngineerId;
-                // Если готов - присваивается дата завершения заказа
                 if (order.StatusId == 4)
                 {
                     order.CompletionDate = DateTime.UtcNow;
@@ -158,13 +156,11 @@ namespace WebRepairService.Controllers
                 }
             }
 
-            // Если ошибки валидации - загружаем списки заново
             model.Statuses = await GetStatuses();
             model.Engineers = await GetEngineers();
             return View(model);
         }
 
-        // Вспомогательные методы для загрузки списков
         private async Task<List<SelectListItem>> GetStatuses()
         {
             return await _context.Statuses

@@ -80,10 +80,8 @@ namespace WebRepairService.Controllers
 
             var currentRoles = await _userManager.GetRolesAsync(user);
 
-            // Удаляем все текущие роли
             await _userManager.RemoveFromRolesAsync(user, currentRoles);
 
-            // Добавляем выбранную роль, если она указана (не "Без роли")
             if (!string.IsNullOrEmpty(selectedRole))
             {
                 await _userManager.AddToRoleAsync(user, selectedRole);
@@ -96,6 +94,14 @@ namespace WebRepairService.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUser(string userId)
         {
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            if (currentUser.Id == userId)
+            {
+                TempData["Error"] = "Вы не можете удалить свой собственный аккаунт";
+                return RedirectToAction("Users");
+            }
+
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
@@ -105,6 +111,7 @@ namespace WebRepairService.Controllers
             var result = await _userManager.DeleteAsync(user);
             if (result.Succeeded)
             {
+                TempData["Success"] = "Пользователь успешно удален";
                 return RedirectToAction("Users");
             }
 
@@ -135,7 +142,7 @@ namespace WebRepairService.Controllers
         public string PhoneNumber { get; set; }
 
         public DateTime RegistrationDate { get; set; }
-        public IList<string> Roles { get; set; } // Изменили на IList<string>
+        public IList<string> Roles { get; set; }
 
     }
 }

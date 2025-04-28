@@ -37,14 +37,11 @@ public class OrderEditDto
 
     public string? DeletedPhotos { get; set; } = string.Empty;
 
-
-    // Списки для выпадающих меню
     public List<SelectListItem> DeviceTypes { get; set; } = new();
     public List<SelectListItem> ServiceTypes { get; set; } = new();
     public List<SelectListItem> Statuses { get; set; } = new();
     public List<SelectListItem> Engineers { get; set; } = new();
 
-    // Фотографии
     public List<PhotoViewModel> Photos { get; set; } = new();
 }
 

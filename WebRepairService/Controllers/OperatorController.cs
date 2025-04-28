@@ -35,8 +35,8 @@ namespace WebRepairService.Controllers
         private async Task<List<SelectListItem>> GetDeviceTypes()
         {
             return await _context.DeviceTypes
-                .OrderBy(d => d.Name.Trim().ToLower() == "другое" ? 1 : 0) // "Другое" в конец
-                .ThenBy(d => d.Name) // остальные по алфавиту
+                .OrderBy(d => d.Name.Trim().ToLower() == "другое" ? 1 : 0)
+                .ThenBy(d => d.Name)
                 .Select(d => new SelectListItem
                 {
                     Value = d.DeviceTypeId.ToString(),
@@ -48,12 +48,12 @@ namespace WebRepairService.Controllers
         private async Task<List<SelectListItem>> GetServiceTypes()
         {
             var serviceTypes = await _context.ServiceTypes
-                .Select(s => new { s.ServiceTypeId, s.Name, s.MinimalPrice }) // Добавляем MinimalPrice
+                .Select(s => new { s.ServiceTypeId, s.Name, s.MinimalPrice })
                 .ToListAsync();
 
             var orderedServiceTypes = serviceTypes
-                .OrderBy(s => s.Name.Trim().ToLower() == "другое" ? 1 : 0) // "Другое" в конец
-                .ThenBy(s => s.Name) // остальные по алфавиту
+                .OrderBy(s => s.Name.Trim().ToLower() == "другое" ? 1 : 0)
+                .ThenBy(s => s.Name)
                 .Select(s => new SelectListItem
                 {
                     Value = s.ServiceTypeId.ToString(),
@@ -116,7 +116,6 @@ namespace WebRepairService.Controllers
                 ServiceTypes = await GetServiceTypes(),
                 Statuses = await GetStatuses(),
                 Engineers = await GetEngineers(),
-                //StatusId = 1 // Установите статус "Новый" по умолчанию
             };
 
             return View(model);
@@ -268,7 +267,6 @@ namespace WebRepairService.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, OrderEditDto model)
         {
-            // Получаем минимальную цену для выбранного типа услуги
             var serviceType = await _context.ServiceTypes.FindAsync(model.ServiceTypeId);
             if (serviceType != null && model.Price < serviceType.MinimalPrice)
             {
@@ -299,7 +297,6 @@ namespace WebRepairService.Controllers
 
             try
             {
-                // Обновляем данные заказа
                 order.ClientFullName = model.ClientFullName;
                 order.ClientPhone = model.ClientPhone;
                 order.ClientEmail = model.ClientEmail;
@@ -313,13 +310,11 @@ namespace WebRepairService.Controllers
 
                 _context.Update(order);
 
-                // Обработка новых фотографий
                 if (model.NewPhotos != null && model.NewPhotos.Count > 0)
                 {
                     await ProcessPhotos(order.OrderId, model.NewPhotos);
                 }
 
-                // Обработка удаленных фото
                 if (!string.IsNullOrEmpty(model.DeletedPhotos))
                 {
                     var photoIds = model.DeletedPhotos.Split(',')
@@ -385,7 +380,6 @@ namespace WebRepairService.Controllers
 
             if (order != null)
             {
-                // Удаляем связанные фото
                 foreach (var photo in order.Photos)
                 {
                     DeletePhotoFile(photo.Link);
@@ -413,21 +407,17 @@ namespace WebRepairService.Controllers
                 return NotFound("Заказ не найден");
             }
 
-            // Создаем папку для заказов, если ее нет
             var uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "uploads", "orders", orderId.ToString());
             Directory.CreateDirectory(uploadsFolder);
 
-            // Генерируем уникальное имя файла
             var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
             var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-            // Сохраняем файл
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
             }
 
-            // Сохраняем ссылку в БД
             var photo = new Photo
             {
                 OrderId = orderId,

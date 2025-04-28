@@ -12,11 +12,9 @@ namespace WebRepairService.Models
 
         public string? EngineerId { get; set; }
 
-        // Только для отображения
         public string? CurrentStatus { get; set; }
         public string? CurrentEngineer { get; set; }
 
-        // Списки для выпадающих меню
         public List<SelectListItem> Statuses { get; set; } = new();
         public List<SelectListItem> Engineers { get; set; } = new();
     }

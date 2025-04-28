@@ -7,6 +7,27 @@
 <div class="container">
     <h1>Управление пользователями</h1>
 
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+
     <table class="table table-striped">
         <thead>
             <tr>
@@ -76,4 +97,13 @@
             display: inline-block;
         }
     </style>
+}
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            setTimeout(function() {
+                $('.alert').alert('close');
+            }, 5000);
+        });
+    </script>
 }
