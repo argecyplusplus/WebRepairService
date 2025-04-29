@@ -86,7 +86,31 @@
 
                 <div class="order-footer">
                     <div class="order-status">
-                        <span class="status-badge @(item.Status != null ? "has-status" : "no-status")">
+                        @{
+                            var statusClass = "status-default";
+                            if (item.Status != null)
+                            {
+                                switch (item.Status.Name)
+                                {
+                                    case "Принят оператором":
+                                        statusClass = "status-received";
+                                        break;
+                                    case "Принят инженером":
+                                        statusClass = "status-engineer";
+                                        break;
+                                    case "В процессе":
+                                        statusClass = "status-in-progress";
+                                        break;
+                                    case "Завершен":
+                                        statusClass = "status-completed";
+                                        break;
+                                    case "Отменен":
+                                        statusClass = "status-cancelled";
+                                        break;
+                                }
+                            }
+                        }
+                        <span class="status-badge @statusClass">
                             <i class="fas fa-circle"></i> @item.Status?.Name
                         </span>
                     </div>
@@ -324,6 +348,7 @@
             gap: 10px;
         }
 
+        /* Стили для статусов */
         .status-badge {
             padding: 4px 8px;
             border-radius: 20px;
@@ -334,19 +359,39 @@
             gap: 4px;
         }
 
-            .status-badge.has-status {
-                background-color: #e6f4ec;
-                color: #1d3c34;
-            }
+        .status-default {
+            background-color: #f5f5f5;
+            color: #777;
+        }
 
-            .status-badge.no-status {
-                background-color: #f5f5f5;
-                color: #777;
-            }
+        .status-received {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
 
-            .status-badge i {
-                font-size: 0.5rem;
-            }
+        .status-engineer {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-in-progress {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .status-completed {
+            background-color: #e0f7fa;
+            color: #00838f;
+        }
+
+        .status-cancelled {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .status-badge i {
+            font-size: 0.5rem;
+        }
 
         .order-actions {
             display: flex;

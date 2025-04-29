@@ -288,9 +288,9 @@ namespace WebRepairService.Controllers
             return View(model);
         }
 
-        // POST: Operator/Edit/5 - Сохранение изменений
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Operator,Admin")]
         public async Task<IActionResult> Edit(int id, OrderEditDto model)
         {
             var serviceType = await _context.ServiceTypes.FindAsync(model.ServiceTypeId);
@@ -323,6 +323,9 @@ namespace WebRepairService.Controllers
 
             try
             {
+                // Сохраняем текущий статус перед обновлением
+                var currentStatusId = order.StatusId;
+
                 order.ClientFullName = model.ClientFullName;
                 order.ClientPhone = model.ClientPhone;
                 order.ClientEmail = model.ClientEmail;
@@ -331,8 +334,17 @@ namespace WebRepairService.Controllers
                 order.Price = model.Price;
                 order.DeviceTypeId = model.DeviceTypeId;
                 order.ServiceTypeId = model.ServiceTypeId;
-                order.StatusId = model.StatusId;
                 order.EngineerId = model.EngineerId;
+
+                // Только администратор может изменить статус
+                if (User.IsInRole("Admin"))
+                {
+                    order.StatusId = model.StatusId;
+                }
+                else
+                {
+                    order.StatusId = currentStatusId; // Сохраняем оригинальный статус
+                }
 
                 _context.Update(order);
 
