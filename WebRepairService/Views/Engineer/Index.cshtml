@@ -17,23 +17,6 @@
         <h1>@ViewData["Title"]</h1>
     </div>
 
-    <!-- Фильтр по статусу -->
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="row g-2">
-                <div class="col-md-12">
-                    <select id="statusFilter" class="form-select">
-                        <option value="">Все статусы</option>
-                        @foreach (var status in statuses)
-                        {
-                            <option value="@status.Name">@status.Name</option>
-                        }
-                    </select>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <table class="table table-striped">
         <thead class="thead-dark">
             <tr>
@@ -72,9 +55,17 @@
                             <a asp-action="Details" asp-route-id="@item.OrderId" class="btn btn-sm btn-info">
                             <i class="fas fa-eye"></i> Подробнее
                             </a>
-                            <a asp-action="Edit" asp-route-id="@item.OrderId" class="btn btn-sm btn-warning">
-                            <i class="fas fa-edit"></i> Изменить
-                            </a>
+
+                            @if (item.StatusId == 1 && item.EngineerId == null)
+                            {
+                                <form asp-action="AcceptOrder" asp-route-id="@item.OrderId" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-success ml-1">
+                                        <i class="fas fa-check"></i> Принять заказ
+                                    </button>
+                                </form>
+                            }
+
                         </div>
                     </td>
                 </tr>
@@ -99,6 +90,16 @@
         .btn-group .btn {
             padding: 0.25rem 0.5rem;
         }
+
+        /* Новые стили для формы */
+        .btn-group form {
+            display: inline-block;
+            margin-left: 5px;
+        }
+
+        .btn-group .btn-success {
+            margin-left: 0;
+        }
     </style>
 }
 
@@ -122,4 +123,24 @@
             });
         });
     </script>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
 }

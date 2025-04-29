@@ -21,10 +21,50 @@ namespace WebRepairService.Controllers
             _userManager = userManager;
         }
 
-        // GET: Engineer/Index - Список всех заказов
+        // POST: Engineer/AcceptOrder/5 - Принять заказ текущим инженером
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AcceptOrder(int id)
+        {
+            var currentUserId = _userManager.GetUserId(User);
+            var order = await _context.Orders.FindAsync(id);
+
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            // Проверяем, что заказ имеет статус "Принят оператором" и не назначен инженер
+            if (order.StatusId != 1 || order.EngineerId != null)
+            {
+                TempData["Error"] = "Невозможно принять этот заказ";
+                return RedirectToAction(nameof(Index));
+            }
+
+            try
+            {
+                // Назначаем текущего инженера и меняем статус
+                order.EngineerId = currentUserId;
+                order.StatusId = 2; // Статус "Принят инженером"
+
+                _context.Update(order);
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = "Заказ успешно принят";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Ошибка при принятии заказа";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Engineer/Index - Список заказов со статусом "Принят оператором" и без инженера
         public async Task<IActionResult> Index()
         {
             var orders = await _context.Orders
+                .Where(o => o.StatusId == 1 && o.EngineerId == null) // Только статус 1 и без инженера
                 .Include(o => o.Status)
                 .Include(o => o.DeviceType)
                 .Include(o => o.ServiceType)
