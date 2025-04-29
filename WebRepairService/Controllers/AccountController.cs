@@ -36,6 +36,22 @@ namespace WebRepairService.Controllers
 
                 if (result.Succeeded)
                 {
+                    var user = await _userManager.FindByNameAsync(model.UserName);
+                    if (user != null)
+                    {
+                        if (await _userManager.IsInRoleAsync(user, "Admin"))
+                        {
+                            return RedirectToAction("Users", "Admin");
+                        }
+                        else if (await _userManager.IsInRoleAsync(user, "Operator"))
+                        {
+                            return RedirectToAction("Index", "Operator");
+                        }
+                        else if (await _userManager.IsInRoleAsync(user, "Engineer"))
+                        {
+                            return RedirectToAction("Index", "Engineer");
+                        }
+                    }
                     return RedirectToAction("Index", "Home");
                 }
 
@@ -63,7 +79,6 @@ namespace WebRepairService.Controllers
                     FullName = model.FullName,
                     PhoneNumber = model.PhoneNumber,
                     RegistrationDate = DateTime.UtcNow
-
                 };
 
                 var result = await _userManager.CreateAsync(user, model.Password);
@@ -90,7 +105,5 @@ namespace WebRepairService.Controllers
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
-
-
     }
 }

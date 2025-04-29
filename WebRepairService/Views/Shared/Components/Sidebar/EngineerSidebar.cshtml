@@ -1,0 +1,21 @@
+﻿@model string 
+
+<div class="sidebar">
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <a class="nav-link @(Model.StartsWith("/Engineer/Index") || Model == "/Engineer" ? "active" : "")" 
+               asp-controller="Engineer" asp-action="Index">
+               Список заказов
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link @(Model.StartsWith("/Engineer/MyOrders") ? "active" : "")" 
+               asp-controller="Engineer" asp-action="MyOrders">
+               Мои заказы
+            </a>
+        </li>
+        
+        <!-- Другие пункты меню по аналогии -->
+    </ul>
+</div>

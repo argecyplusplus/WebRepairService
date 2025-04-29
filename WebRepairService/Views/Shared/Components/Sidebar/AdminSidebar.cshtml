@@ -1,0 +1,28 @@
+﻿@model string
+
+<div class="sidebar">
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <a class="nav-link @(Model.StartsWith("/Admin/Users") ? "active" : "")" 
+               asp-controller="Admin" asp-action="Users">
+               Управление пользователями
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link @(Model.StartsWith("/Operator/Index") || Model == "/Operator" ? "active" : "")" 
+               asp-controller="Operator" asp-action="Index">
+               Список заказов
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link @(Model.StartsWith("/ServiceTypes") ? "active" : "")" 
+               asp-controller="ServiceTypes" asp-action="Index">
+               Прайс-лист услуг
+            </a>
+        </li>
+        
+        <!-- Другие пункты меню с таким же подходом -->
+    </ul>
+</div>

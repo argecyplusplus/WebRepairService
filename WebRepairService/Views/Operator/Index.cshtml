@@ -3,63 +3,453 @@
     ViewData["Title"] = "Список заказов";
 }
 
-<div class="container">
-    <h1>Список заказов</h1>
+<div class="orders-management-container">
+    <h1 class="page-title">Список заказов</h1>
 
-    <p>
-        <a asp-action="Create" class="btn btn-primary">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    <div class="orders-controls">
+        <a asp-action="Create" class="btn btn-outline-success">
             <i class="fas fa-plus"></i> Создать новый заказ
         </a>
-    </p>
 
-    <!-- Добавляем поле поиска -->
-    <div class="mb-3">
-        <input type="text" id="searchInput" class="form-control" placeholder="Поиск по ФИО клиента..." />
+        <div class="search-box">
+            <input type="text" id="searchInput" class="form-control" placeholder="Поиск по клиенту или устройству..." />
+            <i class="fas fa-search search-icon"></i>
+        </div>
     </div>
 
-    <table class="table table-striped">
-        <thead class="thead-dark">
-            <tr>
-                <th>ID</th>
-                <th>Клиент</th>
-                <th>Устройство</th>
-                <th>Статус</th>
-                <th>Дата создания</th>
-                <th>Действия</th>
-            </tr>
-        </thead>
-        <tbody id="ordersTableBody">
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>@item.OrderId</td>
-                    <td>
-                        <span class="client-name">@item.ClientFullName</span><br>
-                        <small class="text-muted">@item.ClientPhone</small>
-                    </td>
-                    <td>
-                        @item.DeviceType?.Name (@item.Model)
-                    </td>
-                    <td><span class="badge bg-secondary">@item.Status?.Name</span></td>
-                    <td>@item.CreationDate.ToString("dd.MM.yyyy HH:mm")</td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.OrderId" class="btn btn-sm btn-warning">
-                            <i class="fas fa-edit"></i> Редактировать
+    <div class="orders-list">
+        @foreach (var item in Model)
+        {
+            <div class="order-card">
+                <div class="order-header">
+                    <div class="order-id">
+                        <span class="section-title">ID:</span>
+                        <span>@item.OrderId</span>
+                    </div>
+                    <div class="order-date">
+                        <i class="fas fa-calendar-alt"></i> @item.CreationDate.ToString("dd.MM.yyyy")
+                    </div>
+                </div>
+
+                <div class="order-body">
+                    <div class="client-section">
+                        <div class="client-avatar">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div class="client-info">
+                            <h3 class="client-name">@item.ClientFullName</h3>
+                            <div class="client-contacts">
+                                <div class="contact-item">
+                                    <i class="fas fa-phone"></i> @item.ClientPhone
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="device-section">
+                        <div class="device-image">
+                            @if (item.Photos != null && item.Photos.Any())
+                            {
+                                <img src="@item.Photos.First().Link" alt="@item.DeviceType?.Name" class="device-photo">
+                            }
+                            else
+                            {
+                                <i class="fas fa-laptop"></i>
+                            }
+                        </div>
+                        <div class="device-info">
+                            <div class="device-type">@item.DeviceType?.Name</div>
+                            <div class="device-model">@item.Model</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="order-footer">
+                    <div class="order-status">
+                        <span class="status-badge @(item.Status != null ? "has-status" : "no-status")">
+                            <i class="fas fa-circle"></i> @item.Status?.Name
+                        </span>
+                    </div>
+
+                    <div class="order-actions">
+                        <a asp-action="Details" asp-route-id="@item.OrderId" class="btn btn-sm btn-details" title="Подробнее">
+                            <i class="fas fa-eye"></i>
                         </a>
-                        <a asp-action="Delete" asp-route-id="@item.OrderId" class="btn btn-sm btn-danger">
-                            <i class="fas fa-trash-alt"></i> Удалить
+                        <a asp-action="Edit" asp-route-id="@item.OrderId" class="btn btn-sm btn-edit" title="Редактировать">
+                            <i class="fas fa-edit"></i>
                         </a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                        <a asp-action="Delete" asp-route-id="@item.OrderId" class="btn btn-sm btn-delete" title="Удалить">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 </div>
 
 @section Styles {
     <style>
-        .table th, .table td {
-            vertical-align: middle;
+        /* Основные стили */
+        .orders-management-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            color: #2f4f4f;
+            margin-bottom: 30px;
+            font-weight: 600;
+            text-align: left;
+        }
+
+        /* Элементы управления */
+        .orders-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            position: relative;
+            min-width: 300px;
+            flex-grow: 1;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9fceb6;
+        }
+
+        #searchInput {
+            padding-right: 40px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        /* Список заказов - теперь 2 колонки */
+        .orders-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+            gap: 20px;
+        }
+
+        /* Карточка заказа - компактнее */
+        .order-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 15px;
+            border-left: 4px solid #9fceb6;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+            .order-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+            }
+
+        /* Шапка карточки */
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .order-id {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+        }
+
+        .section-title {
+            font-size: 0.8rem;
+            color: #777;
+        }
+
+        .order-date {
+            font-size: 0.8rem;
+            color: #777;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Тело карточки */
+        .order-body {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* Секция клиента */
+        .client-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .client-avatar {
+            font-size: 1.8rem;
+            color: #9fceb6;
+        }
+
+        .client-info {
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        .client-name {
+            font-size: 1.1rem;
+            margin: 0 0 3px 0;
+            color: #1d3c34;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .client-contacts {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.85rem;
+            color: #555;
+        }
+
+            .contact-item i {
+                color: #9fceb6;
+                width: 14px;
+                text-align: center;
+                font-size: 0.9rem;
+            }
+
+        /* Секция устройства */
+        .device-section {
+            display: flex;
+            gap: 10px;
+            padding: 8px 0;
+            border-top: 1px solid #f0f0f0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .device-image {
+            width: 60px;
+            height: 60px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #9fceb6;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .device-photo {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+        }
+
+        .device-info {
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        .device-type {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #1d3c34;
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .device-model {
+            font-size: 0.85rem;
+            color: #555;
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Подвал карточки */
+        .order-footer {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+            .status-badge.has-status {
+                background-color: #e6f4ec;
+                color: #1d3c34;
+            }
+
+            .status-badge.no-status {
+                background-color: #f5f5f5;
+                color: #777;
+            }
+
+            .status-badge i {
+                font-size: 0.5rem;
+            }
+
+        .order-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        /* Кнопки - уменьшенные */
+        .btn-sm {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            transition: all 0.2s ease;
+            font-size: 0.8rem;
+        }
+
+        .btn-primary {
+            background-color: #9fceb6;
+            color: #1d3c34;
+            padding: 8px 12px;
+            border-radius: 5px;
+        }
+
+            .btn-primary:hover {
+                background-color: #8abda5;
+            }
+
+        .btn-details {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+
+            .btn-details:hover {
+                background-color: #bbdefb;
+            }
+
+        .btn-edit {
+            background-color: #fff8e1;
+            color: #ffa000;
+        }
+
+            .btn-edit:hover {
+                background-color: #ffecb3;
+            }
+
+        .btn-delete {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+            .btn-delete:hover {
+                background-color: #f5c6cb;
+            }
+
+        /* Адаптивность */
+        @@media (max-width: 992px) {
+            .orders-list {
+                grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .orders-controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .orders-list {
+                grid-template-columns: 1fr;
+            }
+
+            .order-footer {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .order-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .client-section, .device-section {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .client-avatar {
+                margin-bottom: 5px;
+            }
+
+            .device-image {
+                margin-bottom: 5px;
+            }
         }
     </style>
 }
@@ -68,21 +458,38 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('searchInput');
-            const tableBody = document.getElementById('ordersTableBody');
-            const rows = tableBody.getElementsByTagName('tr');
+            const orderCards = document.querySelectorAll('.order-card');
 
             searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
+                const searchTerm = this.value.toLowerCase().trim();
 
-                Array.from(rows).forEach(function(row) {
-                    const clientName = row.querySelector('.client-name').textContent.toLowerCase();
-                    if (clientName.includes(searchTerm)) {
-                        row.style.display = '';
+                orderCards.forEach(function(card) {
+                    const clientName = card.querySelector('.client-name').textContent.toLowerCase();
+                    const deviceInfo = card.querySelector('.device-info').textContent.toLowerCase();
+
+                    if (clientName.includes(searchTerm) || deviceInfo.includes(searchTerm)) {
+                        card.style.display = 'flex';
                     } else {
-                        row.style.display = 'none';
+                        card.style.display = 'none';
                     }
                 });
             });
+
+            // Закрытие алертов
+            const closeButtons = document.querySelectorAll('.close');
+            closeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    this.closest('.alert').style.display = 'none';
+                });
+            });
+
+            // Автоматическое закрытие алертов через 5 секунд
+            setTimeout(function() {
+                const alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function(alert) {
+                    alert.style.display = 'none';
+                });
+            }, 5000);
         });
     </script>
 }

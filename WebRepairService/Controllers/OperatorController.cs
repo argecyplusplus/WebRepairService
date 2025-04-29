@@ -106,6 +106,32 @@ namespace WebRepairService.Controllers
             return View(orders);
         }
 
+
+        // GET: Operator/Details/ - Просмотр полной информации о заказе
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var order = await _context.Orders
+                .Include(o => o.Status)
+                .Include(o => o.DeviceType)
+                .Include(o => o.ServiceType)
+                .Include(o => o.Operator)
+                .Include(o => o.Engineer)
+                .Include(o => o.Photos)
+                .FirstOrDefaultAsync(o => o.OrderId == id);
+
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            return View(order);
+        }
+
         // GET: Operator/Create - Форма создания заказа
         [HttpGet]
         public async Task<IActionResult> Create()
