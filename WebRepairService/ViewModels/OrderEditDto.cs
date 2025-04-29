@@ -20,7 +20,7 @@ public class OrderEditDto
     public string Details { get; set; }
 
     [Range(0, double.MaxValue, ErrorMessage = "Цена должна быть положительной")]
-    public decimal Price { get; set; }
+    public int Price { get; set; }
 
     [Required(ErrorMessage = "Тип устройства обязателен")]
     public int DeviceTypeId { get; set; }

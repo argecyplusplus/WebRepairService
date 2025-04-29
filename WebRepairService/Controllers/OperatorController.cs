@@ -268,7 +268,7 @@ namespace WebRepairService.Controllers
                 ClientEmail = order.ClientEmail,
                 DeviceModel = order.Model,
                 Details = order.Details,
-                Price = order.Price,
+                Price = (int)(decimal)order.Price,
                 DeviceTypeId = order.DeviceTypeId,
                 ServiceTypeId = order.ServiceTypeId,
                 StatusId = order.StatusId,

@@ -29,6 +29,11 @@
         <a asp-action="Create" class="btn btn-outline-success">
             <i class="fas fa-plus"></i> Добавить тип услуги
         </a>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" class="form-control" placeholder="Поиск по названию услуги..." />
+            <i class="fas fa-search search-icon"></i>
+        </div>
     </div>
 
     <div class="service-list">
@@ -83,7 +88,32 @@
 
         /* Элементы управления */
         .service-controls {
-            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            position: relative;
+            min-width: 300px;
+            flex-grow: 1;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9fceb6;
+        }
+
+        #searchInput {
+            padding-right: 40px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
         }
 
         /* Список услуг - компактный */
@@ -188,6 +218,16 @@
 
         /* Адаптивность */
         @@media (max-width: 768px) {
+            .service-controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
             .service-card {
                 flex-direction: column;
                 align-items: flex-start;
@@ -212,6 +252,24 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Поиск по услугам
+            const searchInput = document.getElementById('searchInput');
+            const serviceCards = document.querySelectorAll('.service-card');
+
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+
+                serviceCards.forEach(function(card) {
+                    const serviceName = card.querySelector('.service-name').textContent.toLowerCase();
+
+                    if (serviceName.includes(searchTerm)) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+
             // Закрытие алертов
             const closeButtons = document.querySelectorAll('.close');
             closeButtons.forEach(button => {

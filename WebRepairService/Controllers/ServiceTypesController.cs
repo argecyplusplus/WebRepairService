@@ -24,6 +24,7 @@ public class ServiceTypesController : Controller
                 MinimalPrice = st.MinimalPrice,
                 MinimalWorktime = st.MinimalWorktime
             })
+            .OrderBy(st => st.Name)
             .ToListAsync();
 
         return View(serviceTypes);
@@ -90,7 +91,7 @@ public class ServiceTypesController : Controller
         var isOtherName = await _context.ServiceTypes
        .AnyAsync(st => st.Name.Trim().ToLower() == "другое");
 
-        if (model.Name?.Trim().ToLower() == "другое" || isOtherName)
+        if (model.Name?.Trim().ToLower() == "другое")
         {
             ModelState.AddModelError(nameof(model.Name), "Имя \"Другое\" недопустимо.");
         }

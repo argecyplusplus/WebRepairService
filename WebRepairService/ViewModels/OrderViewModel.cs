@@ -23,7 +23,7 @@ public class OrderViewModel
 
     [Required(ErrorMessage = "Цена обязательна")]
     [Range(0, 1000000)]
-    public decimal Price { get; set; }
+    public int Price { get; set; }
 
     [Required(ErrorMessage = "Тип устройства обязателен")]
     public int DeviceTypeId { get; set; }

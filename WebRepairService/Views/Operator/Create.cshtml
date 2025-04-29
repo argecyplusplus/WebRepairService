@@ -90,7 +90,7 @@
             <div class="form-group">
                 <label asp-for="Price">Стоимость ремонта</label>
                 <div class="input-group">
-                    <input asp-for="Price" class="form-control" />
+                    <input asp-for="Price" class="form-control" min="0"/>
                     <span class="input-group-text">₽</span>
                 </div>
                 <span asp-validation-for="Price" class="text-danger"></span>

@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using WebRepairService.Models;
-using Microsoft.AspNetCore.Http; // для доступа к HttpContext
+using Microsoft.AspNetCore.Http; 
 
 public class SidebarViewComponent : ViewComponent
 {
