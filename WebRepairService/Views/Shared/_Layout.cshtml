@@ -1,6 +1,14 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
+@{
+    var hasRoles = false;
+    if (User.Identity?.IsAuthenticated == true)
+    {
+        var user = await UserManager.GetUserAsync(User);
+        hasRoles = user != null && (await UserManager.GetRolesAsync(user)).Any();
+    }
+}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -147,7 +155,7 @@
 
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<body class="@(User.Identity?.IsAuthenticated == true ? "has-sidebar" : "")">
+<body class="@(hasRoles ? "has-sidebar" : "")">
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow fixed-top" style="background-color: #e6f4ec;">
             <div class="container-fluid">
@@ -182,15 +190,13 @@
         </nav>
     </header>
 
-    <!-- Боковая панель (только для авторизованных) -->
-    @if (User.Identity?.IsAuthenticated == true)
+    @if (hasRoles)
     {
         <div class="sidebar">
             @await Component.InvokeAsync("Sidebar")
         </div>
     }
 
-    <!-- Основной контент -->
     <div class="container main-content">
         <main role="main">
             @RenderBody()
