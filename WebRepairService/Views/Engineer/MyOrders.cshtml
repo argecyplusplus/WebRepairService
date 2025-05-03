@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Мои заказы";
     var statuses = ViewBag.Statuses as IEnumerable<Status>;
+    var currentUserId = ViewBag.CurrentUserId as string;
     var statusColors = new Dictionary<string, string>
     {
         {"Принят оператором", "status-received"},
@@ -47,6 +48,8 @@
         <div class="orders-list">
             @foreach (var item in Model)
             {
+                var isCurrentEngineer = item.EngineerId == currentUserId;
+
                 <div class="order-card" data-status="@item.Status?.Name">
                     <div class="order-header">
                         <div class="order-id">
@@ -106,6 +109,72 @@
                             <a asp-action="Details" asp-route-id="@item.OrderId" class="btn btn-sm btn-details" title="Подробнее">
                                 <i class="fas fa-eye"></i>
                             </a>
+
+                            <!-- Кнопки изменения статуса -->
+                            @if (item.StatusId == 1 && item.EngineerId == null)
+                            {
+                                <!-- Кнопка "Принять заказ" -->
+                                <form asp-action="AcceptOrder" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@item.OrderId" />
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-accept" title="Принять заказ">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </form>
+                            }
+                            else if (isCurrentEngineer)
+                            {
+                                if (item.StatusId == 2) // Принят инженером
+                                {
+                                    <!-- Кнопка "В работу" -->
+                                    <form asp-action="ChangeStatus" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@item.OrderId" />
+                                        <input type="hidden" name="newStatusId" value="3" />
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-start" title="В работу">
+                                            <i class="fas fa-play"></i>
+                                        </button>
+                                    </form>
+
+                                    <!-- Кнопка "Отменить" -->
+                                    <form asp-action="CancelOrder" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@item.OrderId" />
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-cancel" title="Отменить">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </form>
+                                }
+                                else if (item.StatusId == 3) // В процессе
+                                {
+                                    <!-- Кнопка "Завершить" -->
+                                    <form asp-action="ChangeStatus" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@item.OrderId" />
+                                        <input type="hidden" name="newStatusId" value="4" />
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-complete" title="Завершить">
+                                            <i class="fas fa-check-circle"></i>
+                                        </button>
+                                    </form>
+
+                                    <!-- Кнопка "Отменить" -->
+                                    <form asp-action="CancelOrder" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@item.OrderId" />
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-cancel" title="Отменить">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </form>
+                                }
+                            }
+
+                            <!-- Кнопка "Изменить" (для админов/операторов) -->
+                            @if (User.IsInRole("Admin") || User.IsInRole("Operator"))
+                            {
+                                <a asp-action="Edit" asp-route-id="@item.OrderId" class="btn btn-sm btn-edit" title="Изменить">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            }
                         </div>
                     </div>
                 </div>
@@ -398,6 +467,8 @@
             padding: 0;
             transition: all 0.2s ease;
             font-size: 0.8rem;
+            border: none;
+            cursor: pointer;
         }
 
         .btn-details {
@@ -407,6 +478,52 @@
 
             .btn-details:hover {
                 background-color: #bbdefb;
+            }
+
+        /* Стили для кнопок действий */
+        .btn-accept {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+            .btn-accept:hover {
+                background-color: #3e8e41;
+            }
+
+        .btn-start {
+            background-color: #2196F3;
+            color: white;
+        }
+
+            .btn-start:hover {
+                background-color: #0b7dda;
+            }
+
+        .btn-complete {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+            .btn-complete:hover {
+                background-color: #3e8e41;
+            }
+
+        .btn-cancel {
+            background-color: #f44336;
+            color: white;
+        }
+
+            .btn-cancel:hover {
+                background-color: #d32f2f;
+            }
+
+        .btn-edit {
+            background-color: #ff9800;
+            color: white;
+        }
+
+            .btn-edit:hover {
+                background-color: #e68a00;
             }
 
         /* Алерт */
@@ -468,6 +585,7 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Фильтрация заказов
             const searchInput = document.getElementById('searchInput');
             const statusFilter = document.getElementById('statusFilter');
             const orderCards = document.querySelectorAll('.order-card');
@@ -498,6 +616,26 @@
 
             searchInput.addEventListener('input', filterOrders);
             statusFilter.addEventListener('change', filterOrders);
+
+            // AJAX обработка форм изменения статуса
+            document.querySelectorAll('form[data-ajax="true"]').forEach(form => {
+                form.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(form);
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'RequestVerificationToken': form.querySelector('input[name="__RequestVerificationToken"]').value
+                        }
+                    });
+
+                    if (response.ok) {
+                        location.reload(); // Перезагружаем страницу для обновления данных
+                    }
+                });
+            });
         });
     </script>
 }

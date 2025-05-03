@@ -96,11 +96,10 @@ namespace WebRepairService.Controllers
                 .ToListAsync();
 
             ViewBag.Statuses = await _context.Statuses.ToListAsync();
+            ViewBag.CurrentUserId = currentUserId;
 
             return View(orders);
         }
-
-
 
         // GET: Engineer/Details/5 - Просмотр полной информации о заказе
         public async Task<IActionResult> Details(int? id)
@@ -233,7 +232,7 @@ namespace WebRepairService.Controllers
                 TempData["Error"] = "Ошибка при изменении статуса";
             }
 
-            return RedirectToAction(nameof(Details), new { id });
+            return RedirectToAction(nameof(MyOrders));
         }
 
         // POST: Engineer/CancelOrder/5 - Отмена заказа
@@ -266,8 +265,6 @@ namespace WebRepairService.Controllers
 
             return RedirectToAction(nameof(MyOrders));
         }
-
-
 
         private async Task<List<SelectListItem>> GetStatuses()
         {
