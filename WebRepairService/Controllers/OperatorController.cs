@@ -98,7 +98,6 @@ namespace WebRepairService.Controllers
                 .Include(o => o.DeviceType)
                 .Include(o => o.ServiceType)
                 .Include(o => o.Operator)
-                .Include(o => o.Engineer)
                 .Include(o => o.Photos)
                 .OrderByDescending(o => o.CreationDate)
                 .ToListAsync();
@@ -120,7 +119,6 @@ namespace WebRepairService.Controllers
                 .Include(o => o.DeviceType)
                 .Include(o => o.ServiceType)
                 .Include(o => o.Operator)
-                .Include(o => o.Engineer)
                 .Include(o => o.Photos)
                 .FirstOrDefaultAsync(o => o.OrderId == id);
 
@@ -140,8 +138,7 @@ namespace WebRepairService.Controllers
             {
                 DeviceTypes = await GetDeviceTypes(),
                 ServiceTypes = await GetServiceTypes(),
-                Statuses = await GetStatuses(),
-                Engineers = await GetEngineers(),
+                Statuses = await GetStatuses()
             };
 
             return View(model);
@@ -171,7 +168,6 @@ namespace WebRepairService.Controllers
                 model.DeviceTypes = await GetDeviceTypes();
                 model.ServiceTypes = await GetServiceTypes();
                 model.Statuses = await GetStatuses();
-                model.Engineers = await GetEngineers();
 
                 return View(model);
             }
@@ -191,7 +187,6 @@ namespace WebRepairService.Controllers
                     DeviceTypeId = model.DeviceTypeId,
                     ServiceTypeId = model.ServiceTypeId,
                     StatusId = 1, //Устанавливаем при создании всегда первый статус
-                    EngineerId = model.EngineerId,
                     OperatorId = currentUser.Id,
                     CreationDate = DateTime.UtcNow
                 };
@@ -215,7 +210,6 @@ namespace WebRepairService.Controllers
                 model.DeviceTypes = await GetDeviceTypes();
                 model.ServiceTypes = await GetServiceTypes();
                 model.Statuses = await GetStatuses();
-                model.Engineers = await GetEngineers();
 
                 return View(model);
             }
@@ -272,11 +266,9 @@ namespace WebRepairService.Controllers
                 DeviceTypeId = order.DeviceTypeId,
                 ServiceTypeId = order.ServiceTypeId,
                 StatusId = order.StatusId,
-                EngineerId = order.EngineerId,
                 DeviceTypes = await GetDeviceTypes(),
                 ServiceTypes = await GetServiceTypes(),
                 Statuses = await GetStatuses(),
-                Engineers = await GetEngineers(),
                 Photos = order.Photos.Select(p => new PhotoViewModel
                 {
                     PhotoId = p.PhotoId,
@@ -302,7 +294,6 @@ namespace WebRepairService.Controllers
             model.DeviceTypes = await GetDeviceTypes();
             model.ServiceTypes = await GetServiceTypes();
             model.Statuses = await GetStatuses();
-            model.Engineers = await GetEngineers();
 
             if (!ModelState.IsValid)
             {
@@ -334,7 +325,6 @@ namespace WebRepairService.Controllers
                 order.Price = model.Price;
                 order.DeviceTypeId = model.DeviceTypeId;
                 order.ServiceTypeId = model.ServiceTypeId;
-                order.EngineerId = model.EngineerId;
 
                 // Только администратор может изменить статус
                 if (User.IsInRole("Admin"))

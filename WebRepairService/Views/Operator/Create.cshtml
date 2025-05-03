@@ -90,17 +90,10 @@
             <div class="form-group">
                 <label asp-for="Price">Стоимость ремонта</label>
                 <div class="input-group">
-                    <input asp-for="Price" class="form-control" min="0"/>
+                    <input asp-for="Price" class="form-control" min="0" placeholder="0"/>
                     <span class="input-group-text">₽</span>
                 </div>
                 <span asp-validation-for="Price" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="EngineerId">Ответственный мастер</label>
-                <select asp-for="EngineerId" asp-items="Model.Engineers" class="form-control">
-                    <option value="">Не назначен</option>
-                </select>
             </div>
         </div>
 

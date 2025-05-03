@@ -31,8 +31,6 @@ public class OrderEditDto
     [Required(ErrorMessage = "Статус обязателен")]
     public int StatusId { get; set; }
 
-    public string? EngineerId { get; set; }
-
     public List<IFormFile>? NewPhotos { get; set; } = new List<IFormFile>();
 
     public string? DeletedPhotos { get; set; } = string.Empty;
@@ -40,7 +38,6 @@ public class OrderEditDto
     public List<SelectListItem> DeviceTypes { get; set; } = new();
     public List<SelectListItem> ServiceTypes { get; set; } = new();
     public List<SelectListItem> Statuses { get; set; } = new();
-    public List<SelectListItem> Engineers { get; set; } = new();
 
     public List<PhotoViewModel> Photos { get; set; } = new();
 }

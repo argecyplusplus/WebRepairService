@@ -31,10 +31,8 @@ public class OrderViewModel
     [Required(ErrorMessage = "Тип услуги обязателен")]
     public int ServiceTypeId { get; set; }
 
-    public string? EngineerId { get; set; }
     public List<SelectListItem> DeviceTypes { get; set; } = new();
     public List<SelectListItem> ServiceTypes { get; set; } = new();
     public List<SelectListItem> Statuses { get; set; } = new();
-    public List<SelectListItem> Engineers { get; set; } = new();
     public List<IFormFile>? Photos { get; set; }
 }
