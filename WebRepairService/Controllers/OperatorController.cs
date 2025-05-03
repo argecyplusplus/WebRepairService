@@ -112,6 +112,7 @@ namespace WebRepairService.Controllers
                 .Include(o => o.DeviceType)
                 .Include(o => o.ServiceType)
                 .Include(o => o.Operator)
+                .Include(o => o.Engineer)
                 .Include(o => o.Photos)
                 .OrderByDescending(o => o.CreationDate)
                 .ToListAsync();
@@ -133,6 +134,7 @@ namespace WebRepairService.Controllers
                 .Include(o => o.DeviceType)
                 .Include(o => o.ServiceType)
                 .Include(o => o.Operator)
+                .Include(o => o.Engineer)
                 .Include(o => o.Photos)
                 .FirstOrDefaultAsync(o => o.OrderId == id);
 
