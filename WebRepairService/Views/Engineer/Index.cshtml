@@ -1,146 +1,537 @@
 ﻿@model IEnumerable<Order>
 @{
-    ViewData["Title"] = "Список заказов";
+    ViewData["Title"] = "Список доступных заказов";
     var statuses = ViewBag.Statuses as IEnumerable<Status>;
     var statusColors = new Dictionary<string, string>
     {
-        {"Принят оператором", "bg-primary"},
-        {"Принят инженером", "bg-info"},
-        {"В процессе", "bg-warning text-dark"},
-        {"Завершен", "bg-success"},
-        {"Отменен", "bg-danger"}
+        {"Принят оператором", "status-received"},
+        {"Принят инженером", "status-engineer"},
+        {"В процессе", "status-in-progress"},
+        {"Завершен", "status-completed"},
+        {"Отменен", "status-cancelled"}
     };
 }
 
-<div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>@ViewData["Title"]</h1>
+<div class="orders-management-container">
+    <h1 class="page-title">@ViewData["Title"]</h1>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    <div class="orders-controls">
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" id="searchInput" class="form-control" placeholder="Поиск по клиенту или устройству..." />
+                <i class="fas fa-search search-icon"></i>
+            </div>
+        </div>
     </div>
 
-    <table class="table table-striped">
-        <thead class="thead-dark">
-            <tr>
-                <th>ID</th>
-                <th>Клиент</th>
-                <th>Устройство</th>
-                <th>Статус</th>
-                <th>Дата создания</th>
-                <th>Действия</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>@item.OrderId</td>
-                    <td>
-                        @item.ClientFullName<br>
-                        <small class="text-muted">@item.ClientPhone</small>
-                    </td>
-                    <td>
-                        @item.DeviceType?.Name (@item.Model)
-                    </td>
-                    <td>
+    <div class="orders-list">
+        @foreach (var item in Model)
+        {
+            <div class="order-card" data-status="@item.Status?.Name">
+                <div class="order-header">
+                    <div class="order-id">
+                        <span class="section-title">ID:</span>
+                        <span>@item.OrderId</span>
+                    </div>
+                    <div class="order-date">
+                        <i class="fas fa-calendar-alt"></i> @item.CreationDate.ToString("dd.MM.yyyy HH:mm")
+                    </div>
+                </div>
+
+                <div class="order-body">
+                    <div class="client-section">
+                        <div class="client-avatar">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div class="client-info">
+                            <h3 class="client-name">@item.ClientFullName</h3>
+                            <div class="client-contacts">
+                                <div class="contact-item">
+                                    <i class="fas fa-phone"></i> @item.ClientPhone
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="device-section">
+                        <div class="device-image">
+                            @if (item.Photos != null && item.Photos.Any())
+                            {
+                                <img src="@item.Photos.First().Link" alt="@item.DeviceType?.Name" class="device-photo">
+                            }
+                            else
+                            {
+                                <i class="fas fa-laptop"></i>
+                            }
+                        </div>
+                        <div class="device-info">
+                            <div class="device-type">@item.DeviceType?.Name</div>
+                            <div class="device-model">@item.Model</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="order-footer">
+                    <div class="order-status">
                         @{
                             var statusName = item.Status?.Name ?? "";
-                            var statusClass = statusColors.GetValueOrDefault(statusName, "bg-secondary");
+                            var statusClass = statusColors.GetValueOrDefault(statusName, "status-default");
                         }
-                        <span class="badge @statusClass">
-                            @statusName
+                        <span class="status-badge @statusClass">
+                            <i class="fas fa-circle"></i> @statusName
                         </span>
-                    </td>
-                    <td>@item.CreationDate.ToString("dd.MM.yyyy HH:mm")</td>
-                    <td>
-                        <div class="btn-group" role="group">
-                            <a asp-action="Details" asp-route-id="@item.OrderId" class="btn btn-sm btn-info">
-                            <i class="fas fa-eye"></i> Подробнее
-                            </a>
+                    </div>
 
-                            @if (item.StatusId == 1 && item.EngineerId == null)
-                            {
-                                <form asp-action="AcceptOrder" asp-route-id="@item.OrderId" method="post">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-sm btn-success ml-1">
-                                        <i class="fas fa-check"></i> Принять заказ
-                                    </button>
-                                </form>
-                            }
+                    <div class="order-actions">
+                        <a asp-action="Details" asp-route-id="@item.OrderId" class="btn btn-sm btn-details" title="Подробнее">
+                            <i class="fas fa-eye"></i>
+                        </a>
 
-                        </div>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                        @if (item.StatusId == 1 && item.EngineerId == null)
+                        {
+                            <form asp-action="AcceptOrder" asp-route-id="@item.OrderId" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-success" title="Принять заказ">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 </div>
 
 @section Styles {
     <style>
-        .table th, .table td {
-            vertical-align: middle;
+        /* Основные стили */
+        .orders-management-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
 
-        .badge {
-            font-size: 0.9em;
-            padding: 0.35em 0.65em;
-            min-width: 100px;
-            display: inline-block;
+        .page-title {
+            font-size: 2rem;
+            color: #2f4f4f;
+            margin-bottom: 30px;
+            font-weight: 600;
+            text-align: left;
         }
 
-        .btn-group .btn {
-            padding: 0.25rem 0.5rem;
+        /* Элементы управления */
+        .orders-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            gap: 20px;
         }
 
-        /* Новые стили для формы */
-        .btn-group form {
-            display: inline-block;
-            margin-left: 5px;
+        .filter-container {
+            flex: 0 0 250px;
         }
 
-        .btn-group .btn-success {
-            margin-left: 0;
+        .search-container {
+            flex: 1;
+        }
+
+        .filter-box, .search-box {
+            position: relative;
+        }
+
+        .filter-icon, .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9fceb6;
+            pointer-events: none;
+        }
+
+        #statusFilter, #searchInput {
+            padding-right: 40px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            width: 100%;
+        }
+
+        /* Список заказов - теперь 2 колонки */
+        .orders-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+            gap: 20px;
+        }
+
+        /* Карточка заказа - компактнее */
+        .order-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 15px;
+            border-left: 4px solid #9fceb6;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+            .order-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+            }
+
+        /* Шапка карточки */
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .order-id {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+        }
+
+        .section-title {
+            font-size: 0.8rem;
+            color: #777;
+        }
+
+        .order-date {
+            font-size: 0.8rem;
+            color: #777;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Тело карточки */
+        .order-body {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* Секция клиента */
+        .client-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .client-avatar {
+            font-size: 1.8rem;
+            color: #9fceb6;
+        }
+
+        .client-info {
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        .client-name {
+            font-size: 1.1rem;
+            margin: 0 0 3px 0;
+            color: #1d3c34;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .client-contacts {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.85rem;
+            color: #555;
+        }
+
+            .contact-item i {
+                color: #9fceb6;
+                width: 14px;
+                text-align: center;
+                font-size: 0.9rem;
+            }
+
+        /* Секция устройства */
+        .device-section {
+            display: flex;
+            gap: 10px;
+            padding: 8px 0;
+            border-top: 1px solid #f0f0f0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .device-image {
+            width: 60px;
+            height: 60px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #9fceb6;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .device-info {
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        .device-type {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #1d3c34;
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .device-model {
+            font-size: 0.85rem;
+            color: #555;
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Подвал карточки */
+        .order-footer {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Стили для статусов */
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-default {
+            background-color: #f5f5f5;
+            color: #777;
+        }
+
+        .status-received {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .status-engineer {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-in-progress {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .status-completed {
+            background-color: #e0f7fa;
+            color: #00838f;
+        }
+
+        .status-cancelled {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .status-badge i {
+            font-size: 0.5rem;
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        /* Кнопки - уменьшенные */
+        .btn-sm {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            transition: all 0.2s ease;
+            font-size: 0.8rem;
+        }
+
+        .btn-details {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+
+            .btn-details:hover {
+                background-color: #bbdefb;
+            }
+
+        .btn-success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+            .btn-success:hover {
+                background-color: #c8e6c9;
+            }
+
+        /* Форма */
+        .order-actions form {
+            margin: 0;
+            display: inline;
+        }
+
+        /* Адаптивность */
+        @@media (max-width: 992px) {
+            .orders-list {
+                grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            }
+        }
+
+        .device-photo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        @@media (max-width: 768px) {
+            .orders-list {
+                grid-template-columns: 1fr;
+            }
+
+            .order-footer {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .order-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+
+            .orders-controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .filter-container, .search-container {
+                width: 100%;
+                flex: auto;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .client-section, .device-section {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .client-avatar {
+                margin-bottom: 5px;
+            }
+
+            .device-image {
+                margin-bottom: 5px;
+            }
         }
     </style>
 }
 
 @section Scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
             const statusFilter = document.getElementById('statusFilter');
-            const rows = document.querySelectorAll('tbody tr');
+            const orderCards = document.querySelectorAll('.order-card');
 
-            statusFilter.addEventListener('change', function () {
-                const selectedStatus = this.value;
+            function filterOrders() {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                const selectedStatus = statusFilter.value;
 
-                rows.forEach(row => {
-                    const statusText = row.querySelector('td:nth-child(4) span').innerText.trim();
-                    if (!selectedStatus || statusText === selectedStatus) {
-                        row.style.display = '';
+                orderCards.forEach(card => {
+                    const clientName = card.querySelector('.client-name').textContent.toLowerCase();
+                    const deviceInfo = card.querySelector('.device-info').textContent.toLowerCase();
+                    const cardStatus = card.getAttribute('data-status');
+
+                    const matchesSearch = !searchTerm ||
+                                        clientName.includes(searchTerm) ||
+                                        deviceInfo.includes(searchTerm);
+
+                    const matchesStatus = !selectedStatus ||
+                                        cardStatus === selectedStatus;
+
+                    if (matchesSearch && matchesStatus) {
+                        card.style.display = 'flex';
                     } else {
-                        row.style.display = 'none';
+                        card.style.display = 'none';
                     }
                 });
+            }
+
+            searchInput.addEventListener('input', filterOrders);
+            statusFilter.addEventListener('change', filterOrders);
+
+            // Закрытие алертов
+            const closeButtons = document.querySelectorAll('.close');
+            closeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    this.closest('.alert').style.display = 'none';
+                });
             });
+
+            // Автоматическое закрытие алертов через 5 секунд
+            setTimeout(function() {
+                const alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function(alert) {
+                    alert.style.display = 'none';
+                });
+            }, 5000);
         });
     </script>
-}
-
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        @TempData["Success"]
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-}
-
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        @TempData["Error"]
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
 }

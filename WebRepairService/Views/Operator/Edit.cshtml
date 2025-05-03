@@ -3,109 +3,137 @@
     ViewData["Title"] = "Редактирование заказа #" + Model.OrderId;
 }
 
-<div class="container">
-    <h1>@ViewData["Title"]</h1>
+<div class="order-details-container">
+    <div class="order-header">
+        <h1 class="page-title">Редактирование заказа #@Model.OrderId</h1>
+    </div>
 
-    <form asp-action="Edit" method="post" class="mt-4" enctype="multipart/form-data">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    <form asp-action="Edit" method="post" class="order-content" enctype="multipart/form-data">
         <input type="hidden" asp-for="OrderId" />
         <input type="hidden" id="deletedPhotos" name="DeletedPhotos" value="" />
 
-        <div class="row">
-            <div class="col-md-6">
-                <h4>Данные клиента</h4>
-
-                <div class="form-group mb-3">
-                    <label asp-for="ClientFullName" class="form-label"></label>
-                    <input asp-for="ClientFullName" class="form-control" />
-                    <span asp-validation-for="ClientFullName" class="text-danger"></span>
-                </div>
-
-                <div class="form-group mb-3">
-                    <label asp-for="ClientPhone" class="form-label"></label>
-                    <input asp-for="ClientPhone" class="form-control" />
-                    <span asp-validation-for="ClientPhone" class="text-danger"></span>
-                </div>
-
-                <div class="form-group mb-3">
-                    <label asp-for="ClientEmail" class="form-label"></label>
-                    <input asp-for="ClientEmail" class="form-control" />
-                    <span asp-validation-for="ClientEmail" class="text-danger"></span>
-                </div>
+        <!-- Основная информация -->
+        <div class="order-card">
+            <div class="card-header">
+                <i class="fas fa-user"></i> Данные клиента
             </div>
+            <div class="card-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label asp-for="ClientFullName" class="form-label"></label>
+                        <input asp-for="ClientFullName" class="form-control" />
+                        <span asp-validation-for="ClientFullName" class="text-danger"></span>
+                    </div>
 
-            <div class="col-md-6">
-                <h4>Данные устройства</h4>
+                    <div class="form-group">
+                        <label asp-for="ClientPhone" class="form-label"></label>
+                        <input asp-for="ClientPhone" class="form-control" />
+                        <span asp-validation-for="ClientPhone" class="text-danger"></span>
+                    </div>
 
-                <div class="form-group mb-3">
-                    <label asp-for="DeviceModel" class="form-label"></label>
-                    <input asp-for="DeviceModel" class="form-control" />
-                    <span asp-validation-for="DeviceModel" class="text-danger"></span>
-                </div>
-
-                <div class="form-group mb-3">
-                    <label asp-for="DeviceTypeId" class="form-label"></label>
-                    <select asp-for="DeviceTypeId" asp-items="Model.DeviceTypes" class="form-select">
-                        <option value="">-- Выберите тип устройства --</option>
-                    </select>
-                    <span asp-validation-for="DeviceTypeId" class="text-danger"></span>
-                </div>
-
-                <div class="form-group mb-3">
-                    <label asp-for="ServiceTypeId" class="form-label"></label>
-                    <select asp-for="ServiceTypeId" asp-items="Model.ServiceTypes" class="form-select">
-                        <option value="">-- Выберите тип услуги --</option>
-                    </select>
-                    <span asp-validation-for="ServiceTypeId" class="text-danger"></span>
+                    <div class="form-group">
+                        <label asp-for="ClientEmail" class="form-label"></label>
+                        <input asp-for="ClientEmail" class="form-control" />
+                        <span asp-validation-for="ClientEmail" class="text-danger"></span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="row mt-3">
-            <div class="col-12">
-                <div class="form-group mb-3">
+        <!-- Данные устройства -->
+        <div class="order-card">
+            <div class="card-header">
+                <i class="fas fa-laptop"></i> Данные устройства
+            </div>
+            <div class="card-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label asp-for="DeviceModel" class="form-label"></label>
+                        <input asp-for="DeviceModel" class="form-control" />
+                        <span asp-validation-for="DeviceModel" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="DeviceTypeId" class="form-label"></label>
+                        <select asp-for="DeviceTypeId" asp-items="Model.DeviceTypes" class="form-select">
+                            <option value="">-- Выберите тип устройства --</option>
+                        </select>
+                        <span asp-validation-for="DeviceTypeId" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="ServiceTypeId" class="form-label"></label>
+                        <select asp-for="ServiceTypeId" asp-items="Model.ServiceTypes" class="form-select">
+                            <option value="">-- Выберите тип услуги --</option>
+                        </select>
+                        <span asp-validation-for="ServiceTypeId" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Дополнительная информация -->
+        <div class="order-card">
+            <div class="card-header">
+                <i class="fas fa-info-circle"></i> Дополнительная информация
+            </div>
+            <div class="card-body">
+                <div class="form-group">
                     <label asp-for="Details" class="form-label"></label>
                     <textarea asp-for="Details" class="form-control" rows="4"></textarea>
                     <span asp-validation-for="Details" class="text-danger"></span>
                 </div>
 
-                <div class="form-group mb-3">
-                    <label asp-for="Price" class="form-label"></label>
-                    <input asp-for="Price" class="form-control" min="0" />
-                    <span asp-validation-for="Price" class="text-danger"></span>
-                </div>
-
-                @if (User.IsInRole("Admin"))
-                {
-                    <div class="form-group mb-3">
-                        <label asp-for="StatusId" class="form-label"></label>
-                        <select asp-for="StatusId" asp-items="Model.Statuses" class="form-select"></select>
-                        <span asp-validation-for="StatusId" class="text-danger"></span>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label asp-for="Price" class="form-label"></label>
+                        <input asp-for="Price" class="form-control" min="0" />
+                        <span asp-validation-for="Price" class="text-danger"></span>
                     </div>
-                }
-                <input type="hidden" asp-for="StatusId" />
+
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <div class="form-group">
+                            <label asp-for="StatusId" class="form-label"></label>
+                            <select asp-for="StatusId" asp-items="Model.Statuses" class="form-select"></select>
+                            <span asp-validation-for="StatusId" class="text-danger"></span>
+                        </div>
+                    }
+                    <input type="hidden" asp-for="StatusId" />
+                </div>
             </div>
         </div>
 
-        <!-- Блок текущих фотографий -->
+        <!-- Текущие фотографии -->
         @if (Model.Photos != null && Model.Photos.Count > 0)
         {
-            <div class="row mt-4">
-                <div class="col-12">
-                    <h4>Текущие фотографии</h4>
-                    <div id="currentPhotosContainer" class="row">
+            <div class="order-card">
+                <div class="card-header">
+                    <i class="fas fa-camera"></i> Текущие фотографии
+                </div>
+                <div class="card-body">
+                    <div id="currentPhotosContainer" class="photos-grid">
                         @foreach (var photo in Model.Photos)
                         {
-                            <div class="col-md-3 mb-3 photo-item" data-id="@photo.PhotoId">
-                                <div class="card h-100">
-                                    <img src="@photo.Link" class="card-img-top" alt="Фото заказа">
-                                    <div class="card-body p-2 text-center">
-                                        <button type="button" class="btn btn-sm btn-danger delete-photo">
-                                            <i class="fas fa-trash-alt"></i> Удалить
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-secondary restore-photo d-none">
-                                            <i class="fas fa-undo"></i> Восстановить
-                                        </button>
-                                    </div>
+                            <div class="photo-item" data-id="@photo.PhotoId">
+                                <img src="@photo.Link" class="photo-thumbnail" alt="Фото заказа">
+                                <div class="photo-actions">
+                                    <button type="button" class="btn btn-sm btn-danger delete-photo">
+                                        <i class="fas fa-trash-alt"></i> Удалить
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-secondary restore-photo d-none">
+                                        <i class="fas fa-undo"></i> Восстановить
+                                    </button>
                                 </div>
                             </div>
                         }
@@ -114,18 +142,21 @@
             </div>
         }
 
-        <!-- Блок загрузки новых фотографий -->
-        <div class="row mt-3">
-            <div class="col-12">
+        <!-- Новые фотографии -->
+        <div class="order-card">
+            <div class="card-header">
+                <i class="fas fa-cloud-upload-alt"></i> Добавить новые фото
+            </div>
+            <div class="card-body">
                 <div class="form-group">
-                    <label asp-for="NewPhotos" class="form-label">Добавить новые фото</label>
+                    <label asp-for="NewPhotos" class="form-label"></label>
                     <input asp-for="NewPhotos" type="file" class="form-control" accept="image/*" multiple />
                     <span asp-validation-for="NewPhotos" class="text-danger"></span>
                 </div>
             </div>
         </div>
 
-        <div class="form-group mt-4">
+        <div class="form-actions">
             <button type="submit" class="btn btn-primary">
                 <i class="fas fa-save"></i> Сохранить изменения
             </button>
@@ -140,39 +171,43 @@
     @await Html.PartialAsync("_ValidationScriptsPartial")
 
     <script>
-        $(document).ready(function() {
+        document.addEventListener('DOMContentLoaded', function() {
             var deletedPhotos = [];
 
             // Удаление фото (отметка для удаления)
-            $(document).on('click', '.delete-photo', function() {
-                var $photoItem = $(this).closest('.photo-item');
-                var photoId = $photoItem.data('id');
+            document.querySelectorAll('.delete-photo').forEach(button => {
+                button.addEventListener('click', function() {
+                    const photoItem = this.closest('.photo-item');
+                    const photoId = photoItem.dataset.id;
 
-                // Помечаем фото для удаления
-                if (!deletedPhotos.includes(photoId)) {
-                    deletedPhotos.push(photoId);
-                    $('#deletedPhotos').val(deletedPhotos.join(','));
-                }
+                    // Помечаем фото для удаления
+                    if (!deletedPhotos.includes(photoId)) {
+                        deletedPhotos.push(photoId);
+                        document.getElementById('deletedPhotos').value = deletedPhotos.join(',');
+                    }
 
-                // Визуальные изменения
-                $photoItem.addClass('to-be-deleted');
-                $(this).addClass('d-none');
-                $photoItem.find('.restore-photo').removeClass('d-none');
+                    // Визуальные изменения
+                    photoItem.classList.add('to-be-deleted');
+                    this.classList.add('d-none');
+                    photoItem.querySelector('.restore-photo').classList.remove('d-none');
+                });
             });
 
             // Восстановление фото
-            $(document).on('click', '.restore-photo', function() {
-                var $photoItem = $(this).closest('.photo-item');
-                var photoId = $photoItem.data('id');
+            document.querySelectorAll('.restore-photo').forEach(button => {
+                button.addEventListener('click', function() {
+                    const photoItem = this.closest('.photo-item');
+                    const photoId = photoItem.dataset.id;
 
-                // Удаляем из списка на удаление
-                deletedPhotos = deletedPhotos.filter(id => id !== photoId);
-                $('#deletedPhotos').val(deletedPhotos.join(','));
+                    // Удаляем из списка на удаление
+                    deletedPhotos = deletedPhotos.filter(id => id !== photoId);
+                    document.getElementById('deletedPhotos').value = deletedPhotos.join(',');
 
-                // Визуальные изменения
-                $photoItem.removeClass('to-be-deleted');
-                $(this).addClass('d-none');
-                $photoItem.find('.delete-photo').removeClass('d-none');
+                    // Визуальные изменения
+                    photoItem.classList.remove('to-be-deleted');
+                    this.classList.add('d-none');
+                    photoItem.querySelector('.delete-photo').classList.remove('d-none');
+                });
             });
         });
     </script>
@@ -180,31 +215,236 @@
 
 @section Styles {
     <style>
-        .photo-item .card-img-top {
-            height: 180px;
-            object-fit: cover;
+        /* Основные стили */
+        .order-details-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
 
-        .photo-item .card {
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            color: #2f4f4f;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        /* Карточки */
+        .order-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background-color: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+            color: #2f4f4f;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .card-header i {
+                color: #9fceb6;
+            }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        /* Формы */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control, .form-select {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px 12px;
+            width: 100%;
+            transition: border-color 0.2s ease;
+        }
+
+            .form-control:focus, .form-select:focus {
+                border-color: #9fceb6;
+                box-shadow: 0 0 0 0.2rem rgba(159, 206, 182, 0.25);
+            }
+
+        .text-danger {
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: block;
+        }
+
+        /* Фотографии */
+        .photos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .photo-item {
+            position: relative;
+            aspect-ratio: 1;
+            overflow: hidden;
+            border-radius: 8px;
             transition: all 0.3s ease;
         }
 
-        .photo-item:hover .card {
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        .photo-thumbnail {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
         }
 
-        .photo-item.to-be-deleted .card {
+        .photo-actions {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .photo-item:hover .photo-actions {
+            transform: translateY(0);
+        }
+
+        .photo-item:hover .photo-thumbnail {
+            transform: scale(1.05);
+        }
+
+        .photo-item.to-be-deleted {
             opacity: 0.5;
             border: 2px dashed #dc3545;
         }
 
-        .delete-photo, .restore-photo {
-            width: 100%;
-            margin-top: 5px;
+        /* Кнопки */
+        .btn {
+            padding: 8px 15px;
+            border-radius: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
 
-        .form-select {
-            padding: 0.375rem 2.25rem 0.375rem 0.75rem;
+        .btn-primary {
+            background-color: #9fceb6;
+            color: #1d3c34;
+            border: none;
+        }
+
+            .btn-primary:hover {
+                background-color: #8abda5;
+            }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+        }
+
+            .btn-secondary:hover {
+                background-color: #5a6268;
+            }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+        }
+
+            .btn-danger:hover {
+                background-color: #c82333;
+            }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.85rem;
+        }
+
+        .btn-back {
+            background-color: #9fceb6;
+            color: #1d3c34;
+            padding: 8px 15px;
+            border-radius: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            border: none;
+        }
+
+            .btn-back:hover {
+                background-color: #8abda5;
+                color: #1d3c34;
+            }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        /* Адаптивность */
+        @@media (max-width: 768px) {
+            .order-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .photos-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .photos-grid {
+                grid-template-columns: 1fr 1fr;
+            }
         }
     </style>
 }
