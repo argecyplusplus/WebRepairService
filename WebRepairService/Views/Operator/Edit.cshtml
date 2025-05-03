@@ -30,20 +30,22 @@
             <div class="card-body">
                 <div class="form-grid">
                     <div class="form-group">
-                        <label asp-for="ClientFullName" class="form-label"></label>
-                        <input asp-for="ClientFullName" class="form-control" />
+                        <label class="form-label">ФИО клиента</label>
+                        <input asp-for="ClientFullName" class="form-control" placeholder="Введите ФИО клиента" />
                         <span asp-validation-for="ClientFullName" class="text-danger"></span>
                     </div>
 
                     <div class="form-group">
-                        <label asp-for="ClientPhone" class="form-label"></label>
-                        <input asp-for="ClientPhone" class="form-control" />
+                        <label class="form-label">Номер телефона</label>
+                        <input asp-for="ClientPhone" class="form-control" placeholder="+7 (XXX) XXX-XX-XX"
+                               pattern="\+7\s?[\(]{0,1}\d{3}[\)]{0,1}\s?\d{3}[-]{0,1}\d{2}[-]{0,1}\d{2}"
+                               title="Введите номер в формате +7 (XXX) XXX-XX-XX" />
                         <span asp-validation-for="ClientPhone" class="text-danger"></span>
                     </div>
 
                     <div class="form-group">
-                        <label asp-for="ClientEmail" class="form-label"></label>
-                        <input asp-for="ClientEmail" class="form-control" />
+                        <label class="form-label">Email</label>
+                        <input asp-for="ClientEmail" class="form-control" placeholder="Введите email" />
                         <span asp-validation-for="ClientEmail" class="text-danger"></span>
                     </div>
                 </div>
@@ -58,13 +60,13 @@
             <div class="card-body">
                 <div class="form-grid">
                     <div class="form-group">
-                        <label asp-for="DeviceModel" class="form-label"></label>
-                        <input asp-for="DeviceModel" class="form-control" />
+                        <label class="form-label">Модель устройства</label>
+                        <input asp-for="DeviceModel" class="form-control" placeholder="Введите модель устройства" />
                         <span asp-validation-for="DeviceModel" class="text-danger"></span>
                     </div>
 
                     <div class="form-group">
-                        <label asp-for="DeviceTypeId" class="form-label"></label>
+                        <label class="form-label">Тип устройства</label>
                         <select asp-for="DeviceTypeId" asp-items="Model.DeviceTypes" class="form-select">
                             <option value="">-- Выберите тип устройства --</option>
                         </select>
@@ -72,7 +74,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label asp-for="ServiceTypeId" class="form-label"></label>
+                        <label class="form-label">Тип услуги</label>
                         <select asp-for="ServiceTypeId" asp-items="Model.ServiceTypes" class="form-select">
                             <option value="">-- Выберите тип услуги --</option>
                         </select>
@@ -89,22 +91,22 @@
             </div>
             <div class="card-body">
                 <div class="form-group">
-                    <label asp-for="Details" class="form-label"></label>
-                    <textarea asp-for="Details" class="form-control" rows="4"></textarea>
+                    <label class="form-label">Описание проблемы</label>
+                    <textarea asp-for="Details" class="form-control" rows="4" placeholder="Опишите проблему"></textarea>
                     <span asp-validation-for="Details" class="text-danger"></span>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group">
-                        <label asp-for="Price" class="form-label"></label>
-                        <input asp-for="Price" class="form-control" min="0" />
+                        <label class="form-label">Стоимость ремонта</label>
+                        <input asp-for="Price" class="form-control" min="0" placeholder="Укажите стоимость" />
                         <span asp-validation-for="Price" class="text-danger"></span>
                     </div>
 
                     @if (User.IsInRole("Admin"))
                     {
                         <div class="form-group">
-                            <label asp-for="StatusId" class="form-label"></label>
+                            <label class="form-label">Статус заказа</label>
                             <select asp-for="StatusId" asp-items="Model.Statuses" class="form-select"></select>
                             <span asp-validation-for="StatusId" class="text-danger"></span>
                         </div>
@@ -149,9 +151,10 @@
             </div>
             <div class="card-body">
                 <div class="form-group">
-                    <label asp-for="NewPhotos" class="form-label"></label>
+                    <label class="form-label">Выберите фотографии</label>
                     <input asp-for="NewPhotos" type="file" class="form-control" accept="image/*" multiple />
                     <span asp-validation-for="NewPhotos" class="text-danger"></span>
+                    <small class="form-text text-muted">Можно выбрать несколько файлов</small>
                 </div>
             </div>
         </div>
@@ -209,6 +212,37 @@
                     photoItem.querySelector('.delete-photo').classList.remove('d-none');
                 });
             });
+
+            // Маска для телефона
+            const phoneInput = document.querySelector('input[name="ClientPhone"]');
+            if (phoneInput) {
+                phoneInput.addEventListener('input', function(e) {
+                    let value = this.value.replace(/\D/g, '');
+                    let formattedValue = '';
+
+                    if (value.length > 0) {
+                        formattedValue = '+7 ';
+                        if (value.length > 1) {
+                            value = value.substring(1);
+                        }
+                    }
+
+                    if (value.length > 0) {
+                        formattedValue += '(' + value.substring(0, 3);
+                    }
+                    if (value.length > 3) {
+                        formattedValue += ') ' + value.substring(3, 6);
+                    }
+                    if (value.length > 6) {
+                        formattedValue += '-' + value.substring(6, 8);
+                    }
+                    if (value.length > 8) {
+                        formattedValue += '-' + value.substring(8, 10);
+                    }
+
+                    this.value = formattedValue;
+                });
+            }
         });
     </script>
 }
