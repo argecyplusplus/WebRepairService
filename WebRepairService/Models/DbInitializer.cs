@@ -118,8 +118,7 @@ namespace WebRepairService.Models
                     new Status { Name = "Принят оператором" },
                     new Status { Name = "Принят инженером" },
                     new Status { Name = "В процессе" },
-                    new Status { Name = "Завершен" },
-                    new Status { Name = "Отменен" }
+                    new Status { Name = "Завершен" }
                    );
 
                 await context.SaveChangesAsync();

@@ -110,6 +110,8 @@ namespace WebRepairService.Controllers
                 return NotFound();
             }
 
+            ViewBag.CurrentUserId = _userManager.GetUserId(User);
+
             var order = await _context.Orders
                 .Include(o => o.Status)
                 .Include(o => o.DeviceType)
@@ -200,6 +202,72 @@ namespace WebRepairService.Controllers
             model.Engineers = await GetEngineers();
             return View(model);
         }
+
+        // POST: Engineer/ChangeStatus/5 - Изменение статуса заказа
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangeStatus(int id, int newStatusId)
+        {
+            var currentUserId = _userManager.GetUserId(User);
+            var order = await _context.Orders.FindAsync(id);
+
+            if (order == null || order.EngineerId != currentUserId)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                order.StatusId = newStatusId;
+                if (newStatusId == 4) // Если статус "Завершен"
+                {
+                    order.CompletionDate = DateTime.UtcNow;
+                }
+
+                _context.Update(order);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Статус заказа успешно изменен";
+            }
+            catch (Exception)
+            {
+                TempData["Error"] = "Ошибка при изменении статуса";
+            }
+
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        // POST: Engineer/CancelOrder/5 - Отмена заказа
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CancelOrder(int id)
+        {
+            var currentUserId = _userManager.GetUserId(User);
+            var order = await _context.Orders.FindAsync(id);
+
+            if (order == null || order.EngineerId != currentUserId)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                order.StatusId = 1; // Возвращаем статус "Принят оператором"
+                order.EngineerId = null; // Снимаем инженера
+                order.CompletionDate = null; // Сбрасываем дату завершения
+
+                _context.Update(order);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Заказ успешно отменен";
+            }
+            catch (Exception)
+            {
+                TempData["Error"] = "Ошибка при отмене заказа";
+            }
+
+            return RedirectToAction(nameof(MyOrders));
+        }
+
+
 
         private async Task<List<SelectListItem>> GetStatuses()
         {

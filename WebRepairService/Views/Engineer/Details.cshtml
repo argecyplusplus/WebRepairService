@@ -1,6 +1,8 @@
 ﻿@model Order
 @{
     ViewData["Title"] = "Детали заказа #" + Model.OrderId;
+    var currentUserId = ViewBag.CurrentUserId as string;
+    var isCurrentEngineer = Model.EngineerId == currentUserId;
 }
 
 <div class="container">
@@ -74,11 +76,75 @@
     }
 
     <div class="mt-4">
+        <!-- Кнопка "Назад" -->
         <a asp-action="Index" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Назад к списку
         </a>
-        <a asp-action="Edit" asp-route-id="@Model.OrderId" class="btn btn-primary">
-            <i class="fas fa-edit"></i> Изменить статус
-        </a>
+
+        <!-- Логика отображения кнопок в зависимости от статуса -->
+        @if (Model.StatusId == 1 && Model.EngineerId == null)
+        {
+            <!-- Кнопка "Принять заказ" -->
+            <form asp-action="AcceptOrder" method="post" class="d-inline">
+                <input type="hidden" name="id" value="@Model.OrderId" />
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-check"></i> Принять заказ
+                </button>
+            </form>
+        }
+        else if (isCurrentEngineer)
+        {
+            if (Model.StatusId == 2) // Принят инженером
+            {
+                <!-- Кнопка "В работу" -->
+                <form asp-action="ChangeStatus" method="post" class="d-inline">
+                    <input type="hidden" name="id" value="@Model.OrderId" />
+                    <input type="hidden" name="newStatusId" value="3" />
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-play"></i> В работу
+                    </button>
+                </form>
+
+                <!-- Кнопка "Отменить" -->
+                <form asp-action="CancelOrder" method="post" class="d-inline">
+                    <input type="hidden" name="id" value="@Model.OrderId" />
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-times"></i> Отменить
+                    </button>
+                </form>
+            }
+            else if (Model.StatusId == 3) // В процессе
+            {
+                <!-- Кнопка "Завершить" -->
+                <form asp-action="ChangeStatus" method="post" class="d-inline">
+                    <input type="hidden" name="id" value="@Model.OrderId" />
+                    <input type="hidden" name="newStatusId" value="4" />
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check-circle"></i> Завершить
+                    </button>
+                </form>
+
+                <!-- Кнопка "Отменить" -->
+                <form asp-action="CancelOrder" method="post" class="d-inline">
+                    <input type="hidden" name="id" value="@Model.OrderId" />
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-times"></i> Отменить
+                    </button>
+                </form>
+            }
+        }
+
+        <!-- Кнопка "Изменить" (для админов/операторов) -->
+        @if (User.IsInRole("Admin") || User.IsInRole("Operator"))
+        {
+            <a asp-action="Edit" asp-route-id="@Model.OrderId" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Изменить
+            </a>
+        }
     </div>
 </div>
