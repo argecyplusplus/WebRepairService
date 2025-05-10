@@ -235,6 +235,39 @@
                 color: #1d3c34;
                 transform: translateX(2px);
             }
+
+
+        /* Стили для аватарки и информации пользователя */
+        .user-info {
+            display: flex;
+            align-items: center;
+            padding-right: 1rem;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: #2f4f4f;
+            line-height: 1.2;
+            font-size: 0.95rem;
+        }
+
+        .user-role {
+            font-size: 0.75rem;
+            font-weight: 500;
+            line-height: 1.2;
+        }
+
+        /* Аватарка */
+        .rounded-circle {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+            .rounded-circle:hover {
+                transform: scale(1.1);
+                box-shadow: 0 0 8px rgba(0,0,0,0.2);
+            }
     </style>
 
     @await RenderSectionAsync("Styles", required: false)
@@ -259,26 +292,33 @@
                         <ul class="navbar-nav">
                             <li class="nav-item">
                                 <div class="user-info">
-                                    <span class="user-name">@User.Identity?.Name</span>
-                                    <span class="user-role" data-role="@userRole.ToLower()">
-                                        @if (userRole == "Администратор")
-                                        {
-                                            <i class="fas me-1"></i>
-                                        }
-                                        else if (userRole == "Оператор")
-                                        {
-                                            <i class="fas me-1"></i>
-                                        }
-                                        else if (userRole == "Инженер")
-                                        {
-                                            <i class="fas me-1"></i>
-                                        }
-                                        else
-                                        {
-                                            <i class="fas me-1"></i>
-                                        }
-                                        @userRole
-                                    </span>
+                                    <div class="d-flex align-items-center">
+                                        <!-- Аватарка -->
+                                        <a asp-controller="Account" asp-action="Profile" class="me-2" style="text-decoration: none;">
+                                            @{
+                                                var user = await UserManager.GetUserAsync(User);
+                                                var profileImage = user?.ProfileImage;
+                                            }
+                                            @if (!string.IsNullOrEmpty(profileImage))
+                                            {
+                                                <img src="@profileImage" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" alt="Profile Image" />
+                                            }
+                                            else
+                                            {
+                                                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                    <i class="fas fa-user text-white"></i>
+                                                </div>
+                                            }
+                                        </a>
+
+                                        <!-- Имя и роль (вертикально) -->
+                                        <div class="d-flex flex-column">
+                                            <span class="user-name">@User.Identity?.Name</span>
+                                            <span class="user-role" data-role="@userRole.ToLower()">
+                                                @userRole
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
                             </li>
                             <li class="nav-item">

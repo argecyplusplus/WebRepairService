@@ -362,3 +362,6 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /WebRepairService/wwwroot/uploads
+/WebRepairService/Migrations
+WebRepairService/Migrations/20250510164737_AddPhotos.cs
+/WebRepairService/Migrations
