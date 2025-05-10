@@ -6,10 +6,10 @@ public class Photo
 
     [Required]
     [MaxLength(500)]
-    public string Link { get; set; } = string.Empty; // Заменяем null! на string.Empty
+    public string Link { get; set; } = string.Empty;
 
     [Required]
     public int OrderId { get; set; }
 
-    public virtual Order Order { get; set; } = null!; // Навигационное свойство для EF
+    public virtual Order Order { get; set; } = null!;
 }

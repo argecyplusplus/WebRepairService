@@ -1,0 +1,229 @@
+﻿@model ServiceTypeViewModel
+@{
+    ViewData["Title"] = "Редактировать тип услуги";
+}
+
+<div class="service-type-container">
+    <div class="service-type-header">
+        <h1 class="page-title">@ViewData["Title"]</h1>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    <form asp-action="Edit" method="post" class="service-type-content">
+        <input type="hidden" asp-for="ServiceTypeId" />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="service-type-card">
+            <div class="card-header">
+                <i class="fas fa-tools"></i> Основные параметры
+            </div>
+            <div class="card-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label asp-for="Name" class="form-label"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="MinimalPrice" class="form-label"></label>
+                        <input asp-for="MinimalPrice" class="form-control" />
+                        <span asp-validation-for="MinimalPrice" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="MinimalWorktime" class="form-label"></label>
+                        <input asp-for="MinimalWorktime" type="time" class="form-control" step="300"
+                               value="@Model.MinimalWorktime.ToString(@"hh\:mm")" />
+                        <span asp-validation-for="MinimalWorktime" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Сохранить изменения
+            </button>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Назад к списку
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+@section Styles {
+    <style>
+        /* Основные стили */
+        .service-type-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .service-type-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            color: #2f4f4f;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        /* Карточки */
+        .service-type-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background-color: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+            color: #2f4f4f;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .card-header i {
+                color: #9fceb6;
+            }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        /* Формы */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control, .form-select {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px 12px;
+            width: 100%;
+            transition: border-color 0.2s ease;
+        }
+
+            .form-control:focus, .form-select:focus {
+                border-color: #9fceb6;
+                box-shadow: 0 0 0 0.2rem rgba(159, 206, 182, 0.25);
+            }
+
+        .text-danger {
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: block;
+        }
+
+        /* Кнопки */
+        .btn {
+            padding: 8px 15px;
+            border-radius: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #9fceb6;
+            color: #1d3c34;
+            border: none;
+        }
+
+            .btn-primary:hover {
+                background-color: #8abda5;
+            }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+        }
+
+            .btn-secondary:hover {
+                background-color: #5a6268;
+            }
+
+        .btn-back {
+            background-color: #9fceb6;
+            color: #1d3c34;
+            padding: 8px 15px;
+            border-radius: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            border: none;
+        }
+
+            .btn-back:hover {
+                background-color: #8abda5;
+                color: #1d3c34;
+            }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        /* Адаптивность */
+        @@media (max-width: 768px) {
+            .service-type-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+}

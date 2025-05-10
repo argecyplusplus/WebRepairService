@@ -16,10 +16,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         base.OnModelCreating(builder);
 
-        // Order relationships
         builder.Entity<Order>(entity =>
         {
-            // Обновленные связи с пользователями
             entity.HasOne(o => o.Operator)
                 .WithMany()
                 .HasForeignKey(o => o.OperatorId)
@@ -51,7 +49,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 .HasForeignKey(o => o.ServiceTypeId);
         });
 
-        // Photo configuration
         builder.Entity<Photo>(entity =>
         {
             entity.HasIndex(p => p.OrderId);
@@ -63,10 +60,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(p => p.Order)
                 .WithMany(o => o.Photos)
                 .HasForeignKey(p => p.OrderId)
-                .OnDelete(DeleteBehavior.Cascade); // Или Restrict в зависимости от требований
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
-        // Дополнительные настройки для других сущностей
         builder.Entity<Status>()
             .Property(s => s.Name)
             .IsRequired()

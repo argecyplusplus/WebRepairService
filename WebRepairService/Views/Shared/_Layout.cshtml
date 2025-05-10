@@ -1,4 +1,32 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@{
+    var hasRoles = false;
+    string userRole = "Без роли"; // Значение по умолчанию
+
+    if (User.Identity?.IsAuthenticated == true)
+    {
+        var user = await UserManager.GetUserAsync(User);
+        if (user != null)
+        {
+            var roles = await UserManager.GetRolesAsync(user);
+            hasRoles = roles.Any();
+            userRole = roles.FirstOrDefault() ?? "Без роли";
+
+            // Форматируем название роли для красивого отображения
+            userRole = userRole switch
+            {
+                "Admin" => "Администратор",
+                "Operator" => "Оператор",
+                "Engineer" => "Инженер",
+                _ => userRole
+            };
+        }
+    }
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -7,45 +35,215 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/WebRepairService.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <style>
+        /* Скрыть полосы прокрутки для всего документа */
+        html {
+            overflow: -moz-hidden-unscrollable; /* Для Firefox */
+        }
+
+        /* Для Chrome, Edge и Opera */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+
+        body {
+            background-color: #fcfdfc;
+            min-height: 100vh;
+            padding-bottom: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Стили для верхней панели */
+        .navbar {
+            min-height: 58px;
+        }
+
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        /* Стили для кнопки выхода */
+        .logout-btn {
+            padding: 0 1rem;
+            margin: 0;
+            border: none;
+            background: none;
+            font-size: inherit;
+            font-weight: 500;
+            line-height: inherit;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            height: 100%;
+            color: #2f4f4f;
+            transition: color 0.2s;
+        }
+
+            .logout-btn:hover {
+                color: #1d3c34;
+                background: none;
+            }
+
+        /* Стили для информации о пользователе */
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            padding-right: 1rem;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: #2f4f4f;
+        }
+
+        .user-role {
+            font-size: 0.85rem;
+            color: #5a7d6e;
+            font-weight: 400;
+        }
+
+        /* Стили для боковой панели */
+        .sidebar {
+            position: fixed;
+            top: 58px;
+            left: 0;
+            bottom: 0;
+            width: 220px;
+            background-color: #c7e4d4;
+            border-right: none;
+            padding: 0;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+            .sidebar .nav {
+                flex-direction: column;
+                padding: 0.5rem 0;
+                text-align: center;
+            }
+
+            .sidebar .nav-item {
+                width: 100%;
+                display: flex;
+                margin: 0;
+                justify-content: center;
+            }
+
+            .sidebar .nav-link {
+                padding: 0.75rem 1rem;
+                color: #2f4f4f;
+                font-weight: 500;
+                transition: background-color 0.2s, color 0.2s;
+                border-radius: 0;
+                margin: 0;
+                display: block;
+                width: 100%;
+            }
+
+                .sidebar .nav-link:hover {
+                    background-color: #b2d8c4;
+                    color: #1d3c34;
+                }
+
+                .sidebar .nav-link.active {
+                    background-color: #9fceb6;
+                    color: #1d3c34;
+                }
+
+        /* Основной контент */
+        .main-content {
+            margin-top: 60px;
+            padding: 2rem;
+            background-color: #fcfdfc;
+            border-radius: 10px;
+            margin-left: 220px;
+            margin-right: 20px;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Без боковой панели - центрируем контент */
+        body:not(.has-sidebar) .main-content {
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            color: #2f4f4f;
+        }
+
+            .navbar-brand:hover {
+                color: #1d3c34;
+            }
+    </style>
+
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<body>
+<body class="@(hasRoles ? "has-sidebar" : "")">
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow fixed-top" style="background-color: #e6f4ec;">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">WebRepairService</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index" style="color: #2f4f4f; font-weight: 600;">
+                    <i class="fas fa-cogs me-2"></i>Система обработки заказов сервисного центра
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+                        <!-- Пустое пространство для выравнивания -->
                     </ul>
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <div class="user-info">
+                                    <span class="user-name">@User.Identity?.Name</span>
+                                    <span class="user-role">@userRole</span>
+                                </div>
+                            </li>
+                            <li class="nav-item">
+                                <form class="form-inline" asp-controller="Account" asp-action="Logout">
+                                    <button type="submit" class="logout-btn">
+                                        <i class="fas fa-sign-out-alt me-1"></i>Выйти
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    }
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+
+    @if (hasRoles)
+    {
+        <div class="sidebar">
+            @await Component.InvokeAsync("Sidebar")
+        </div>
+    }
+
+    <div class="container main-content">
+        <main role="main">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - WebRepairService - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
-
 </body>
 </html>

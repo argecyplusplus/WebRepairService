@@ -39,9 +39,11 @@ namespace WebRepairService.Controllers
                 var roles = await _userManager.GetRolesAsync(user);
                 userRolesViewModel.Add(new UserWithRoleViewModel
                 {
-                    Id = user.Id,
+                    Username = user.UserName,
+                    UserId = user.Id,
                     Email = user.Email,
                     FullName = user.FullName,
+                    PhoneNumber = user.PhoneNumber,
                     RegistrationDate = user.RegistrationDate,
                     CurrentRole = roles.FirstOrDefault()
                 });
@@ -178,40 +180,21 @@ namespace WebRepairService.Controllers
 
             return RedirectToAction("Users");
         }
-
-        private void AddErrors(IdentityResult result)
-        {
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(string.Empty, error.Description);
-            }
-        }
     }
 
     public class UserWithRoleViewModel
     {
-        public string Id { get; set; }
+        public string UserId { get; set; }
         public string Email { get; set; }
         public string FullName { get; set; }
+
+        [Required]
+        [Phone]
+        [Display(Name = "Телефон")]
+        public string PhoneNumber { get; set; }
+
         public DateTime RegistrationDate { get; set; }
-        public string CurrentRole { get; set; }
-    }
+        public IList<string> Roles { get; set; } // Изменили на IList<string>
 
-    public class EditUserViewModel
-    {
-        public string Id { get; set; }
-
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; }
-
-        [Required]
-        [Display(Name = "ФИО")]
-        public string FullName { get; set; }
-
-        [Display(Name = "Роль")]
-        public string CurrentRole { get; set; }
-
-        public List<string> AllRoles { get; set; }
     }
 }

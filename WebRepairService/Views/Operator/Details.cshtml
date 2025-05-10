@@ -1,0 +1,329 @@
+﻿@model Order
+@{
+    ViewData["Title"] = "Детали заказа #" + Model.OrderId;
+}
+
+<div class="order-details-container">
+    <div class="order-header">
+        <h1 class="page-title">Заказ #@Model.OrderId</h1>
+        <div class="order-actions">
+            <a asp-action="Index" class="btn btn-back">
+                <i class="fas fa-arrow-left"></i> Назад к списку
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    <div class="order-content">
+        <!-- Основная информация -->
+        <div class="order-card">
+            <div class="card-header">
+                <i class="fas fa-info-circle"></i> Основная информация
+            </div>
+            <div class="card-body">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Клиент:</span>
+                        <span class="info-value">@Model.ClientFullName</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Телефон:</span>
+                        <span class="info-value">@Model.ClientPhone</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">@Model.ClientEmail</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Устройство:</span>
+                        <span class="info-value">@Model.DeviceType?.Name (@Model.Model)</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Услуга:</span>
+                        <span class="info-value">@Model.ServiceType?.Name</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Статус:</span>
+                        <span class="info-value status-badge @(Model.Status != null ? "has-status" : "no-status")">
+                            <i class="fas fa-circle"></i> @Model.Status?.Name
+                        </span>
+                    </div>
+                    <div class="info-item full-width">
+                        <span class="info-label">Описание:</span>
+                        <span class="info-value">@Model.Details</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Цена:</span>
+                        <span class="info-value price">@Model.Price.ToString("C")</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Оператор:</span>
+                        <span class="info-value">@Model.Operator?.FullName</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Инженер:</span>
+                        <span class="info-value">@(Model.Engineer?.FullName ?? "не назначен")</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Дата создания:</span>
+                        <span class="info-value">@Model.CreationDate.ToString("dd.MM.yyyy HH:mm")</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Дата завершения:</span>
+                        <span class="info-value">@(Model.CompletionDate?.ToString("dd.MM.yyyy HH:mm") ?? "отсутствует")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Фотографии -->
+        @if (Model.Photos != null && Model.Photos.Count > 0)
+        {
+            <div class="order-card">
+                <div class="card-header">
+                    <i class="fas fa-camera"></i> Фотографии
+                </div>
+                <div class="card-body">
+                    <div class="photos-grid">
+                        @foreach (var photo in Model.Photos)
+                        {
+                            <div class="photo-item">
+                                <img src="@photo.Link" class="photo-thumbnail" alt="Фото заказа" data-bs-toggle="modal" data-bs-target="#photoModal" data-photo="@photo.Link">
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Модальное окно для фото -->
+<div class="modal fade" id="photoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <img id="modalPhoto" src="" class="img-fluid" alt="Увеличенное фото">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        /* Основные стили */
+        .order-details-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            color: #2f4f4f;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        /* Карточки */
+        .order-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background-color: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+            color: #2f4f4f;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        /* Сетка информации */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+            .info-item.full-width {
+                grid-column: 1 / -1;
+            }
+
+        .info-label {
+            font-weight: 600;
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 3px;
+        }
+
+        .info-value {
+            color: #2f4f4f;
+            font-size: 1rem;
+        }
+
+            .info-value.price {
+                font-weight: 600;
+                color: #1d3c34;
+                font-size: 1.1rem;
+            }
+
+        /* Статус */
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+            .status-badge.has-status {
+                background-color: #e6f4ec;
+                color: #1d3c34;
+            }
+
+            .status-badge.no-status {
+                background-color: #f5f5f5;
+                color: #777;
+            }
+
+            .status-badge i {
+                font-size: 0.6rem;
+            }
+
+        /* Фотографии */
+        .photos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .photo-item {
+            aspect-ratio: 1;
+            overflow: hidden;
+            border-radius: 8px;
+            transition: transform 0.2s ease;
+        }
+
+        .photo-thumbnail {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+            .photo-thumbnail:hover {
+                transform: scale(1.05);
+            }
+
+        /* Кнопки */
+        .btn-back {
+            background-color: #9fceb6;
+            color: #1d3c34;
+            padding: 8px 15px;
+            border-radius: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            border: none;
+        }
+
+            .btn-back:hover {
+                background-color: #8abda5;
+                color: #1d3c34;
+            }
+
+        /* Адаптивность */
+        @@media (max-width: 768px) {
+            .order-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .photos-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .photos-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Обработка модального окна для фото
+            const photoModal = document.getElementById('photoModal');
+            if (photoModal) {
+                photoModal.addEventListener('show.bs.modal', function(event) {
+                    const button = event.relatedTarget;
+                    const photoUrl = button.getAttribute('data-photo');
+                    const modalImage = photoModal.querySelector('#modalPhoto');
+                    modalImage.src = photoUrl;
+                });
+            }
+
+            // Закрытие алертов
+            const closeButtons = document.querySelectorAll('.close');
+            closeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    this.closest('.alert').style.display = 'none';
+                });
+            });
+
+            // Автоматическое закрытие алертов через 5 секунд
+            setTimeout(function() {
+                const alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function(alert) {
+                    alert.style.display = 'none';
+                });
+            }, 5000);
+        });
+    </script>
+}

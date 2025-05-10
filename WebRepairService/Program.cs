@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,14 +13,14 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
-    .AddRoles<IdentityRole>() // Добавляем поддержку ролей
+    .AddRoles<IdentityRole>() // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddControllersWithViews(options =>
+builder.Services.Configure<FormOptions>(options =>
 {
-    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+    options.MultipartBodyLengthLimit = 104857600; // 100MB пїЅпїЅпїЅпїЅпїЅ
 });
 
 
@@ -40,8 +41,8 @@ app.UseRouting();
 
 
 
-app.UseAuthentication(); // Добавляем аутентификацию
-app.UseAuthorization();  // Добавляем авторизацию
+app.UseAuthentication(); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+app.UseAuthorization();  // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
 using (var scope = app.Services.CreateScope())
 {
@@ -68,6 +69,11 @@ app.MapControllerRoute(
     name: "admin",
     pattern: "Admin/{action=Index}/{id?}",
     defaults: new { controller = "Admin" });
+
+app.MapControllerRoute(
+    name: "engineer",
+    pattern: "Engineer/{action=Index}/{id?}",
+    defaults: new { controller = "Engineer" });
 
 
 app.Run();

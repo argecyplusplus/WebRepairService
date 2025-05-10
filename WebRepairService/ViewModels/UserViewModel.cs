@@ -1,5 +1,4 @@
-﻿// Models/ViewModels/UserViewModel.cs
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 public class UserViewModel
 {
@@ -13,6 +12,11 @@ public class UserViewModel
     [EmailAddress]
     [Display(Name = "Email")]
     public string Email { get; set; }
+
+    [Required]
+    [Phone]
+    [Display(Name = "Телефон")]
+    public string PhoneNumber { get; set; }
 
     [Display(Name = "Роли")]
     public List<RoleViewModel> Roles { get; set; } = new();

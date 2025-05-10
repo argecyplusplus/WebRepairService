@@ -1,45 +1,126 @@
 ﻿@model Service.Models.LoginModel
 @{
     ViewData["Title"] = "Вход в систему";
+    Layout = "_Layout";
 }
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>@ViewData["Title"]</title>
+<div class="auth-wrapper">
+    <div class="auth-form-container">
+        <div class="auth-form">
+            <h2 class="text-center mb-4">@ViewData["Title"]</h2>
+
+            @if (ViewContext.ViewData.ModelState.ErrorCount > 0)
+            {
+                <div class="alert alert-danger">
+                    <div asp-validation-summary="All"></div>
+                </div>
+            }
+
+            <form asp-action="Login" method="post">
+                <div class="form-group mb-3">
+                    <label asp-for="UserName" class="form-label">Логин</label>
+                    <input asp-for="UserName" class="form-control" />
+                    <span asp-validation-for="UserName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Password" class="form-label">Пароль</label>
+                    <input asp-for="Password" type="password" class="form-control" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <div class="form-check">
+                        <input asp-for="RememberMe" class="form-check-input" />
+                        <label asp-for="RememberMe" class="form-check-label">Запомнить меня</label>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 mb-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt me-2"></i> Войти
+                    </button>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <a asp-controller="Account" asp-action="Register" class="btn btn-outline-secondary">
+                        <i class="fas fa-user-plus me-2"></i> Зарегистрироваться
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Styles {
     <style>
-        .validation-summary-errors {
-            color: red;
+        /* Основные стили для центрирования */
+        .auth-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #fcfdfc;
+            z-index: 1000;
         }
-        .input-validation-error {
-            border: 1px solid red;
+
+        .auth-form-container {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
         }
+
+        .auth-form {
+            background-color: white;
+            padding: 2.5rem;
+            border: 1px solid #c7e4d4;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+            /* Стили элементов формы */
+            .auth-form h2 {
+                color: #1d3c34;
+                margin-bottom: 1.5rem;
+                text-align: center;
+            }
+
+            .auth-form .form-control {
+                border: 1px solid #ddd;
+                border-radius: 0;
+                padding: 0.5rem 0.75rem;
+            }
+
+                .auth-form .form-control:focus {
+                    border-color: #9fceb6;
+                    box-shadow: 0 0 0 0.25rem rgba(159, 206, 182, 0.25);
+                }
+
+            .auth-form .btn-primary {
+                background-color: #9fceb6;
+                border-color: #9fceb6;
+                color: #1d3c34;
+                border-radius: 0;
+                padding: 0.5rem;
+            }
+
+            .auth-form .btn-outline-secondary {
+                color: #1d3c34;
+                border-color: #9fceb6;
+                border-radius: 0;
+                padding: 0.5rem;
+            }
+
+            .auth-form .form-check-input:checked {
+                background-color: #9fceb6;
+                border-color: #9fceb6;
+            }
     </style>
-</head>
-<body>
-    <h2>@ViewData["Title"]</h2>
+}
 
-    @if (ViewContext.ViewData.ModelState.ErrorCount > 0)
-    {
-        <div class="alert alert-danger">
-            <div asp-validation-summary="All"></div>
-        </div>
-    }
-
-    <form asp-action="Login" method="post">
-        <div>
-            <label asp-for="Email">Email</label>
-            <input asp-for="Email" class="form-control" />
-            <span asp-validation-for="Email" class="text-danger"></span>
-        </div>
-
-        <div>
-            <label asp-for="Password">Пароль</label>
-            <input asp-for="Password" type="password" class="form-control" />
-            <span asp-validation-for="Password" class="text-danger"></span>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Войти</button>
-    </form>
-</body>
-</html>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

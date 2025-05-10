@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Service.Models;
+using WebRepairService.Models;
+using WebRepairService.ViewModels;
 
 
 namespace WebRepairService.Controllers
@@ -30,24 +32,26 @@ namespace WebRepairService.Controllers
             if (ModelState.IsValid)
             {
                 var result = await _signInManager.PasswordSignInAsync(
-                    model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+                    model.UserName, model.Password, model.RememberMe, lockoutOnFailure: false);
 
                 if (result.Succeeded)
                 {
-                    var user = await _userManager.FindByEmailAsync(model.Email);
-                    if (await _userManager.IsInRoleAsync(user, "Admin"))
+                    var user = await _userManager.FindByNameAsync(model.UserName);
+                    if (user != null)
                     {
-                        return RedirectToAction("Index", "Admin");
+                        if (await _userManager.IsInRoleAsync(user, "Admin"))
+                        {
+                            return RedirectToAction("Users", "Admin");
+                        }
+                        else if (await _userManager.IsInRoleAsync(user, "Operator"))
+                        {
+                            return RedirectToAction("Index", "Operator");
+                        }
+                        else if (await _userManager.IsInRoleAsync(user, "Engineer"))
+                        {
+                            return RedirectToAction("Index", "Engineer");
+                        }
                     }
-                    else if (await _userManager.IsInRoleAsync(user, "Operator"))
-                    {
-                        return RedirectToAction("Index", "Operator");
-                    }
-                    else if (await _userManager.IsInRoleAsync(user, "Engineer"))
-                    {
-                        return RedirectToAction("Index", "Engineer");
-                    }
-
                     return RedirectToAction("Index", "Home");
                 }
 
@@ -63,6 +67,43 @@ namespace WebRepairService.Controllers
             return View();
         }
 
-        // Другие методы: Register, Logout и т.д.
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = new ApplicationUser
+                {
+                    UserName = model.Username,
+                    Email = model.Email,
+                    FullName = model.FullName,
+                    PhoneNumber = model.PhoneNumber,
+                    RegistrationDate = DateTime.UtcNow
+                };
+
+                var result = await _userManager.CreateAsync(user, model.Password);
+
+                if (result.Succeeded)
+                {
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    return RedirectToAction("Index", "Home");
+                }
+
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
+        }
     }
 }
