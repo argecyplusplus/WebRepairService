@@ -27,7 +27,7 @@
                 <div class="card-body text-center">
                     @if (!string.IsNullOrEmpty(Model.CurrentImagePath))
                     {
-                        <img src="@Model.ProfileImage" class="img-thumbnail rounded-circle mb-3" style="width: 200px; height: 200px; object-fit: cover;" />
+                        <img src="@Url.Content(Model.CurrentImagePath)" class="img-thumbnail rounded-circle mb-3" style="width: 200px; height: 200px; object-fit: cover;" />
                     }
                     else
                     {
