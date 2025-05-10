@@ -10,5 +10,7 @@ public class ApplicationUser : IdentityUser
     [Display(Name = "Дата регистрации")]
     public DateTime RegistrationDate { get; set; } = DateTime.UtcNow;
 
+    public string? ProfileImage { get; set; }
+
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 }
