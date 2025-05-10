@@ -150,14 +150,26 @@ namespace WebRepairService.Controllers
 
             try
             {
-                // Обновление фото только если загружено новое
+                // Обработка удаления изображения
+                if (Request.Form.ContainsKey("removeImage") && bool.Parse(Request.Form["removeImage"]))
+                {
+                    if (!string.IsNullOrEmpty(user.ProfileImage))
+                    {
+                        var oldImagePath = Path.Combine(_hostingEnvironment.WebRootPath,
+                            user.ProfileImage.TrimStart('/'));
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath);
+                        }
+                        user.ProfileImage = null;
+                    }
+                }
+
+                // Обновление фото если загружено новое
                 if (model.ProfileImage != null && model.ProfileImage.Length > 0)
                 {
                     var uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "uploads", "profile_images");
-                    if (!Directory.Exists(uploadsFolder))
-                    {
-                        Directory.CreateDirectory(uploadsFolder);
-                    }
+                    Directory.CreateDirectory(uploadsFolder);
 
                     var uniqueFileName = $"{user.Id}_{Guid.NewGuid()}{Path.GetExtension(model.ProfileImage.FileName)}";
                     var filePath = Path.Combine(uploadsFolder, uniqueFileName);
@@ -204,6 +216,7 @@ namespace WebRepairService.Controllers
                 ModelState.AddModelError(string.Empty, "Произошла ошибка при сохранении профиля");
             }
 
+            model.CurrentImagePath = user.ProfileImage;
             return View(model);
         }
 
@@ -244,6 +257,53 @@ namespace WebRepairService.Controllers
 
             return View(model);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveProfileImage()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                if (!string.IsNullOrEmpty(user.ProfileImage))
+                {
+                    var oldImagePath = Path.Combine(_hostingEnvironment.WebRootPath,
+                        user.ProfileImage.TrimStart('/'));
+
+                    if (System.IO.File.Exists(oldImagePath))
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }
+
+                    user.ProfileImage = null;
+                    var result = await _userManager.UpdateAsync(user);
+
+                    if (result.Succeeded)
+                    {
+                        TempData["SuccessMessage"] = "Изображение профиля успешно удалено";
+                        return RedirectToAction(nameof(Profile));
+                    }
+
+                    foreach (var error in result.Errors)
+                    {
+                        _logger.LogError("Ошибка при удалении изображения: {Error}", error.Description);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при удалении изображения профиля");
+                TempData["ErrorMessage"] = "Произошла ошибка при удалении изображения";
+            }
+
+            return RedirectToAction(nameof(Profile));
+        }
+
 
     }
 }

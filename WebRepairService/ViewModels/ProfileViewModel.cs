@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace WebRepairService.ViewModels
 {
@@ -21,6 +22,7 @@ namespace WebRepairService.ViewModels
         [Display(Name = "Изображение профиля")]
         public IFormFile? ProfileImage { get; set; }
 
+        [HiddenInput]
         public string? CurrentImagePath { get; set; }
     }
 }
