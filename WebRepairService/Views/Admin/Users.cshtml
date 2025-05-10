@@ -2,98 +2,137 @@
 @model List<UserRoleViewModel>
 @{
     ViewData["Title"] = "Управление пользователями";
+    var allRoles = ViewBag.AllRoles as List<string>;
 }
 
 <div class="users-management-container">
-    <h1 class="page-title">Управление пользователями</h1>
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas me-2"></i>Управление пользователями
+        </h1>
+        <div class="total-users">Всего пользователей: @Model.Count</div>
+    </div>
 
     @if (TempData["Success"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["Success"]
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
+            <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
     @if (TempData["Error"] != null)
     {
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @TempData["Error"]
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
+
+    <!-- Панель поиска и фильтров -->
+    <div class="search-filter-panel mb-4">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" id="searchInput" class="form-control" placeholder="Поиск по имени или логину...">
+                    <button id="clearSearch" class="btn btn-outline-secondary" type="button">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-filter"></i></span>
+                    <select id="roleFilter" class="form-select">
+                        <option value="">Все роли</option>
+                        @foreach (var role in allRoles)
+                        {
+                            <option value="@role">@role</option>
+                        }
+                        <option value="no-role">Без роли</option>
+                    </select>
+                    <button id="clearFilter" class="btn btn-outline-secondary" type="button">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="users-list">
         @foreach (var user in Model)
         {
-            <div class="user-card">
+            <div class="user-card"
+                 data-username="@user.Username.ToLower()"
+                 data-fullname="@user.FullName?.ToLower()"
+                 data-roles="@string.Join(",", user.Roles)">
                 <div class="user-header">
                     <div class="user-avatar">
-                        <i class="fas fa-user-circle"></i>
+                        <div class="avatar-circle @(user.Roles.Any() ? "has-role" : "no-role")">
+                            <i class="fas fa-user"></i>
+                        </div>
                     </div>
                     <div class="user-main-info">
-                        <h3 class="username">@user.Username</h3>
-                        <div class="user-fullname">@user.FullName</div>
+                        <h3 class="username" title="@user.Username">@user.Username</h3>
+                        <div class="user-meta">
+                            <span class="user-fullname" title="@user.FullName">@user.FullName</span>
+                            <span class="user-registration-date">
+                                <i class="fas fa-calendar-alt me-1"></i>@user.RegistrationDate.ToString("dd.MM.yyyy")
+                            </span>
+                        </div>
                     </div>
-                    <div class="user-registration-date">
-                        <i class="fas fa-calendar-alt"></i> @user.RegistrationDate.ToString("dd.MM.yyyy")
+                    <div class="user-status-badge">
+                        @if (user.Roles.Any())
+                        {
+                            <span class="badge bg-primary">@string.Join(", ", user.Roles)</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Без роли</span>
+                        }
                     </div>
                 </div>
 
                 <div class="user-contacts">
                     <div class="contact-item">
-                        <i class="fas fa-envelope"></i> @user.Email
+                        <i class="fas fa-envelope me-2"></i>
+                        <a href="mailto:@user.Email">@user.Email</a>
                     </div>
-                    <div class="contact-item">
-                        <i class="fas fa-phone"></i> @user.PhoneNumber
-                    </div>
+                    @if (!string.IsNullOrEmpty(user.PhoneNumber))
+                    {
+                        <div class="contact-item">
+                            <i class="fas fa-phone me-2"></i>
+                            <a href="tel:@user.PhoneNumber">@user.PhoneNumber</a>
+                        </div>
+                    }
                 </div>
 
                 <div class="user-controls">
-                    <div class="current-role">
-                        <span class="section-title">Текущая роль:</span>
-                        <span class="role-badge @(user.Roles.Any() ? "has-role" : "no-role")">
-                            @if (user.Roles.Any())
-                            {
-                                @string.Join(", ", user.Roles)
-                            }
-                            else
-                            {
-                                <text>Без роли</text>
-                            }
-                        </span>
-                    </div>
-
-                    <div class="control-actions">
-                        <form asp-action="SetRole" method="post" class="role-form">
-                            <input type="hidden" name="userId" value="@user.UserId" />
-                            <div class="role-select-wrapper">
-                                <select name="selectedRole" class="form-control role-select">
-                                    <option value="">Без роли</option>
-                                    @foreach (var role in ViewBag.AllRoles as List<string>)
-                                    {
-                                        <option value="@role" selected="@(user.Roles.Contains(role) ? "selected" : null)">
-                                            @role
-                                        </option>
-                                    }
-                                </select>
-                                <button type="submit" class="btn btn-sm btn-save">
-                                    <i class="fas fa-check"></i>
-                                </button>
-                            </div>
-                        </form>
-
-                        <form asp-action="DeleteUser" method="post" onsubmit="return confirm('Вы уверены, что хотите удалить этого пользователя?');">
-                            <input type="hidden" name="userId" value="@user.UserId" />
-                            <button type="submit" class="btn btn-sm btn-delete">
-                                <i class="fas fa-trash-alt"></i>
+                    <form asp-action="SetRole" method="post" class="role-form">
+                        <input type="hidden" name="userId" value="@user.UserId" />
+                        <div class="input-group">
+                            <select name="selectedRole" class="form-select">
+                                <option value="">Без роли</option>
+                                @foreach (var role in allRoles)
+                                {
+                                    <option value="@role" selected="@(user.Roles.Contains(role) ? "selected" : null)">
+                                        @role
+                                    </option>
+                                }
+                            </select>
+                            <button type="submit" class="btn btn-success" title="Сохранить роль">
+                                <i class="fas fa-check"></i>
                             </button>
-                        </form>
-                    </div>
+                        </div>
+                    </form>
+
+                    <button class="btn btn-danger delete-user"
+                            data-userid="@user.UserId"
+                            data-username="@user.Username"
+                            title="Удалить пользователя">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
                 </div>
             </div>
         }
@@ -103,300 +142,394 @@
 @section Styles {
     <style>
         /* Основные стили */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #333;
+        .users-management-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
         }
 
-        .users-management-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px 20px 0;
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .page-title {
             font-size: 2rem;
             color: #2f4f4f;
-            margin: 0 0 1.5rem 0;
+            margin: 0;
             font-weight: 600;
-            text-align: left;
-            padding-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .total-users {
+            background-color: #e6f4ec;
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.9rem;
+            color: #1d3c34;
+        }
+
+        /* Панель поиска и фильтров */
+        .search-filter-panel {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .input-group-text {
+            background-color: #e6f4ec;
+            border-color: #9fceb6;
+            color: #1d3c34;
         }
 
         /* Карточка пользователя */
         .users-list {
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-            margin-top: 1rem;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
         }
 
         .user-card {
             background: white;
-            border-radius: 0.5rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            padding: 1.25rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
             border-left: 4px solid #9fceb6;
             transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
         }
 
             .user-card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                transform: translateY(-5px);
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
             }
 
         /* Шапка карточки */
         .user-header {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 1rem;
-            flex-wrap: wrap;
-            margin-bottom: 0.75rem;
+            margin-bottom: 1rem;
         }
 
-        .user-avatar i.fas {
-            font-size: 2rem;
-            color: #9fceb6;
+        .avatar-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
         }
+
+            .avatar-circle.has-role {
+                background-color: #e6f4ec;
+                color: #1d3c34;
+                border: 2px solid #9fceb6;
+            }
+
+            .avatar-circle.no-role {
+                background-color: #f5f5f5;
+                color: #777;
+                border: 2px solid #ddd;
+            }
 
         .user-main-info {
             flex: 1;
-            min-width: 200px;
+            min-width: 0;
         }
 
         .username {
-            font-size: 1.2rem;
+            font-size: 1.25rem;
             margin: 0 0 0.25rem 0;
             color: #1d3c34;
             font-weight: 600;
+            word-break: break-word;
+        }
+
+        .user-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            font-size: 0.9rem;
+            color: #666;
         }
 
         .user-fullname {
-            font-size: 0.95rem;
-            color: #555;
+            white-space: normal;
+            overflow: visible;
+            display: block;
         }
 
-        .user-registration-date {
-            font-size: 0.85rem;
-            color: #777;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+        .user-status-badge {
+            margin-top: 0.25rem;
+            align-self: flex-start;
+            flex-shrink: 0;
         }
 
         /* Контакты */
         .user-contacts {
+            flex: 1;
             display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            padding: 0.75rem 0;
-            margin: 0.75rem 0;
+            flex-direction: column;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 1rem 0;
+            margin: 0.5rem 0;
             border-top: 1px solid #f0f0f0;
             border-bottom: 1px solid #f0f0f0;
+            min-height: 80px;
         }
 
         .contact-item {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-            color: #555;
+            font-size: 0.95rem;
         }
 
-            .contact-item i.fas {
+            .contact-item a {
+                color: #2f4f4f;
+                text-decoration: none;
+                transition: color 0.2s;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+                .contact-item a:hover {
+                    color: #1d3c34;
+                    text-decoration: underline;
+                }
+
+            .contact-item i {
                 color: #9fceb6;
-                width: 1rem;
-                text-align: center;
+                width: 1.25rem;
+                flex-shrink: 0;
             }
 
         /* Управление пользователями */
         .user-controls {
             display: flex;
-            flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
             gap: 1rem;
         }
 
-        .current-role {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-
-        .section-title {
-            font-size: 0.85rem;
-            color: #777;
-        }
-
-        .role-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 1rem;
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-
-            .role-badge.has-role {
-                background-color: #e6f4ec;
-                color: #1d3c34;
-            }
-
-            .role-badge.no-role {
-                background-color: #f5f5f5;
-                color: #777;
-            }
-
-        .control-actions {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
         .role-form {
-            margin: 0;
+            flex: 1;
+            min-width: 0;
         }
 
-        .role-select-wrapper {
+        .input-group {
             display: flex;
-            align-items: center;
             gap: 0.5rem;
         }
 
-        .role-select {
-            min-width: 180px;
-            border-radius: 0.25rem;
+        .form-select {
+            border-radius: 0.5rem !important;
             border: 1px solid #ddd;
-            padding: 0.375rem 0.75rem;
-            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 0;
         }
 
-        /* Кнопки - стили как на странице заказов */
+            .form-select:focus {
+                border-color: #9fceb6;
+                box-shadow: 0 0 0 0.25rem rgba(159, 206, 182, 0.25);
+            }
+
         .btn {
-            padding: 0.375rem 0.75rem;
-            border-radius: 0.25rem;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-
-        .btn-sm {
-            width: 30px;
-            height: 30px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            display: inline-flex;
+            display: flex;
             align-items: center;
             justify-content: center;
             padding: 0;
-            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
         }
 
-        .btn-save {
+        .btn-success {
             background-color: #9fceb6;
-            color: #1d3c34;
+            border-color: #9fceb6;
         }
 
-            .btn-save:hover {
+            .btn-success:hover {
                 background-color: #8abda5;
+                border-color: #8abda5;
             }
 
-        .btn-delete {
+        .btn-danger {
             background-color: #f8d7da;
+            border-color: #f8d7da;
             color: #721c24;
         }
 
-            .btn-delete:hover {
+            .btn-danger:hover {
                 background-color: #f5c6cb;
+                border-color: #f5c6cb;
+                color: #721c24;
             }
-
-        .btn i.fas {
-            font-size: 0.9em;
-        }
 
         /* Алерты */
         .alert {
+            border-radius: 0.75rem;
+            padding: 1rem 1.5rem;
             margin-bottom: 1.5rem;
-            padding: 0.75rem 1.25rem;
-            border-radius: 0.25rem;
+            display: flex;
+            align-items: center;
         }
 
-        .close {
-            font-size: 1.5rem;
-            line-height: 1;
+        .alert-success {
+            background-color: #e6f4ec;
+            border-color: #c7e4d4;
+            color: #1d3c34;
         }
 
-        /* Адаптивность */
-        @@media (max-width: 992px) {
-            .users-management-container {
-                padding: 1rem;
-            }
+        .alert-danger {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
         }
 
-        @@media (max-width: 768px) {
-            .page-title {
-                font-size: 1.75rem;
+        .btn-close {
+            margin-left: auto;
+        }
+
+        /* Анимации */
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
             }
 
-            .user-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.75rem;
-            }
-
-            .user-main-info {
-                width: 100%;
-            }
-
-            .user-contacts {
-                flex-direction: column;
-                gap: 0.75rem;
-            }
-
-            .user-controls {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
-
-            .control-actions {
-                width: 100%;
-                justify-content: space-between;
-            }
-
-            .role-select-wrapper {
-                width: 100%;
-            }
-
-            .role-select {
-                flex: 1;
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
 
-        @@media (max-width: 576px) {
-            .page-title {
-                font-size: 1.5rem;
-                margin-bottom: 1rem;
-            }
-
-            .user-card {
-                padding: 1rem;
-            }
+        .user-card {
+            animation: fadeIn 0.4s ease-out forwards;
         }
+
+            /* Скрытие карточек при фильтрации */
+            .user-card.hidden {
+                display: none;
+            }
     </style>
 }
 
 @section Scripts {
     <script>
         $(document).ready(function() {
+            // Автоматическое скрытие алертов через 5 секунд
             setTimeout(function() {
                 $('.alert').alert('close');
             }, 5000);
+
+            // Подтверждение удаления пользователя с модальным окном
+            $('.delete-user').click(function() {
+                const userId = $(this).data('userid');
+                const username = $(this).data('username');
+
+                Swal.fire({
+                    title: 'Удаление пользователя',
+                    html: `Вы уверены, что хотите удалить пользователя <strong>${username}</strong>?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#9fceb6',
+                    confirmButtonText: 'Да, удалить',
+                    cancelButtonText: 'Отмена',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.post('@Url.Action("DeleteUser")', { userId: userId })
+                            .done(function() {
+                                Swal.fire({
+                                    title: 'Успешно!',
+                                    text: 'Пользователь был удален',
+                                    icon: 'success'
+                                }).then(() => location.reload());
+                            })
+                            .fail(function() {
+                                Swal.fire({
+                                    title: 'Ошибка!',
+                                    text: 'Не удалось удалить пользователя',
+                                    icon: 'error'
+                                });
+                            });
+                    }
+                });
+            });
+
+            // Плавное появление карточек
+            $('.user-card').each(function(index) {
+                $(this).css('opacity', '1');
+            });
+
+            // Функция фильтрации карточек
+            function filterUsers() {
+                const searchText = $('#searchInput').val().toLowerCase();
+                const selectedRole = $('#roleFilter').val();
+
+                $('.user-card').each(function() {
+                    const $card = $(this);
+                    const username = $card.data('username');
+                    const fullname = $card.data('fullname') || '';
+                    const roles = $card.data('roles') || '';
+
+                    // Проверка поискового запроса
+                    const matchesSearch = searchText === '' ||
+                        username.includes(searchText) ||
+                        fullname.includes(searchText);
+
+                    // Проверка фильтра по ролям
+                    let matchesRole = true;
+                    if (selectedRole) {
+                        if (selectedRole === 'no-role') {
+                            matchesRole = roles === '';
+                        } else {
+                            matchesRole = roles.includes(selectedRole);
+                        }
+                    }
+
+                    // Показываем/скрываем карточку
+                    if (matchesSearch && matchesRole) {
+                        $card.removeClass('hidden');
+                    } else {
+                        $card.addClass('hidden');
+                    }
+                });
+
+                // Обновляем счетчик видимых пользователей
+                const visibleCount = $('.user-card:not(.hidden)').length;
+                $('.total-users').text(`Всего пользователей: ${visibleCount}`);
+            }
+
+            // Обработчики событий для поиска и фильтрации
+            $('#searchInput').on('input', filterUsers);
+            $('#roleFilter').on('change', filterUsers);
+
+            // Кнопки очистки
+            $('#clearSearch').click(function() {
+                $('#searchInput').val('').trigger('input');
+            });
+
+            $('#clearFilter').click(function() {
+                $('#roleFilter').val('').trigger('change');
+            });
         });
     </script>
 }

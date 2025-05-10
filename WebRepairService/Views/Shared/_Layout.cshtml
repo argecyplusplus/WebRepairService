@@ -3,7 +3,7 @@
 @inject UserManager<ApplicationUser> UserManager
 @{
     var hasRoles = false;
-    string userRole = "Без роли"; // Значение по умолчанию
+    string userRole = "Гость";
 
     if (User.Identity?.IsAuthenticated == true)
     {
@@ -12,9 +12,8 @@
         {
             var roles = await UserManager.GetRolesAsync(user);
             hasRoles = roles.Any();
-            userRole = roles.FirstOrDefault() ?? "Без роли";
+            userRole = roles.FirstOrDefault() ?? "Гость";
 
-            // Форматируем название роли для красивого отображения
             userRole = userRole switch
             {
                 "Admin" => "Администратор",
@@ -37,12 +36,23 @@
     <link rel="stylesheet" href="~/WebRepairService.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <style>
-        /* Скрыть полосы прокрутки для всего документа */
-        html {
-            overflow: -moz-hidden-unscrollable; /* Для Firefox */
+
+        /* Анимация fadeIn */
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
 
-        /* Для Chrome, Edge и Opera */
+        /* Скрыть полосы прокрутки для всего документа */
+        html {
+            overflow: -moz-hidden-unscrollable;
+        }
+
         ::-webkit-scrollbar {
             display: none;
         }
@@ -54,9 +64,20 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
+        /* Анимации и переходы */
+        .navbar-brand, .nav-link, .logout-btn {
+            transition: all 0.3s ease;
+        }
+
+        .sidebar .nav-link {
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
         /* Стили для верхней панели */
         .navbar {
             min-height: 58px;
+            background: linear-gradient(to right, #e6f4ec, #d8efe4);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         .navbar-nav {
@@ -93,6 +114,10 @@
                 background: none;
             }
 
+            .logout-btn:active {
+                transform: scale(0.95);
+            }
+
         /* Стили для информации о пользователе */
         .user-info {
             display: flex;
@@ -108,9 +133,24 @@
 
         .user-role {
             font-size: 0.85rem;
-            color: #5a7d6e;
-            font-weight: 400;
+            font-weight: 500;
         }
+
+            .user-role[data-role="admin"] {
+                color: #d32f2f;
+            }
+
+            .user-role[data-role="operator"] {
+                color: #1976d2;
+            }
+
+            .user-role[data-role="engineer"] {
+                color: #388e3c;
+            }
+
+            .user-role:not([data-role]) {
+                color: #5a7d6e;
+            }
 
         /* Стили для боковой панели */
         .sidebar {
@@ -124,6 +164,7 @@
             padding: 0;
             overflow-y: auto;
             z-index: 1000;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
         }
 
             .sidebar .nav {
@@ -137,7 +178,12 @@
                 display: flex;
                 margin: 0;
                 justify-content: center;
+                border-bottom: 1px solid rgba(255,255,255,0.3);
             }
+
+                .sidebar .nav-item:last-child {
+                    border-bottom: none;
+                }
 
             .sidebar .nav-link {
                 padding: 0.75rem 1rem;
@@ -153,6 +199,7 @@
                 .sidebar .nav-link:hover {
                     background-color: #b2d8c4;
                     color: #1d3c34;
+                    transform: translateX(5px);
                 }
 
                 .sidebar .nav-link.active {
@@ -169,6 +216,7 @@
             margin-left: 220px;
             margin-right: 20px;
             min-height: calc(100vh - 80px);
+            animation: fadeIn 0.4s ease-out;
         }
 
         /* Без боковой панели - центрируем контент */
@@ -185,6 +233,7 @@
 
             .navbar-brand:hover {
                 color: #1d3c34;
+                transform: translateX(2px);
             }
     </style>
 
@@ -192,9 +241,9 @@
 </head>
 <body class="@(hasRoles ? "has-sidebar" : "")">
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow fixed-top" style="background-color: #e6f4ec;">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow fixed-top">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index" style="color: #2f4f4f; font-weight: 600;">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index" style="font-weight: 600;">
                     <i class="fas fa-cogs me-2"></i>Система обработки заказов сервисного центра
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
@@ -211,12 +260,30 @@
                             <li class="nav-item">
                                 <div class="user-info">
                                     <span class="user-name">@User.Identity?.Name</span>
-                                    <span class="user-role">@userRole</span>
+                                    <span class="user-role" data-role="@userRole.ToLower()">
+                                        @if (userRole == "Администратор")
+                                        {
+                                            <i class="fas me-1"></i>
+                                        }
+                                        else if (userRole == "Оператор")
+                                        {
+                                            <i class="fas me-1"></i>
+                                        }
+                                        else if (userRole == "Инженер")
+                                        {
+                                            <i class="fas me-1"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas me-1"></i>
+                                        }
+                                        @userRole
+                                    </span>
                                 </div>
                             </li>
                             <li class="nav-item">
                                 <form class="form-inline" asp-controller="Account" asp-action="Logout">
-                                    <button type="submit" class="logout-btn">
+                                    <button type="submit" class="logout-btn" title="Выйти из системы">
                                         <i class="fas fa-sign-out-alt me-1"></i>Выйти
                                     </button>
                                 </form>
