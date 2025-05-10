@@ -210,7 +210,9 @@
                         <ul class="navbar-nav">
                             <li class="nav-item">
                                 <div class="user-info">
-                                    <span class="user-name">@User.Identity?.Name</span>
+                                    <a class="nav-link user-name" asp-controller="Account" asp-action="Profile">
+                                        @User.Identity?.Name
+                                    </a>
                                     <span class="user-role">@userRole</span>
                                 </div>
                             </li>
