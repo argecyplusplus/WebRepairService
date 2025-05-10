@@ -9,47 +9,71 @@
 }
 
 <div class="container mt-5">
-    <h1 class="text-center mb-4">Добро пожаловать в систему обработки заказов сервисного центра!</h1>
-
-    @if (User?.Identity?.IsAuthenticated == true)
-    {
-        <div class="alert alert-success text-center">
-            <p>Вы вошли как: <strong>@User.Identity.Name</strong></p>
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h1 class="text-center">Добро пожаловать в систему обработки заказов сервисного центра!</h1>
         </div>
 
-        <ul class="nav flex-column">
-            @{
-                var user = await UserManager.GetUserAsync(User);
-                if (user != null)
-                {
-                    @if (await UserManager.IsInRoleAsync(user, "Admin"))
-                    {
-                        <!-- Меню администратора -->
-                    }
-                    @if (await UserManager.IsInRoleAsync(user, "Operator"))
-                    {
-                        <!-- Меню оператора -->
-                    }
-                    @if (await UserManager.IsInRoleAsync(user, "Engineer"))
-                    {
-                        <!-- Меню инженера -->
-                    }
-                    @if (await UserManager.HasNoRolesAsync(user))
-                    {
-                        <h3>Администратор еще не выдал Вам роль. Необходимо подождать верификацию вашего аккаунта</h3>
-                    }
-                }
-            }
-        </ul>
-    }
-    else
-    {
-        <script>
-            window.location.href = '@Url.Action("Login", "Account")';
-        </script>
+        <div class="card-body">
+            @if (User?.Identity?.IsAuthenticated == true)
+            {
 
-        <!-- Запасной вариант, если JavaScript отключен -->
-        <meta http-equiv="refresh" content="0;url=@Url.Action("Login", "Account")" />
-        <p class="text-center">Перенаправление на страницу входа...</p>
-    }
+                <ul class="nav flex-column">
+                    @{
+                        var user = await UserManager.GetUserAsync(User);
+                        if (user != null)
+                        {
+                            @if (await UserManager.IsInRoleAsync(user, "Admin"))
+                            {
+                                <!-- Меню администратора -->
+                            }
+                            @if (await UserManager.IsInRoleAsync(user, "Operator"))
+                            {
+                                <!-- Меню оператора -->
+                            }
+                            @if (await UserManager.IsInRoleAsync(user, "Engineer"))
+                            {
+                                <!-- Меню инженера -->
+                            }
+                            @if (await UserManager.HasNoRolesAsync(user))
+                            {
+                                <div class="text-center py-4">
+                                    <div class="alert alert-warning">
+                                        <h3 class="alert-heading">Ожидание подтверждения</h3>
+                                        <hr>
+                                        <p class="mb-0">
+                                            <i class="fas fa-user-clock fa-3x mb-3 text-warning"></i><br>
+                                            Администратор еще не назначил вам роль.<br>
+                                            Пожалуйста, подождите завершения проверки вашего аккаунта.
+                                        </p>
+                                    </div>
+                                    <div class="spinner-border text-primary mt-3" role="status">
+                                        <span class="visually-hidden">Загрузка...</span>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    }
+                </ul>
+            }
+            else
+            {
+                <script>
+                    window.location.href = '@Url.Action("Login", "Account")';
+                </script>
+
+                <!-- Запасной вариант, если JavaScript отключен -->
+                <meta http-equiv="refresh" content="0;url=@Url.Action("Login", "Account")" />
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Загрузка...</span>
+                    </div>
+                    <p class="mt-2">Перенаправление на страницу входа...</p>
+                </div>
+            }
+        </div>
+    </div>
 </div>
+
+<!-- Подключение иконок Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
