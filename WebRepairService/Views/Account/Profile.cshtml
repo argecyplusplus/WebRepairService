@@ -3,76 +3,287 @@
 @{
     ViewData["Title"] = "Мой профиль";
 }
-@if (!ViewData.ModelState.IsValid)
-{
-    <div class="alert alert-danger">
-        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-        {
-            <p>@error.ErrorMessage</p>
+
+@section Styles {
+    <style>
+        /* Основные стили страницы профиля */
+        .profile-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
         }
-    </div>
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            color: #2f4f4f;
+            margin: 0;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Карточки */
+        .profile-card {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+            border-left: 4px solid #9fceb6;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .profile-avatar-container {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-avatar {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #e6f4ec;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+        }
+
+        .avatar-placeholder {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background-color: #e6f4ec;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            border: 4px solid #e6f4ec;
+            color: #9fceb6;
+            font-size: 5rem;
+        }
+
+        .profile-info {
+            text-align: center;
+        }
+
+        .profile-name {
+            font-size: 1.5rem;
+            color: #2f4f4f;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .profile-email {
+            color: #6c757d;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Форма */
+        .profile-form .form-label {
+            font-weight: 500;
+            color: #2f4f4f;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-form .form-control {
+            border-radius: 0.5rem;
+            border: 1px solid #ced4da;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+            .profile-form .form-control:focus {
+                border-color: #9fceb6;
+                box-shadow: 0 0 0 0.25rem rgba(159, 206, 182, 0.25);
+            }
+
+        .btn-primary {
+            background-color: #9fceb6;
+            border-color: #9fceb6;
+            color: #1d3c34;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+            .btn-primary:hover {
+                background-color: #8abda5;
+                border-color: #8abda5;
+                color: #1d3c34;
+            }
+
+        .btn-outline-primary {
+            border-color: #9fceb6;
+            color: #9fceb6;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+            .btn-outline-primary:hover {
+                background-color: #e6f4ec;
+                border-color: #9fceb6;
+                color: #1d3c34;
+            }
+
+        /* Алерты */
+        .alert {
+            border-radius: 0.75rem;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            border: none;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .alert-success {
+            background-color: #e6f4ec;
+            color: #1d3c34;
+        }
+
+        /* Иконки */
+        .fas {
+            margin-right: 0.5rem;
+        }
+
+        /* Анимации */
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .profile-card {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        /* Файловый инпут */
+        .form-control[type="file"] {
+            padding: 0.5rem;
+        }
+
+        .text-muted {
+            font-size: 0.85rem;
+            color: #6c757d !important;
+        }
+    </style>
 }
 
-<div class="container">
-    <h1>@ViewData["Title"]</h1>
+<div class="profile-container">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas me-2"></i>@ViewData["Title"]
+        </h1>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <p class="mb-0">@error.ErrorMessage</p>
+            }
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     }
 
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body text-center">
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="profile-card">
+                <div class="profile-avatar-container">
                     @if (!string.IsNullOrEmpty(Model.CurrentImagePath))
                     {
-                        <img src="@Url.Content(Model.CurrentImagePath)" class="img-thumbnail rounded-circle mb-3" style="width: 200px; height: 200px; object-fit: cover;" />
+                        <img src="@Url.Content(Model.CurrentImagePath)" class="profile-avatar" />
                     }
                     else
                     {
-                        <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mb-3" style="width: 200px; height: 200px; margin: 0 auto;">
-                            <i class="fas fa-user fa-5x text-secondary"></i>
+                        <div class="avatar-placeholder">
+                            <i class="fas fa-user"></i>
                         </div>
                     }
-                    <h3>@Model.FullName</h3>
-                    <p class="text-muted">@Model.Email</p>
-                    <a asp-action="ChangePassword" class="btn btn-outline-primary btn-sm">Сменить пароль</a>
+                </div>
+                <div class="profile-info">
+                    <h3 class="profile-name">@Model.FullName</h3>
+                    <p class="profile-email">@Model.Email</p>
+                    <a asp-action="ChangePassword" class="btn btn-outline-primary">
+                        <i class="fas fa-key"></i>Сменить пароль
+                    </a>
                 </div>
             </div>
         </div>
-        <div class="col-md-8">
-            <form asp-action="Profile" method="post" enctype="multipart/form-data">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="col-lg-8">
+            <div class="profile-card">
+                <form asp-action="Profile" method="post" enctype="multipart/form-data" class="profile-form">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-                <div class="form-group mb-3">
-                    <label asp-for="FullName" class="form-label"></label>
-                    <input asp-for="FullName" class="form-control" />
-                    <span asp-validation-for="FullName" class="text-danger"></span>
-                </div>
+                    <div class="mb-4">
+                        <label asp-for="FullName" class="form-label">
+                            <i class="fas fa-user-tag"></i>Полное имя
+                        </label>
+                        <input asp-for="FullName" class="form-control" />
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
 
-                <div class="form-group mb-3">
-                    <label asp-for="Email" class="form-label"></label>
-                    <input asp-for="Email" class="form-control" />
-                    <span asp-validation-for="Email" class="text-danger"></span>
-                </div>
+                    <div class="mb-4">
+                        <label asp-for="Email" class="form-label">
+                            <i class="fas fa-envelope"></i>Email
+                        </label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
 
-                <div class="form-group mb-3">
-                    <label asp-for="PhoneNumber" class="form-label"></label>
-                    <input asp-for="PhoneNumber" class="form-control" />
-                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-                </div>
+                    <div class="mb-4">
+                        <label asp-for="PhoneNumber" class="form-label">
+                            <i class="fas fa-phone"></i>Номер телефона
+                        </label>
+                        <input asp-for="PhoneNumber" class="form-control" />
+                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
 
-                <div class="form-group mb-3">
-                    <label asp-for="ProfileImage" class="form-label"></label>
-                    <input asp-for="ProfileImage" type="file" class="form-control" accept="image/*" />
-                    <small class="text-muted">Загрузите изображение для вашего профиля</small>
-                </div>
+                    <div class="mb-4">
+                        <label asp-for="ProfileImage" class="form-label">
+                            <i class="fas fa-camera"></i>Фото профиля
+                        </label>
+                        <input asp-for="ProfileImage" type="file" class="form-control" accept="image/*" />
+                        <small class="text-muted">Рекомендуемый размер: 200x200 пикселей</small>
+                    </div>
 
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Сохранить изменения</button>
-                </div>
-            </form>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>Сохранить изменения
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
@@ -81,4 +292,29 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        $(document).ready(function() {
+            // Автоматическое скрытие алертов через 5 секунд
+            setTimeout(function() {
+                $('.alert').alert('close');
+            }, 5000);
+
+            // Превью загружаемого изображения
+            $('#ProfileImage').change(function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    var reader = new FileReader();
+
+                    reader.onload = function(e) {
+                        if ($('.profile-avatar').length) {
+                            $('.profile-avatar').attr('src', e.target.result);
+                        } else {
+                            $('.avatar-placeholder').replaceWith('<img src="' + e.target.result + '" class="profile-avatar" />');
+                        }
+                    }
+
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+        });
+    </script>
 }
