@@ -38,7 +38,8 @@ namespace WebRepairService.Controllers
                     FullName = user.FullName,
                     PhoneNumber = user.PhoneNumber,
                     RegistrationDate = user.RegistrationDate,
-                    Roles = await _userManager.GetRolesAsync(user)
+                    Roles = await _userManager.GetRolesAsync(user),
+                    ProfileImage = user.ProfileImage 
                 };
                 userRolesViewModel.Add(thisViewModel);
             }
@@ -123,9 +124,6 @@ namespace WebRepairService.Controllers
             return RedirectToAction("Users");
         }
 
-
-
-
     }
 
     public class UserRoleViewModel
@@ -143,6 +141,7 @@ namespace WebRepairService.Controllers
 
         public DateTime RegistrationDate { get; set; }
         public IList<string> Roles { get; set; }
+        public string ProfileImage { get; set; }
 
     }
 }

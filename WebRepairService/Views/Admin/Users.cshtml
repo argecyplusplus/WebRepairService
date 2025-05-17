@@ -61,23 +61,29 @@
                  data-roles="@string.Join(",", user.Roles)">
                 <div class="user-header">
                     <div class="user-avatar">
-                        <div class="avatar-circle @(user.Roles.Any() ? "has-role" : "no-role")">
-                            <i class="fas fa-user"></i>
-                        </div>
+                        @if (!string.IsNullOrEmpty(user.ProfileImage))
+                        {
+                            <div class="avatar-circle @(user.Roles.Any() ? "has-role" : "no-role")">
+                                <img src="@Url.Content(user.ProfileImage)" alt="Аватар @user.FullName" class="avatar-image" />
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="avatar-circle @(user.Roles.Any() ? "has-role" : "no-role")">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        }
                     </div>
                     <div class="user-main-info">
                         <h3 class="username" title="@user.Username">@user.Username</h3>
                         <div class="user-meta">
                             <span class="user-fullname" title="@user.FullName">@user.FullName</span>
-                            <span class="user-registration-date">
-                                <i class="fas fa-calendar-alt me-1"></i>@user.RegistrationDate.ToString("dd.MM.yyyy")
-                            </span>
                         </div>
                     </div>
                     <div class="user-status-badge">
                         @if (user.Roles.Any())
                         {
-                            <span class="badge bg-primary">@string.Join(", ", user.Roles)</span>
+                            <span class="badge bg-light text-dark">@string.Join(", ", user.Roles)</span>
                         }
                         else
                         {
@@ -98,13 +104,17 @@
                             <a href="tel:@user.PhoneNumber">@user.PhoneNumber</a>
                         </div>
                     }
+                    <div class="contact-item">
+                        <i class="fas fa-calendar-alt me-2"></i>
+                        <span>Зарегистрирован: @user.RegistrationDate.ToString("dd.MM.yyyy")</span>
+                    </div>
                 </div>
 
                 <div class="user-controls">
                     <form asp-action="SetRole" method="post" class="role-form">
                         <input type="hidden" name="userId" value="@user.UserId" />
-                        <div class="input-group">
-                            <select name="selectedRole" class="form-select">
+                        <div class="role-control-group">
+                            <select name="selectedRole" class="role-select">
                                 <option value="">Без роли</option>
                                 @foreach (var role in allRoles)
                                 {
@@ -113,7 +123,7 @@
                                     </option>
                                 }
                             </select>
-                            <button type="submit" class="btn btn-success" title="Сохранить роль">
+                            <button type="submit" class="btn-save-role" title="Сохранить роль">
                                 <i class="fas fa-check"></i>
                             </button>
                         </div>
@@ -165,6 +175,86 @@
             font-size: 0.9rem;
             color: #1d3c34;
         }
+
+        /* аватарка */
+        .avatar-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .avatar-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-circle.has-role {
+            border: 2px solid #9fceb6;
+        }
+
+        .avatar-circle.no-role {
+            border: 2px solid #ddd;
+        }
+
+
+
+        /* Стили для управления ролями */
+        .role-control-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .role-select {
+            width: 160px; /* Уменьшенная ширина */
+            padding: 0.375rem 0.75rem;
+            font-size: 0.9rem;
+            border: 1px solid #ced4da;
+            border-radius: 0.5rem;
+            background-color: white;
+            color: #495057;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            text-align: left; /* Выравнивание текста по левому краю */
+        }
+
+            .role-select:focus {
+                border-color: #9fceb6;
+                outline: 0;
+                box-shadow: 0 0 0 0.2rem rgba(159, 206, 182, 0.25);
+            }
+
+        .btn-save-role {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            background-color: #9fceb6;
+            color: white;
+            border: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+            .btn-save-role:hover {
+                background-color: #8abda5;
+                transform: scale(1.05);
+            }
+
+            .btn-save-role:active {
+                transform: scale(0.98);
+            }
+
 
         /* Общий блок для поиска и фильтров */
         .service-controls {
@@ -319,15 +409,13 @@
             display: flex;
             align-items: center;
             font-size: 0.95rem;
+            color: #555; /* Цвет текста */
         }
 
             .contact-item a {
                 color: #2f4f4f;
                 text-decoration: none;
                 transition: color 0.2s;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
             }
 
                 .contact-item a:hover {
@@ -339,6 +427,7 @@
                 color: #9fceb6;
                 width: 1.25rem;
                 flex-shrink: 0;
+                text-align: center;
             }
 
         /* Управление пользователями */

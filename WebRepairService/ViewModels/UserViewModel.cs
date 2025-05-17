@@ -20,6 +20,9 @@ public class UserViewModel
 
     [Display(Name = "Роли")]
     public List<RoleViewModel> Roles { get; set; } = new();
+
+    [Display(Name = "Аватар")]
+    public string ProfileImage { get; set; }
 }
 
 public class RoleViewModel
