@@ -29,33 +29,25 @@
         </div>
     }
 
-    <!-- Панель поиска и фильтров -->
-    <div class="search-filter-panel mb-4">
-        <div class="row g-3">
-            <div class="col-md-6">
-                <div class="input-group">
-                    <span class="input-group-text"><i class="fas fa-search"></i></span>
-                    <input type="text" id="searchInput" class="form-control" placeholder="Поиск по имени или логину...">
-                    <button id="clearSearch" class="btn btn-outline-secondary" type="button">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
+    <!-- Общий блок для поиска и фильтров -->
+    <div class="service-controls">
+        <div class="search-filter-panel">
+            <div class="input-group search-input-group">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" id="searchInput" class="form-control search-input" placeholder="Поиск по имени или логину...">
             </div>
-            <div class="col-md-6">
-                <div class="input-group">
-                    <span class="input-group-text"><i class="fas fa-filter"></i></span>
-                    <select id="roleFilter" class="form-select">
-                        <option value="">Все роли</option>
-                        @foreach (var role in allRoles)
-                        {
-                            <option value="@role">@role</option>
-                        }
-                        <option value="no-role">Без роли</option>
-                    </select>
-                    <button id="clearFilter" class="btn btn-outline-secondary" type="button">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
+        </div>
+
+        <div class="filter-col">
+            <div class="input-group filter-input-group">
+                <select id="roleFilter" class="form-select filter-select">
+                    <option value="">Все роли</option>
+                    @foreach (var role in allRoles)
+                    {
+                        <option value="@role">@role</option>
+                    }
+                    <option value="no-role">Без роли</option>
+                </select>
             </div>
         </div>
     </div>
@@ -174,18 +166,51 @@
             color: #1d3c34;
         }
 
-        /* Панель поиска и фильтров */
+        /* Общий блок для поиска и фильтров */
+        .service-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 1.5rem;
+        }
+
+        /* Поисковая строка */
         .search-filter-panel {
-            background: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            flex-grow: 1;
+        }
+
+        .search-input-group,
+        .filter-input-group {
+            height: 45px;
+            border-radius: 0.7rem;
+            overflow: hidden;
+            border: 1px solid #9fceb6;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+            background-color: #ffffff;
+        }
+
+        .search-input,
+        .filter-select {
+            border: none;
+            outline: none;
+            box-shadow: none;
+            background-color: #ffffff;
+            color: #2f4f4f;
+            font-size: 1rem;
+            height: 100%;
         }
 
         .input-group-text {
             background-color: #e6f4ec;
-            border-color: #9fceb6;
+            border: none;
             color: #1d3c34;
+            font-weight: 500;
+        }
+
+        /* Фильтр по ролям */
+        .filter-col {
+            min-width: 200px;
         }
 
         /* Карточка пользователя */
@@ -381,31 +406,6 @@
                 color: #721c24;
             }
 
-        /* Алерты */
-        .alert {
-            border-radius: 0.75rem;
-            padding: 1rem 1.5rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-        }
-
-        .alert-success {
-            background-color: #e6f4ec;
-            border-color: #c7e4d4;
-            color: #1d3c34;
-        }
-
-        .alert-danger {
-            background-color: #f8d7da;
-            border-color: #f5c6cb;
-            color: #721c24;
-        }
-
-        .btn-close {
-            margin-left: auto;
-        }
-
         /* Анимации */
         @@keyframes fadeIn {
             from {
@@ -427,6 +427,23 @@
             .user-card.hidden {
                 display: none;
             }
+
+        /* Адаптивность */
+        @@media (max-width: 768px) {
+            .service-controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+
+            .filter-col {
+                width: 100%;
+            }
+
+            .users-list {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 }
 
@@ -476,7 +493,7 @@
 
             // Плавное появление карточек
             $('.user-card').each(function(index) {
-                $(this).css('opacity', '1');
+                $(this).css('animation-delay', `${index * 0.05}s`);
             });
 
             // Функция фильтрации карточек
@@ -521,15 +538,6 @@
             // Обработчики событий для поиска и фильтрации
             $('#searchInput').on('input', filterUsers);
             $('#roleFilter').on('change', filterUsers);
-
-            // Кнопки очистки
-            $('#clearSearch').click(function() {
-                $('#searchInput').val('').trigger('input');
-            });
-
-            $('#clearFilter').click(function() {
-                $('#roleFilter').val('').trigger('change');
-            });
         });
     </script>
 }
