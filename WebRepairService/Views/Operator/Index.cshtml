@@ -52,20 +52,13 @@
                  data-device="@item.DeviceType?.Name?.ToLower()"
                  data-model="@item.Model?.ToLower()">
                 <div class="order-header">
-                    <div class="order-id">
-                        <span class="section-title">ID:</span>
-                        <span>@item.OrderId</span>
-                    </div>
-                    <div class="order-date">
-                        <i class="fas fa-calendar-alt me-1"></i>@item.CreationDate.ToString("dd.MM.yyyy")
+                    <div class="order-number">
+                        <span>Заказ №@item.OrderId</span>
                     </div>
                 </div>
 
                 <div class="order-body">
                     <div class="client-section">
-                        <div class="client-avatar">
-                            <i class="fas fa-user-circle"></i>
-                        </div>
                         <div class="client-info">
                             <h3 class="client-name">@item.ClientFullName</h3>
                             <div class="client-contacts">
@@ -84,12 +77,15 @@
                             }
                             else
                             {
-                                <i class="fas fa-laptop"></i>
+                                <i class="fas fa-image"></i>
                             }
                         </div>
                         <div class="device-info">
                             <div class="device-type">@item.DeviceType?.Name</div>
                             <div class="device-model">@item.Model</div>
+                            <div class="order-date">
+                                <i class="fas fa-calendar-alt me-1"></i>@item.CreationDate.ToString("dd.MM.yyyy")
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -121,7 +117,7 @@
                             }
                         }
                         <span class="status-badge @statusClass">
-                            <i class="fas fa-circle"></i> @item.Status?.Name
+                            @item.Status?.Name
                         </span>
                     </div>
 
@@ -284,29 +280,13 @@
 
         /* Шапка карточки */
         .order-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             margin-bottom: 1rem;
         }
 
-        .order-id {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-        }
-
-        .section-title {
-            font-size: 0.8rem;
-            color: #777;
-        }
-
-        .order-date {
-            font-size: 0.8rem;
-            color: #666;
-            display: flex;
-            align-items: center;
+        .order-number {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #2f4f4f;
         }
 
         /* Тело карточки */
@@ -319,14 +299,7 @@
 
         /* Секция клиента */
         .client-section {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .client-avatar {
-            font-size: 1.8rem;
-            color: #9fceb6;
+            margin-bottom: 1rem;
         }
 
         .client-info {
@@ -336,7 +309,7 @@
 
         .client-name {
             font-size: 1.1rem;
-            margin: 0 0 0.25rem 0;
+            margin: 0 0 0.5rem 0;
             color: #1d3c34;
             font-weight: 600;
             white-space: nowrap;
@@ -413,7 +386,19 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            margin-bottom: 0.25rem;
         }
+
+        .order-date {
+            font-size: 0.8rem;
+            color: #666;
+            display: flex;
+            align-items: center;
+        }
+
+            .order-date i {
+                margin-right: 0.25rem;
+            }
 
         /* Подвал карточки */
         .order-footer {
@@ -429,14 +414,11 @@
             border-radius: 1rem;
             font-size: 0.8rem;
             font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
         }
 
         .status-default {
-            background-color: #f5f5f5;
-            color: #777;
+            background-color: #f0f0f0;
+            color: #555;
         }
 
         .status-received {
@@ -464,10 +446,6 @@
             color: #c62828;
         }
 
-        .status-badge i {
-            font-size: 0.5rem;
-        }
-
         /* Действия */
         .order-actions {
             display: flex;
@@ -488,18 +466,18 @@
 
         .btn-pdf {
             background-color: #f8f9fa;
-            color: #d32f2f;
-            border: 1px solid #f1f1f1;
+            color: #9fd5b7;
+
         }
 
             .btn-pdf:hover {
-                background-color: #f1f1f1;
+                background-color: #f5c6cb;
             }
 
         .btn-details {
-            background-color: #e3f2fd;
-            color: #1976d2;
-            border: 1px solid #bbdefb;
+            background-color: #f8f9fa;
+            color: #9fd5b7;
+
         }
 
             .btn-details:hover {
@@ -507,9 +485,8 @@
             }
 
         .btn-edit {
-            background-color: #fff8e1;
-            color: #ffa000;
-            border: 1px solid #ffecb3;
+            background-color: #f8f9fa;
+            color: #9fd5b7;
         }
 
             .btn-edit:hover {
@@ -517,9 +494,8 @@
             }
 
         .btn-delete {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+            background-color: #f8f9fa;
+            color: #9fd5b7;
         }
 
             .btn-delete:hover {
@@ -528,15 +504,18 @@
 
         /* Анимации */
         @@keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
+            from
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         }
 
         .order-card {
@@ -550,89 +529,102 @@
 
         /* Адаптивность */
         @@media (max-width: 1400px) {
-            .orders-list {
-                grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-            }
+            .orders-list
+
+        {
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+        }
+
         }
 
         @@media (max-width: 1200px) {
-            .orders-list {
-                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            }
+            .orders-list
+
+        {
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        }
+
         }
 
         @@media (max-width: 992px) {
-            .orders-list {
-                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            }
+            .orders-list
 
-            .order-card {
-                padding: 1rem;
-            }
+        {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+
+        .order-card {
+            padding: 1rem;
+        }
+
         }
 
         @@media (max-width: 768px) {
-            .service-controls {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 1rem;
-            }
+            .service-controls
 
-            .add-service-btn-container {
-                width: 100%;
-            }
+        {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 1rem;
+        }
 
-            .orders-list {
-                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            }
+        .add-service-btn-container {
+            width: 100%;
+        }
 
-            .order-footer {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
+        .orders-list {
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        }
 
-            .order-actions {
-                width: 100%;
-                justify-content: flex-end;
-            }
+        .order-footer {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .order-actions {
+            width: 100%;
+            justify-content: flex-end;
+        }
+
+        .device-section {
+            flex-direction: column;
+        }
+
+        .device-image {
+            margin-bottom: 0.5rem;
+        }
+
         }
 
         @@media (max-width: 576px) {
-            .orders-list {
-                grid-template-columns: 1fr;
-            }
+            .orders-list
 
-            .client-section, .device-section {
-                flex-direction: column;
-                align-items: flex-start;
-            }
+        {
+            grid-template-columns: 1fr;
+        }
 
-            .client-avatar {
-                margin-bottom: 0.5rem;
-            }
+        .order-card {
+            padding: 1.25rem;
+        }
 
-            .device-image {
-                margin-bottom: 0.5rem;
-            }
-
-            .order-card {
-                padding: 1.25rem;
-            }
         }
 
         @@media (max-width: 400px) {
-            .order-card {
-                padding: 1rem;
-            }
+            .order-card
 
-            .client-name {
-                font-size: 1rem;
-            }
+        {
+            padding: 1rem;
+        }
 
-            .device-type {
-                font-size: 0.9rem;
-            }
+        .client-name {
+            font-size: 1rem;
+        }
+
+        .device-type {
+            font-size: 0.9rem;
+        }
+
         }
     </style>
 }
