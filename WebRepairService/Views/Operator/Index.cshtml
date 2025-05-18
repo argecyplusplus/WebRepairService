@@ -84,7 +84,7 @@
                             <div class="device-type">@item.DeviceType?.Name</div>
                             <div class="device-model">@item.Model</div>
                             <div class="order-date">
-                                <i class="fas fa-calendar-alt me-1"></i>@item.CreationDate.ToString("dd.MM.yyyy")
+                                @item.CreationDate.ToString("dd.MM.yyyy")
                             </div>
                         </div>
                     </div>
@@ -697,5 +697,6 @@
                 });
             });
         });
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     </script>
 }

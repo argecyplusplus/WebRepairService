@@ -3,66 +3,76 @@
     ViewData["Title"] = "Редактирование заказа #" + Model.OrderId;
 }
 
-<div class="order-details-container">
+<div class="order-edit-container">
     <div class="order-header">
-        <h1 class="page-title">Редактирование заказа #@Model.OrderId</h1>
+        <div class="header-left">
+            <a href="javascript:history.back()" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <div class="order-title">
+                <h1>Редактирование заказа #@Model.OrderId</h1>
+            </div>
+        </div>
     </div>
 
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["Success"]
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
+        <div class="notification success">
+            <i class="fas fa-check-circle"></i>
+            <span>@TempData["Success"]</span>
+            <button class="close-notification">
+                <i class="fas fa-times"></i>
             </button>
         </div>
     }
 
-    <form asp-action="Edit" method="post" class="order-content" enctype="multipart/form-data">
+    <form asp-action="Edit" method="post" class="order-form" enctype="multipart/form-data">
         <input type="hidden" asp-for="OrderId" />
         <input type="hidden" id="deletedPhotos" name="DeletedPhotos" value="" />
 
-        <!-- Основная информация -->
-        <div class="order-card">
+        <!-- Карточка клиента -->
+        <div class="card client-card">
             <div class="card-header">
-                <i class="fas fa-user"></i> Данные клиента
+                <i class="fas fa-user-circle"></i>
+                <h2>Данные клиента</h2>
             </div>
             <div class="card-body">
                 <div class="form-grid">
                     <div class="form-group">
                         <label class="form-label">ФИО клиента</label>
-                        <input asp-for="ClientFullName" class="form-control" placeholder="Введите ФИО клиента" />
-                        <span asp-validation-for="ClientFullName" class="text-danger"></span>
+                        <input asp-for="ClientFullName" class="form-input" placeholder="Введите ФИО клиента" />
+                        <span asp-validation-for="ClientFullName" class="form-error"></span>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Номер телефона</label>
-                        <input asp-for="ClientPhone" class="form-control" placeholder="+7 (XXX) XXX-XX-XX"
+                        <input asp-for="ClientPhone" class="form-input" placeholder="+7 (XXX) XXX-XX-XX"
                                pattern="\+7\s?[\(]{0,1}\d{3}[\)]{0,1}\s?\d{3}[-]{0,1}\d{2}[-]{0,1}\d{2}"
                                title="Введите номер в формате +7 (XXX) XXX-XX-XX" />
-                        <span asp-validation-for="ClientPhone" class="text-danger"></span>
+                        <span asp-validation-for="ClientPhone" class="form-error"></span>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Email</label>
-                        <input asp-for="ClientEmail" class="form-control" placeholder="Введите email" />
-                        <span asp-validation-for="ClientEmail" class="text-danger"></span>
+                        <input asp-for="ClientEmail" class="form-input" placeholder="Введите email" />
+                        <span asp-validation-for="ClientEmail" class="form-error"></span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Данные устройства -->
-        <div class="order-card">
+        <!-- Карточка устройства -->
+        <div class="card device-card">
             <div class="card-header">
-                <i class="fas fa-laptop"></i> Данные устройства
+                <i class="fas fa-laptop"></i>
+                <h2>Данные устройства</h2>
             </div>
             <div class="card-body">
                 <div class="form-grid">
                     <div class="form-group">
                         <label class="form-label">Модель устройства</label>
-                        <input asp-for="DeviceModel" class="form-control" placeholder="Введите модель устройства" />
-                        <span asp-validation-for="DeviceModel" class="text-danger"></span>
+                        <input asp-for="DeviceModel" class="form-input" placeholder="Введите модель устройства" />
+                        <span asp-validation-for="DeviceModel" class="form-error"></span>
                     </div>
 
                     <div class="form-group">
@@ -70,7 +80,7 @@
                         <select asp-for="DeviceTypeId" asp-items="Model.DeviceTypes" class="form-select">
                             <option value="">-- Выберите тип устройства --</option>
                         </select>
-                        <span asp-validation-for="DeviceTypeId" class="text-danger"></span>
+                        <span asp-validation-for="DeviceTypeId" class="form-error"></span>
                     </div>
 
                     <div class="form-group">
@@ -78,29 +88,38 @@
                         <select asp-for="ServiceTypeId" asp-items="Model.ServiceTypes" class="form-select">
                             <option value="">-- Выберите тип услуги --</option>
                         </select>
-                        <span asp-validation-for="ServiceTypeId" class="text-danger"></span>
+                        <span asp-validation-for="ServiceTypeId" class="form-error"></span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Дополнительная информация -->
-        <div class="order-card">
+        <!-- Карточка описания -->
+        <div class="card description-card">
             <div class="card-header">
-                <i class="fas fa-info-circle"></i> Дополнительная информация
+                <i class="fas fa-file-alt"></i>
+                <h2>Описание проблемы</h2>
             </div>
             <div class="card-body">
                 <div class="form-group">
-                    <label class="form-label">Описание проблемы</label>
-                    <textarea asp-for="Details" class="form-control" rows="4" placeholder="Опишите проблему"></textarea>
-                    <span asp-validation-for="Details" class="text-danger"></span>
+                    <textarea asp-for="Details" class="form-textarea" rows="5" placeholder="Опишите проблему"></textarea>
+                    <span asp-validation-for="Details" class="form-error"></span>
                 </div>
+            </div>
+        </div>
 
+        <!-- Карточка дополнительной информации -->
+        <div class="card info-card">
+            <div class="card-header">
+                <i class="fas fa-info-circle"></i>
+                <h2>Дополнительная информация</h2>
+            </div>
+            <div class="card-body">
                 <div class="form-grid">
                     <div class="form-group">
                         <label class="form-label">Стоимость ремонта</label>
-                        <input asp-for="Price" class="form-control" min="0" placeholder="Укажите стоимость" />
-                        <span asp-validation-for="Price" class="text-danger"></span>
+                        <input asp-for="Price" class="form-input" min="0" placeholder="Укажите стоимость" />
+                        <span asp-validation-for="Price" class="form-error"></span>
                     </div>
 
                     @if (User.IsInRole("Admin"))
@@ -108,10 +127,13 @@
                         <div class="form-group">
                             <label class="form-label">Статус заказа</label>
                             <select asp-for="StatusId" asp-items="Model.Statuses" class="form-select"></select>
-                            <span asp-validation-for="StatusId" class="text-danger"></span>
+                            <span asp-validation-for="StatusId" class="form-error"></span>
                         </div>
                     }
-                    <input type="hidden" asp-for="StatusId" />
+                    else
+                    {
+                        <input type="hidden" asp-for="StatusId" />
+                    }
                 </div>
             </div>
         </div>
@@ -119,21 +141,22 @@
         <!-- Текущие фотографии -->
         @if (Model.Photos != null && Model.Photos.Count > 0)
         {
-            <div class="order-card">
+            <div class="card gallery-card">
                 <div class="card-header">
-                    <i class="fas fa-camera"></i> Текущие фотографии
+                    <i class="fas fa-camera"></i>
+                    <h2>Текущие фотографии (@Model.Photos.Count)</h2>
                 </div>
                 <div class="card-body">
-                    <div id="currentPhotosContainer" class="photos-grid">
+                    <div id="currentPhotosContainer" class="photo-grid">
                         @foreach (var photo in Model.Photos)
                         {
                             <div class="photo-item" data-id="@photo.PhotoId">
                                 <img src="@photo.Link" class="photo-thumbnail" alt="Фото заказа">
                                 <div class="photo-actions">
-                                    <button type="button" class="btn btn-sm btn-danger delete-photo">
+                                    <button type="button" class="btn btn-delete delete-photo">
                                         <i class="fas fa-trash-alt"></i> Удалить
                                     </button>
-                                    <button type="button" class="btn btn-sm btn-secondary restore-photo d-none">
+                                    <button type="button" class="btn btn-restore restore-photo d-none">
                                         <i class="fas fa-undo"></i> Восстановить
                                     </button>
                                 </div>
@@ -145,27 +168,31 @@
         }
 
         <!-- Новые фотографии -->
-        <div class="order-card">
+        <div class="card upload-card">
             <div class="card-header">
-                <i class="fas fa-cloud-upload-alt"></i> Добавить новые фото
+                <i class="fas fa-cloud-upload-alt"></i>
+                <h2>Добавить новые фото</h2>
             </div>
             <div class="card-body">
                 <div class="form-group">
-                    <label class="form-label">Выберите фотографии</label>
-                    <input asp-for="NewPhotos" type="file" class="form-control" accept="image/*" multiple />
-                    <span asp-validation-for="NewPhotos" class="text-danger"></span>
-                    <small class="form-text text-muted">Можно выбрать несколько файлов</small>
+                    <label class="file-upload">
+                        <input asp-for="NewPhotos" type="file" multiple accept="image/*" class="file-input" />
+                        <div class="upload-area">
+                            <i class="fas fa-images"></i>
+                            <span>Перетащите файлы сюда или нажмите для выбора</span>
+                            <small>Можно выбрать несколько файлов</small>
+                        </div>
+                    </label>
+                    <span asp-validation-for="NewPhotos" class="form-error"></span>
                 </div>
             </div>
         </div>
 
+        <!-- Кнопки действий -->
         <div class="form-actions">
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-save">
                 <i class="fas fa-save"></i> Сохранить изменения
             </button>
-            <a asp-action="Index" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Назад к списку
-            </a>
         </div>
     </form>
 </div>
@@ -243,55 +270,284 @@
                     this.value = formattedValue;
                 });
             }
+
+            // Drag and drop для загрузки файлов
+            const uploadArea = document.querySelector('.upload-area');
+            const fileInput = document.querySelector('.file-input');
+
+            if (uploadArea && fileInput) {
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    uploadArea.addEventListener(eventName, preventDefaults, false);
+                });
+
+                function preventDefaults(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    uploadArea.addEventListener(eventName, highlight, false);
+                });
+
+                ['dragleave', 'drop'].forEach(eventName => {
+                    uploadArea.addEventListener(eventName, unhighlight, false);
+                });
+
+                function highlight() {
+                    uploadArea.classList.add('highlight');
+                }
+
+                function unhighlight() {
+                    uploadArea.classList.remove('highlight');
+                }
+
+                uploadArea.addEventListener('drop', handleDrop, false);
+
+                function handleDrop(e) {
+                    const dt = e.dataTransfer;
+                    const files = dt.files;
+                    fileInput.files = files;
+                }
+
+                fileInput.addEventListener('change', function() {
+                    if (this.files.length > 0) {
+                        uploadArea.querySelector('span').textContent = `Выбрано ${this.files.length} файлов`;
+                    }
+                });
+            }
+
+            // Закрытие уведомления
+            const closeNotification = document.querySelector('.close-notification');
+            if (closeNotification) {
+                closeNotification.addEventListener('click', function() {
+                    this.closest('.notification').style.opacity = '0';
+                    setTimeout(() => {
+                        this.closest('.notification').remove();
+                    }, 300);
+                });
+
+                // Автоматическое закрытие через 5 секунд
+                setTimeout(() => {
+                    const notification = document.querySelector('.notification');
+                    if (notification) {
+                        notification.style.opacity = '0';
+                        setTimeout(() => {
+                            notification.remove();
+                        }, 300);
+                    }
+                }, 5000);
+            }
         });
     </script>
 }
 
 @section Styles {
     <style>
-        /* Основные стили */
-        .order-details-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+        /* Базовые стили */
+        :root {
+            --primary-color: #2e7d32;
+            --primary-light: #9fceb6;
+            --text-dark: #2f4f4f;
+            --text-medium: #5a6d6d;
+            --text-light: #8e9e9e;
+            --border-color: #e0e7e7;
+            --bg-light: #f8fafb;
+            --white: #ffffff;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --transition: all 0.25s ease;
         }
 
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+            line-height: 1.5;
+        }
+
+        /* Кнопка сохранения */
+        .btn-save {
+            background-color: #8abda5; /* Приглушенный зеленый */
+            color: #1d3c34;
+            padding: 12px 24px;
+            border: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+            .btn-save:hover {
+                background-color: #7db39a;
+                transform: translateY(-1px);
+                box-shadow: var(--shadow-sm);
+            }
+
+        /* Действия формы */
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        /* Контейнер */
+        .order-edit-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 16px;
+        }
+
+        /* Шапка заказа */
         .order-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 24px;
         }
 
-        .page-title {
-            font-size: 2rem;
-            color: #2f4f4f;
-            margin: 0;
-            font-weight: 600;
-        }
-
-        /* Карточки */
-        .order-card {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            margin-bottom: 20px;
-            overflow: hidden;
-        }
-
-        .card-header {
-            background-color: #f8f9fa;
-            padding: 15px 20px;
-            border-bottom: 1px solid #eee;
-            font-weight: 600;
-            color: #2f4f4f;
+        .header-left {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 16px;
         }
 
+        .back-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--white);
+            color: var(--primary-color);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+            .back-button:hover {
+                background-color: var(--primary-light);
+                color: var(--white);
+                transform: translateX(-2px);
+            }
+
+        .order-title h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+            color: var(--text-dark);
+        }
+
+        /* Уведомление */
+        .notification {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 24px;
+            gap: 10px;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+            .notification.success {
+                background-color: #e8f5e9;
+                color: #2e7d32;
+                border-left: 4px solid #2e7d32;
+            }
+
+        .close-notification {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: var(--transition);
+        }
+
+            .close-notification:hover {
+                opacity: 1;
+            }
+
+        /* Форма */
+        .order-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Анимации */
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Карточки с анимацией */
+        .card {
+            background-color: var(--white);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            transition: var(--transition);
+            animation: fadeIn 0.4s ease-out forwards;
+            opacity: 0;
+        }
+
+            .card:hover {
+                box-shadow: var(--shadow-md);
+                transform: translateY(-2px);
+            }
+
+            /* Задержки для последовательного появления */
+            .card:nth-child(1) {
+                animation-delay: 0.1s;
+            }
+
+            .card:nth-child(2) {
+                animation-delay: 0.2s;
+            }
+
+            .card:nth-child(3) {
+                animation-delay: 0.3s;
+            }
+
+            .card:nth-child(4) {
+                animation-delay: 0.4s;
+            }
+
+            .card:nth-child(5) {
+                animation-delay: 0.5s;
+            }
+
+            .card:nth-child(6) {
+                animation-delay: 0.6s;
+            }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            background-color: var(--bg-light);
+            border-bottom: 1px solid var(--border-color);
+            gap: 12px;
+        }
+
+            .card-header h2 {
+                font-size: 18px;
+                font-weight: 600;
+                margin: 0;
+                color: var(--text-dark);
+            }
+
             .card-header i {
-                color: #9fceb6;
+                color: var(--primary-color);
+                font-size: 18px;
             }
 
         .card-body {
@@ -301,7 +557,7 @@
         /* Формы */
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 20px;
         }
 
@@ -310,53 +566,112 @@
         }
 
         .form-label {
-            font-weight: 600;
-            color: #6c757d;
-            font-size: 0.9rem;
-            margin-bottom: 8px;
             display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-medium);
+            font-size: 15px;
         }
 
-        .form-control, .form-select {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 10px 12px;
+        .form-input, .form-select, .form-textarea {
             width: 100%;
-            transition: border-color 0.2s ease;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            transition: var(--transition);
+            background-color: var(--white);
         }
 
-            .form-control:focus, .form-select:focus {
-                border-color: #9fceb6;
-                box-shadow: 0 0 0 0.2rem rgba(159, 206, 182, 0.25);
+            .form-input:focus, .form-select:focus, .form-textarea:focus {
+                border-color: var(--primary-light);
+                box-shadow: 0 0 0 3px rgba(159, 206, 182, 0.2);
+                outline: none;
             }
 
-        .text-danger {
-            font-size: 0.85rem;
-            margin-top: 5px;
-            display: block;
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
         }
 
-        /* Фотографии */
-        .photos-grid {
+        .form-error {
+            display: block;
+            margin-top: 6px;
+            font-size: 14px;
+            color: #dc3545;
+        }
+
+        /* Загрузка файлов */
+        .file-upload {
+            display: block;
+            cursor: pointer;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-sm);
+            background-color: var(--bg-light);
+            text-align: center;
+            transition: var(--transition);
+        }
+
+            .upload-area.highlight {
+                border-color: var(--primary-color);
+                background-color: rgba(159, 206, 182, 0.1);
+            }
+
+            .upload-area i {
+                font-size: 32px;
+                color: var(--primary-light);
+                margin-bottom: 10px;
+            }
+
+            .upload-area span {
+                font-weight: 500;
+                color: var(--text-dark);
+                margin-bottom: 5px;
+            }
+
+            .upload-area small {
+                color: var(--text-light);
+                font-size: 13px;
+            }
+
+        /* Фотогалерея */
+        .photo-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
         }
 
         .photo-item {
             position: relative;
             aspect-ratio: 1;
+            border-radius: var(--radius-sm);
             overflow: hidden;
-            border-radius: 8px;
-            transition: all 0.3s ease;
+            cursor: pointer;
+            transition: var(--transition);
         }
+
+            .photo-item.to-be-deleted {
+                opacity: 0.5;
+                border: 2px dashed #dc3545;
+            }
 
         .photo-thumbnail {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 8px;
-            transition: transform 0.3s ease;
+            transition: var(--transition);
         }
 
         .photo-actions {
@@ -364,13 +679,13 @@
             bottom: 0;
             left: 0;
             right: 0;
-            padding: 10px;
+            padding: 12px;
             background: rgba(0, 0, 0, 0.7);
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 8px;
             transform: translateY(100%);
-            transition: transform 0.3s ease;
+            transition: var(--transition);
         }
 
         .photo-item:hover .photo-actions {
@@ -381,93 +696,93 @@
             transform: scale(1.05);
         }
 
-        .photo-item.to-be-deleted {
-            opacity: 0.5;
-            border: 2px dashed #dc3545;
-        }
-
         /* Кнопки */
         .btn {
-            padding: 8px 15px;
-            border-radius: 5px;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border-radius: var(--radius-sm);
             font-weight: 500;
-            transition: all 0.2s ease;
+            font-size: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
         }
 
         .btn-primary {
-            background-color: #9fceb6;
-            color: #1d3c34;
-            border: none;
+            background-color: var(--primary-color);
+            color: var(--white);
         }
 
             .btn-primary:hover {
-                background-color: #8abda5;
+                background-color: #1e5a23;
+                transform: translateY(-1px);
+                box-shadow: var(--shadow-sm);
             }
 
         .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-            border: none;
+            background-color: var(--white);
+            color: var(--text-dark);
+            border: 1px solid var(--border-color);
         }
 
             .btn-secondary:hover {
-                background-color: #5a6268;
+                background-color: var(--bg-light);
             }
 
-        .btn-danger {
+        .btn-delete {
             background-color: #dc3545;
-            color: white;
-            border: none;
+            color: var(--white);
+            padding: 8px 12px;
+            font-size: 14px;
+            width: 100%;
         }
 
-            .btn-danger:hover {
+            .btn-delete:hover {
                 background-color: #c82333;
             }
 
-        .btn-sm {
-            padding: 5px 10px;
-            font-size: 0.85rem;
+        .btn-restore {
+            background-color: #6c757d;
+            color: var(--white);
+            padding: 8px 12px;
+            font-size: 14px;
+            width: 100%;
         }
 
-        .btn-back {
-            background-color: #9fceb6;
-            color: #1d3c34;
-            padding: 8px 15px;
-            border-radius: 5px;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            border: none;
-        }
-
-            .btn-back:hover {
-                background-color: #8abda5;
-                color: #1d3c34;
+            .btn-restore:hover {
+                background-color: #5a6268;
             }
 
+        .d-none {
+            display: none !important;
+        }
+
+        /* Действия формы */
         .form-actions {
             display: flex;
-            gap: 15px;
+            gap: 16px;
             margin-top: 20px;
         }
 
         /* Адаптивность */
-        @@media (max-width: 768px) {
-            .order-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
-
+        @@media (max-width: 992px) {
             .form-grid {
                 grid-template-columns: 1fr;
             }
 
-            .photos-grid {
+            .photo-grid {
                 grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .order-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
             }
 
             .form-actions {
@@ -475,8 +790,20 @@
             }
         }
 
-        @@media (max-width: 480px) {
-            .photos-grid {
+        @@media (max-width: 576px) {
+            .order-title h1 {
+                font-size: 24px;
+            }
+
+            .card-header {
+                padding: 12px 16px;
+            }
+
+            .card-body {
+                padding: 16px;
+            }
+
+            .photo-grid {
                 grid-template-columns: 1fr 1fr;
             }
         }
