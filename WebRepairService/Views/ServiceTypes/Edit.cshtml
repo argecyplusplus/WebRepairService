@@ -3,115 +3,285 @@
     ViewData["Title"] = "Редактировать тип услуги";
 }
 
-<div class="service-type-container">
-    <div class="service-type-header">
-        <h1 class="page-title">@ViewData["Title"]</h1>
+<div class="service-type-edit-container">
+    <div class="order-header">
+        <div class="header-left">
+            <a href="javascript:history.back()" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <div class="order-title">
+                <h1>Редактировать тип услуги</h1>
+            </div>
+        </div>
     </div>
 
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["Success"]
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
+        <div class="notification success">
+            <i class="fas fa-check-circle"></i>
+            <span>@TempData["Success"]</span>
+            <button class="close-notification">
+                <i class="fas fa-times"></i>
             </button>
         </div>
     }
 
-    <form asp-action="Edit" method="post" class="service-type-content">
+    <form asp-action="Edit" method="post" class="service-type-form">
         <input type="hidden" asp-for="ServiceTypeId" />
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-        <div class="service-type-card">
+        <div asp-validation-summary="ModelOnly" class="notification error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>Пожалуйста, исправьте ошибки в форме</span>
+            <button class="close-notification">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Карточка основных параметров -->
+        <div class="card main-card">
             <div class="card-header">
-                <i class="fas fa-tools"></i> Основные параметры
+                <i class="fas fa-cog"></i>
+                <h2>Основные параметры</h2>
             </div>
             <div class="card-body">
                 <div class="form-grid">
                     <div class="form-group">
-                        <label asp-for="Name" class="form-label"></label>
-                        <input asp-for="Name" class="form-control" />
-                        <span asp-validation-for="Name" class="text-danger"></span>
+                        <label class="form-label" asp-for="Name">Название услуги</label>
+                        <input asp-for="Name" class="form-input" placeholder="Введите название услуги" />
+                        <span asp-validation-for="Name" class="form-error"></span>
                     </div>
 
                     <div class="form-group">
-                        <label asp-for="MinimalPrice" class="form-label"></label>
-                        <input asp-for="MinimalPrice" class="form-control" />
-                        <span asp-validation-for="MinimalPrice" class="text-danger"></span>
+                        <label class="form-label" asp-for="MinimalPrice">Минимальная цена</label>
+                        <div class="price-input-group">
+                            <input asp-for="MinimalPrice" class="form-input" placeholder="0" />
+                            <span class="price-symbol">₽</span>
+                        </div>
+                        <span asp-validation-for="MinimalPrice" class="form-error"></span>
                     </div>
 
                     <div class="form-group">
-                        <label asp-for="MinimalWorktime" class="form-label"></label>
-                        <input asp-for="MinimalWorktime" type="time" class="form-control" step="300"
+                        <label class="form-label" asp-for="MinimalWorktime">Минимальное время работы</label>
+                        <input asp-for="MinimalWorktime" type="time" class="form-input" step="300"
                                value="@Model.MinimalWorktime.ToString(@"hh\:mm")" />
-                        <span asp-validation-for="MinimalWorktime" class="text-danger"></span>
+                        <span asp-validation-for="MinimalWorktime" class="form-error"></span>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- Кнопки действий -->
         <div class="form-actions">
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-save">
                 <i class="fas fa-save"></i> Сохранить изменения
             </button>
-            <a asp-action="Index" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Назад к списку
-            </a>
         </div>
     </form>
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Закрытие уведомления
+            const closeNotifications = document.querySelectorAll('.close-notification');
+            closeNotifications.forEach(button => {
+                button.addEventListener('click', function() {
+                    this.closest('.notification').style.opacity = '0';
+                    setTimeout(() => {
+                        this.closest('.notification').remove();
+                    }, 300);
+                });
+            });
+
+            // Автоматическое закрытие уведомлений через 5 секунд
+            setTimeout(() => {
+                const notifications = document.querySelectorAll('.notification');
+                notifications.forEach(notification => {
+                    notification.style.opacity = '0';
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
+                });
+            }, 5000);
+        });
+    </script>
 }
 
 @section Styles {
     <style>
-        /* Основные стили */
-        .service-type-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+        /* Базовые стили */
+        :root {
+            --primary-color: #2e7d32;
+            --primary-light: #9fceb6;
+            --text-dark: #2f4f4f;
+            --text-medium: #5a6d6d;
+            --text-light: #8e9e9e;
+            --border-color: #e0e7e7;
+            --bg-light: #f8fafb;
+            --white: #ffffff;
+            --error-color: #dc3545;
+            --success-color: #28a745;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --transition: all 0.25s ease;
         }
 
-        .service-type-header {
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+            line-height: 1.5;
+        }
+
+        /* Контейнер */
+        .service-type-edit-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 16px;
+        }
+
+        /* Шапка */
+        .order-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 24px;
         }
 
-        .page-title {
-            font-size: 2rem;
-            color: #2f4f4f;
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--white);
+            color: var(--primary-color);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+            .back-button:hover {
+                background-color: var(--primary-light);
+                color: var(--white);
+                transform: translateX(-2px);
+            }
+
+        .order-title h1 {
+            font-size: 28px;
+            font-weight: 700;
             margin: 0;
-            font-weight: 600;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
-        /* Карточки */
-        .service-type-card {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            margin-bottom: 20px;
+        /* Уведомления */
+        .notification {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 24px;
+            gap: 10px;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+            .notification.success {
+                background-color: rgba(40, 167, 69, 0.1);
+                color: var(--success-color);
+                border-left: 4px solid var(--success-color);
+            }
+
+            .notification.error {
+                background-color: rgba(220, 53, 69, 0.1);
+                color: var(--error-color);
+                border-left: 4px solid var(--error-color);
+            }
+
+        .close-notification {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: var(--transition);
+        }
+
+            .close-notification:hover {
+                opacity: 1;
+            }
+
+        /* Форма */
+        .service-type-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Анимации */
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Карточки с анимацией */
+        .card {
+            background-color: var(--white);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
             overflow: hidden;
+            transition: var(--transition);
+            animation: fadeIn 0.4s ease-out forwards;
+            opacity: 0;
+        }
+
+            .card:hover {
+                box-shadow: var(--shadow-md);
+                transform: translateY(-2px);
+            }
+
+        .main-card {
+            animation-delay: 0.1s;
         }
 
         .card-header {
-            background-color: #f8f9fa;
-            padding: 15px 20px;
-            border-bottom: 1px solid #eee;
-            font-weight: 600;
-            color: #2f4f4f;
             display: flex;
             align-items: center;
-            gap: 10px;
+            padding: 16px 20px;
+            background-color: var(--bg-light);
+            border-bottom: 1px solid var(--border-color);
+            gap: 12px;
         }
 
+            .card-header h2 {
+                font-size: 18px;
+                font-weight: 600;
+                margin: 0;
+                color: var(--text-dark);
+            }
+
             .card-header i {
-                color: #9fceb6;
+                color: var(--primary-color);
+                font-size: 18px;
             }
 
         .card-body {
@@ -130,91 +300,97 @@
         }
 
         .form-label {
-            font-weight: 600;
-            color: #6c757d;
-            font-size: 0.9rem;
-            margin-bottom: 8px;
             display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-medium);
+            font-size: 15px;
         }
 
-        .form-control, .form-select {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 10px 12px;
+        .form-input {
             width: 100%;
-            transition: border-color 0.2s ease;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            transition: var(--transition);
+            background-color: var(--white);
         }
 
-            .form-control:focus, .form-select:focus {
-                border-color: #9fceb6;
-                box-shadow: 0 0 0 0.2rem rgba(159, 206, 182, 0.25);
+            .form-input:focus {
+                border-color: var(--primary-light);
+                box-shadow: 0 0 0 3px rgba(159, 206, 182, 0.2);
+                outline: none;
             }
 
-        .text-danger {
-            font-size: 0.85rem;
-            margin-top: 5px;
+        input[type="time"].form-input {
+            padding: 11px 16px;
+        }
+
+        .form-error {
             display: block;
+            margin-top: 6px;
+            font-size: 14px;
+            color: var(--error-color);
+        }
+
+        /* Поле стоимости */
+        .price-input-group {
+            display: flex;
+            align-items: center;
+            max-width: 200px;
+        }
+
+            .price-input-group .form-input {
+                border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+            }
+
+        .price-symbol {
+            padding: 12px 16px;
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            border-left: none;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
         }
 
         /* Кнопки */
-        .btn {
-            padding: 8px 15px;
-            border-radius: 5px;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-
-        .btn-primary {
-            background-color: #9fceb6;
-            color: #1d3c34;
-            border: none;
-        }
-
-            .btn-primary:hover {
-                background-color: #8abda5;
-            }
-
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-            border: none;
-        }
-
-            .btn-secondary:hover {
-                background-color: #5a6268;
-            }
-
-        .btn-back {
-            background-color: #9fceb6;
-            color: #1d3c34;
-            padding: 8px 15px;
-            border-radius: 5px;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            border: none;
-        }
-
-            .btn-back:hover {
-                background-color: #8abda5;
-                color: #1d3c34;
-            }
-
         .form-actions {
             display: flex;
-            gap: 15px;
-            margin-top: 20px;
+            justify-content: flex-end;
+            gap: 16px;
         }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            font-size: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+        }
+
+        .btn-save {
+            background-color: #9fceb6;
+            color: var(--white);
+        }
+
+            .btn-save:hover {
+                background-color: #7dbd9c;
+                transform: translateY(-1px);
+                box-shadow: var(--shadow-sm);
+            }
 
         /* Адаптивность */
         @@media (max-width: 768px) {
-            .service-type-header {
+            .order-header {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 15px;
+                gap: 16px;
             }
 
             .form-grid {
@@ -223,6 +399,24 @@
 
             .form-actions {
                 flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .order-title h1 {
+                font-size: 24px;
+            }
+
+            .card-header {
+                padding: 12px 16px;
+            }
+
+            .card-body {
+                padding: 16px;
             }
         }
     </style>
