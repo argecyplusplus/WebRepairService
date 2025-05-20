@@ -5,7 +5,6 @@
     var currentUserId = ViewBag.CurrentUserId as string;
     var statusColors = new Dictionary<string, string>
     {
-        {"Принят оператором", "status-received"},
         {"Принят инженером", "status-engineer"},
         {"В процессе", "status-in-progress"},
         {"Завершен", "status-completed"},
@@ -14,33 +13,58 @@
 }
 
 <div class="orders-management-container">
-    <h1 class="page-title">@ViewData["Title"]</h1>
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas me-2"></i>@ViewData["Title"]
+        </h1>
+        <div class="total-orders">Всего заказов: @Model.Count()</div>
+    </div>
 
-    <!-- Фильтр по статусу и поиск -->
-    <div class="orders-controls">
-        <div class="filter-container">
-            <div class="search-box">
-                <select id="statusFilter" class="form-control">
-                    <option value="">Все статусы</option>
-                    @foreach (var status in statuses)
-                    {
-                        <option value="@status.Name">@status.Name</option>
-                    }
-                </select>
-                <i class="fas fa-filter search-icon"></i>
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Общий блок для поиска и фильтров -->
+    <div class="service-controls">
+        <div class="search-filter-panel">
+            <div class="input-group search-input-group">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" id="searchInput" class="form-control search-input" placeholder="Поиск по клиенту или устройству...">
             </div>
         </div>
 
-        <div class="search-box">
-            <input type="text" id="searchInput" class="form-control" placeholder="Поиск по клиенту или устройству..." />
-            <i class="fas fa-search search-icon"></i>
+        <div class="filter-col">
+            <div class="input-group filter-input-group">
+                <select id="statusFilter" class="form-select filter-select">
+                    <option value="">Все статусы</option>
+                    @foreach (var status in statuses)
+                    {
+                        @if (status.Name != "Принят оператором" && status.Name != "Отменен")
+                        {
+                            <option value="@status.Name">@status.Name</option>
+                        }
+                    }
+                </select>
+            </div>
         </div>
     </div>
 
     @if (!Model.Any())
     {
-        <div class="alert alert-info">
-            У вас нет назначенных заказов
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <i class="fas fa-info-circle me-2"></i>У вас нет назначенных заказов
         </div>
     }
     else
@@ -50,27 +74,24 @@
             {
                 var isCurrentEngineer = item.EngineerId == currentUserId;
 
-                <div class="order-card" data-status="@item.Status?.Name">
+                <div class="order-card"
+                     data-client="@item.ClientFullName.ToLower()"
+                     data-device="@item.DeviceType?.Name?.ToLower()"
+                     data-model="@item.Model?.ToLower()"
+                     data-status="@item.Status?.Name">
                     <div class="order-header">
-                        <div class="order-id">
-                            <span class="section-title">ID:</span>
-                            <span>@item.OrderId</span>
-                        </div>
-                        <div class="order-date">
-                            <i class="fas fa-calendar-alt"></i> @item.CreationDate.ToString("dd.MM.yyyy HH:mm")
+                        <div class="order-number">
+                            <span>Заказ №@item.OrderId</span>
                         </div>
                     </div>
 
                     <div class="order-body">
                         <div class="client-section">
-                            <div class="client-avatar">
-                                <i class="fas fa-user-circle"></i>
-                            </div>
                             <div class="client-info">
                                 <h3 class="client-name">@item.ClientFullName</h3>
                                 <div class="client-contacts">
                                     <div class="contact-item">
-                                        <i class="fas fa-phone"></i> @item.ClientPhone
+                                        <i class="fas fa-phone me-2"></i>@item.ClientPhone
                                     </div>
                                 </div>
                             </div>
@@ -84,12 +105,15 @@
                                 }
                                 else
                                 {
-                                    <i class="fas fa-laptop"></i>
+                                    <i class="fas fa-image"></i>
                                 }
                             </div>
                             <div class="device-info">
                                 <div class="device-type">@item.DeviceType?.Name</div>
                                 <div class="device-model">@item.Model</div>
+                                <div class="order-date">
+                                    @item.CreationDate.ToString("dd.MM.yyyy")
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -101,12 +125,12 @@
                                 var statusClass = statusColors.GetValueOrDefault(statusName, "status-default");
                             }
                             <span class="status-badge @statusClass">
-                                <i class="fas fa-circle"></i> @statusName
+                                @statusName
                             </span>
                         </div>
 
                         <div class="order-actions">
-                            <a asp-action="Details" asp-route-id="@item.OrderId" class="btn btn-sm btn-details" title="Подробнее">
+                            <a asp-action="Details" asp-route-id="@item.OrderId" class="btn btn-details" title="Подробнее">
                                 <i class="fas fa-eye"></i>
                             </a>
 
@@ -117,7 +141,7 @@
                                 <form asp-action="AcceptOrder" method="post" class="d-inline">
                                     <input type="hidden" name="id" value="@item.OrderId" />
                                     @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-sm btn-accept" title="Принять заказ">
+                                    <button type="submit" class="btn btn-success" title="Принять заказ">
                                         <i class="fas fa-check"></i>
                                     </button>
                                 </form>
@@ -131,7 +155,7 @@
                                         <input type="hidden" name="id" value="@item.OrderId" />
                                         <input type="hidden" name="newStatusId" value="3" />
                                         @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-sm btn-start" title="В работу">
+                                        <button type="submit" class="btn btn-in-progress" title="В работу">
                                             <i class="fas fa-play"></i>
                                         </button>
                                     </form>
@@ -140,7 +164,7 @@
                                     <form asp-action="CancelOrder" method="post" class="d-inline">
                                         <input type="hidden" name="id" value="@item.OrderId" />
                                         @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-sm btn-cancel" title="Отменить">
+                                        <button type="submit" class="btn btn-cancel" title="Отменить">
                                             <i class="fas fa-times"></i>
                                         </button>
                                     </form>
@@ -152,7 +176,7 @@
                                         <input type="hidden" name="id" value="@item.OrderId" />
                                         <input type="hidden" name="newStatusId" value="4" />
                                         @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-sm btn-complete" title="Завершить">
+                                        <button type="submit" class="btn btn-complete" title="Завершить">
                                             <i class="fas fa-check-circle"></i>
                                         </button>
                                     </form>
@@ -161,7 +185,7 @@
                                     <form asp-action="CancelOrder" method="post" class="d-inline">
                                         <input type="hidden" name="id" value="@item.OrderId" />
                                         @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-sm btn-cancel" title="Отменить">
+                                        <button type="submit" class="btn btn-cancel" title="Отменить">
                                             <i class="fas fa-times"></i>
                                         </button>
                                     </form>
@@ -171,7 +195,7 @@
                             <!-- Кнопка "Изменить" (для админов/операторов) -->
                             @if (User.IsInRole("Admin") || User.IsInRole("Operator"))
                             {
-                                <a asp-action="Edit" asp-route-id="@item.OrderId" class="btn btn-sm btn-edit" title="Изменить">
+                                <a asp-action="Edit" asp-route-id="@item.OrderId" class="btn btn-edit" title="Изменить">
                                     <i class="fas fa-edit"></i>
                                 </a>
                             }
@@ -187,125 +211,131 @@
     <style>
         /* Основные стили */
         .orders-management-container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 2rem;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .page-title {
             font-size: 2rem;
             color: #2f4f4f;
-            margin-bottom: 30px;
+            margin: 0;
             font-weight: 600;
-            text-align: left;
+            display: flex;
+            align-items: center;
         }
 
-        /* Элементы управления */
-        .orders-controls {
+        .total-orders {
+            background-color: #e6f4ec;
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            font-size: 0.9rem;
+            color: #1d3c34;
+        }
+
+        /* Общий блок для поиска и фильтров */
+        .service-controls {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: 30px;
-            gap: 20px;
+            margin-bottom: 1.5rem;
+            gap: 1.5rem;
         }
 
-        .search-box {
-            position: relative;
-            min-width: 250px;
+        /* Поисковая строка */
+        .search-filter-panel {
             flex-grow: 1;
         }
 
-        .search-icon {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #9fceb6;
-            pointer-events: none;
+        .search-input-group,
+        .filter-input-group {
+            height: 45px;
+            border-radius: 0.7rem;
+            overflow: hidden;
+            border: 1px solid #9fceb6;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+            background-color: #ffffff;
         }
 
-        #searchInput, #statusFilter {
-            padding-right: 40px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            width: 100%;
+        .search-input,
+        .filter-select {
+            border: none;
+            outline: none;
+            box-shadow: none;
+            background-color: #ffffff;
+            color: #2f4f4f;
+            font-size: 1rem;
+            height: 100%;
         }
 
-        .filter-container {
-            display: flex;
-            align-items: center;
+        .input-group-text {
+            background-color: #e6f4ec;
+            border: none;
+            color: #1d3c34;
+            font-weight: 500;
         }
 
-        /* Список заказов - теперь 2 колонки */
+        /* Фильтр по статусам */
+        .filter-col {
+            min-width: 200px;
+        }
+
+        /* Список заказов */
         .orders-list {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
         }
 
         /* Карточка заказа */
         .order-card {
             background: white;
-            border-radius: 10px;
+            border-radius: 0.75rem;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            padding: 15px;
+            padding: 1.25rem;
             border-left: 4px solid #9fceb6;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            height: 100%;
         }
 
             .order-card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+                transform: translateY(-5px);
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
             }
 
         /* Шапка карточки */
         .order-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            margin-bottom: 1rem;
         }
 
-        .order-id {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 0.9rem;
-        }
-
-        .section-title {
-            font-size: 0.8rem;
-            color: #777;
-        }
-
-        .order-date {
-            font-size: 0.8rem;
-            color: #777;
-            display: flex;
-            align-items: center;
-            gap: 5px;
+        .order-number {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #2f4f4f;
         }
 
         /* Тело карточки */
         .order-body {
+            flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 1rem;
         }
 
         /* Секция клиента */
         .client-section {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .client-avatar {
-            font-size: 1.8rem;
-            color: #9fceb6;
+            margin-bottom: 1rem;
         }
 
         .client-info {
@@ -315,7 +345,7 @@
 
         .client-name {
             font-size: 1.1rem;
-            margin: 0 0 3px 0;
+            margin: 0 0 0.5rem 0;
             color: #1d3c34;
             font-weight: 600;
             white-space: nowrap;
@@ -326,29 +356,27 @@
         .client-contacts {
             display: flex;
             flex-direction: column;
-            gap: 3px;
+            gap: 0.3rem;
         }
 
         .contact-item {
             display: flex;
             align-items: center;
-            gap: 5px;
             font-size: 0.85rem;
             color: #555;
         }
 
             .contact-item i {
                 color: #9fceb6;
-                width: 14px;
+                width: 1rem;
                 text-align: center;
-                font-size: 0.9rem;
             }
 
         /* Секция устройства */
         .device-section {
             display: flex;
-            gap: 10px;
-            padding: 8px 0;
+            gap: 1rem;
+            padding: 0.75rem 0;
             border-top: 1px solid #f0f0f0;
             border-bottom: 1px solid #f0f0f0;
         }
@@ -357,7 +385,7 @@
             width: 60px;
             height: 60px;
             background-color: #f8f9fa;
-            border-radius: 5px;
+            border-radius: 0.5rem;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -368,8 +396,8 @@
         }
 
         .device-photo {
-            width: 100%;
-            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
             object-fit: cover;
         }
 
@@ -382,7 +410,7 @@
             font-size: 0.95rem;
             font-weight: 600;
             color: #1d3c34;
-            margin-bottom: 3px;
+            margin-bottom: 0.25rem;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -391,35 +419,42 @@
         .device-model {
             font-size: 0.85rem;
             color: #555;
-            margin-bottom: 3px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            margin-bottom: 0.25rem;
         }
+
+        .order-date {
+            font-size: 0.8rem;
+            color: #666;
+            display: flex;
+            align-items: center;
+        }
+
+            .order-date i {
+                margin-right: 0.25rem;
+            }
 
         /* Подвал карточки */
         .order-footer {
             display: flex;
-            flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
-            gap: 10px;
+            margin-top: 1rem;
         }
 
         /* Стили для статусов */
         .status-badge {
-            padding: 4px 8px;
-            border-radius: 20px;
+            padding: 0.35rem 0.75rem;
+            border-radius: 1rem;
             font-size: 0.8rem;
             font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 4px;
         }
 
         .status-default {
-            background-color: #f5f5f5;
-            color: #777;
+            background-color: #f0f0f0;
+            color: #555;
         }
 
         .status-received {
@@ -447,107 +482,145 @@
             color: #c62828;
         }
 
-        .status-badge i {
-            font-size: 0.5rem;
-        }
-
+        /* Действия */
         .order-actions {
             display: flex;
-            gap: 6px;
+            gap: 0.5rem;
         }
 
-        /* Кнопки - уменьшенные */
-        .btn-sm {
-            width: 30px;
-            height: 30px;
+        /* Кнопки */
+        .btn {
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            display: inline-flex;
+            display: flex;
             align-items: center;
             justify-content: center;
             padding: 0;
-            transition: all 0.2s ease;
-            font-size: 0.8rem;
+            transition: all 0.3s ease;
             border: none;
-            cursor: pointer;
         }
 
         .btn-details {
-            background-color: #e3f2fd;
-            color: #1976d2;
+            background-color: #f8f9fa;
+            color: #9fd5b7;
         }
 
             .btn-details:hover {
                 background-color: #bbdefb;
             }
 
-        /* Стили для кнопок действий */
-        .btn-accept {
-            background-color: #4CAF50;
-            color: white;
+        .btn-in-progress {
+            background-color: #f8f9fa;
+            color: #9fd5b7;
         }
 
-            .btn-accept:hover {
-                background-color: #3e8e41;
-            }
-
-        .btn-start {
-            background-color: #2196F3;
-            color: white;
-        }
-
-            .btn-start:hover {
-                background-color: #0b7dda;
+            .btn-in-progress:hover {
+                background-color: #bbdefb;
             }
 
         .btn-complete {
-            background-color: #4CAF50;
-            color: white;
+            background-color: #e0f7fa;
+            color: #00838f;
         }
 
             .btn-complete:hover {
-                background-color: #3e8e41;
+                background-color: #b2ebf2;
             }
 
         .btn-cancel {
-            background-color: #f44336;
-            color: white;
+            background-color: #ffebee;
+            color: #c62828;
         }
 
             .btn-cancel:hover {
-                background-color: #d32f2f;
+                background-color: #ffcdd2;
             }
 
         .btn-edit {
-            background-color: #ff9800;
-            color: white;
+            background-color: #f8f9fa;
+            color: #9fd5b7;
         }
 
             .btn-edit:hover {
-                background-color: #e68a00;
+                background-color: #ffecb3;
             }
 
-        /* Алерт */
+        /* Алерты */
         .alert-info {
             background-color: #e0f7fa;
-            color: #00838f;
             border-color: #b2ebf2;
+            color: #00838f;
         }
 
+            .alert-info .fa-info-circle {
+                color: #00838f;
+            }
+
+        /* Анимации */
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .order-card {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+            /* Скрытие карточек при фильтрации */
+            .order-card.hidden {
+                display: none;
+            }
+
         /* Адаптивность */
+        @@media (max-width: 1400px) {
+            .orders-list {
+                grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            }
+        }
+
+        @@media (max-width: 1200px) {
+            .orders-list {
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            }
+        }
+
         @@media (max-width: 992px) {
             .orders-list {
-                grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+
+            .order-card {
+                padding: 1rem;
             }
         }
 
         @@media (max-width: 768px) {
+            .service-controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+
+            .filter-col {
+                width: 100%;
+            }
+
             .orders-list {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             }
 
             .order-footer {
                 flex-direction: column;
                 align-items: flex-start;
+                gap: 1rem;
             }
 
             .order-actions {
@@ -555,84 +628,129 @@
                 justify-content: flex-end;
             }
 
-            .orders-controls {
+            .device-section {
                 flex-direction: column;
-                align-items: stretch;
-            }
-
-            .search-box, .filter-container {
-                width: 100%;
-            }
-        }
-
-        @@media (max-width: 480px) {
-            .client-section, .device-section {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .client-avatar {
-                margin-bottom: 5px;
             }
 
             .device-image {
-                margin-bottom: 5px;
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .orders-list {
+                grid-template-columns: 1fr;
+            }
+
+            .order-card {
+                padding: 1.25rem;
+            }
+        }
+
+        @@media (max-width: 400px) {
+            .order-card {
+                padding: 1rem;
+            }
+
+            .client-name {
+                font-size: 1rem;
+            }
+
+            .device-type {
+                font-size: 0.9rem;
             }
         }
     </style>
 }
 
 @section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Фильтрация заказов
-            const searchInput = document.getElementById('searchInput');
-            const statusFilter = document.getElementById('statusFilter');
-            const orderCards = document.querySelectorAll('.order-card');
+        $(document).ready(function() {
+            // Автоматическое скрытие алертов через 5 секунд
+            setTimeout(function() {
+                $('.alert').alert('close');
+            }, 5000);
 
+            // Функция фильтрации карточек
             function filterOrders() {
-                const searchTerm = searchInput.value.toLowerCase().trim();
-                const selectedStatus = statusFilter.value;
+                const searchText = $('#searchInput').val().toLowerCase();
+                const selectedStatus = $('#statusFilter').val();
+                let visibleCount = 0;
 
-                orderCards.forEach(card => {
-                    const clientName = card.querySelector('.client-name').textContent.toLowerCase();
-                    const deviceInfo = card.querySelector('.device-info').textContent.toLowerCase();
-                    const cardStatus = card.getAttribute('data-status');
+                $('.order-card').each(function() {
+                    const $card = $(this);
+                    const client = $card.data('client') || '';
+                    const device = $card.data('device') || '';
+                    const model = $card.data('model') || '';
+                    const status = $card.data('status') || '';
 
-                    const matchesSearch = !searchTerm ||
-                                        clientName.includes(searchTerm) ||
-                                        deviceInfo.includes(searchTerm);
+                    // Проверка поискового запроса
+                    const matchesSearch = searchText === '' ||
+                        client.includes(searchText) ||
+                        device.includes(searchText) ||
+                        model.includes(searchText);
 
-                    const matchesStatus = !selectedStatus ||
-                                        cardStatus === selectedStatus;
+                    // Проверка фильтра по статусу (точное сравнение)
+                    const matchesStatus = selectedStatus === '' || 
+                                         status === selectedStatus;
 
+                    // Показываем/скрываем карточку
                     if (matchesSearch && matchesStatus) {
-                        card.style.display = 'flex';
+                        $card.removeClass('hidden');
+                        visibleCount++;
                     } else {
-                        card.style.display = 'none';
+                        $card.addClass('hidden');
                     }
                 });
+
+                // Обновляем счетчик видимых заказов
+                $('.total-orders').text(`Всего заказов: ${visibleCount}`);
+
+                // Показываем сообщение, если нет результатов
+                if (visibleCount === 0) {
+                    if ($('.no-results-message').length === 0) {
+                        $('.orders-list').append(
+                            '<div class="alert alert-info no-results-message mt-3">' +
+                            '<i class="fas fa-info-circle me-2"></i>Нет заказов, соответствующих выбранным фильтрам' +
+                            '</div>');
+                    }
+                } else {
+                    $('.no-results-message').remove();
+                }
             }
 
-            searchInput.addEventListener('input', filterOrders);
-            statusFilter.addEventListener('change', filterOrders);
+            // Инициализация фильтрации при загрузке
+            filterOrders();
 
-            // AJAX обработка форм изменения статуса
-            document.querySelectorAll('form[data-ajax="true"]').forEach(form => {
-                form.addEventListener('submit', async function(e) {
-                    e.preventDefault();
+            // Обработчики событий для фильтрации
+            $('#searchInput').on('input', filterOrders);
+            $('#statusFilter').on('change', filterOrders);
 
-                    const formData = new FormData(form);
-                    const response = await fetch(form.action, {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'RequestVerificationToken': form.querySelector('input[name="__RequestVerificationToken"]').value
-                        }
-                    });
+            // Плавное появление карточек
+            $('.order-card').each(function(index) {
+                $(this).css('animation-delay', `${index * 0.05}s`);
+            });
 
-                    if (response.ok) {
-                        location.reload(); // Перезагружаем страницу для обновления данных
+            // Подтверждение действий
+            $(document).on('click', '.btn-cancel', function(e) {
+                e.preventDefault();
+                const form = $(this).closest('form');
+
+                Swal.fire({
+                    title: 'Отменить заказ',
+                    text: 'Вы уверены, что хотите отменить этот заказ?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#9fceb6',
+                    confirmButtonText: 'Да, отменить',
+                    cancelButtonText: 'Отмена',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
                     }
                 });
             });

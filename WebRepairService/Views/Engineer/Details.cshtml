@@ -5,101 +5,170 @@
     var isCurrentEngineer = Model.EngineerId == currentUserId;
 }
 
-<div class="order-details-container">
+<div class="order-detail-container">
+    <!-- Шапка с основной информацией -->
     <div class="order-header">
-        <h1 class="page-title">Заказ #@Model.OrderId</h1>
-        <div class="order-actions">
-            <a href="javascript:history.back()" class="btn btn-back">
-                <i class="fas fa-arrow-left"></i> Назад
+        <div class="header-left">
+            <a href="javascript:history.back()" class="back-button">
+                <i class="fas fa-arrow-left"></i>
             </a>
+            <div class="order-title">
+                <h1>Заказ #@Model.OrderId</h1>
+                <div class="status-chip @GetStatusClass(Model.Status?.Name)">
+                    @Model.Status?.Name
+                </div>
+            </div>
+        </div>
+        <div class="header-actions">
+            @if (User.IsInRole("Admin") || User.IsInRole("Operator"))
+            {
+                <a asp-action="Edit" asp-route-id="@Model.OrderId" class="btn btn-light">
+                    <i class="fas fa-edit"></i> Редактировать
+                </a>
+            }
         </div>
     </div>
 
+    <!-- Уведомления -->
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["Success"]
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
+        <div class="notification success">
+            <i class="fas fa-check-circle"></i>
+            <span>@TempData["Success"]</span>
+            <button class="close-notification">
+                <i class="fas fa-times"></i>
             </button>
         </div>
     }
 
+    <!-- Основной контент -->
     <div class="order-content">
-        <!-- Основная информация -->
-        <div class="order-card">
+        <!-- Карточка клиента -->
+        <div class="card client-card">
             <div class="card-header">
-                <i class="fas fa-info-circle"></i> Основная информация
+                <i class="fas fa-user-circle"></i>
+                <h2>Клиент</h2>
             </div>
             <div class="card-body">
-                <div class="info-grid">
-                    <div class="info-item">
-                        <span class="info-label">Клиент:</span>
-                        <span class="info-value">@Model.ClientFullName</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Телефон:</span>
-                        <span class="info-value">@Model.ClientPhone</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Email:</span>
-                        <span class="info-value">@Model.ClientEmail</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Устройство:</span>
-                        <span class="info-value">@Model.DeviceType?.Name (@Model.Model)</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Услуга:</span>
-                        <span class="info-value">@Model.ServiceType?.Name</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Статус:</span>
-                        <span class="info-value status-badge @(Model.Status != null ? "has-status" : "no-status")">
-                            <i class="fas fa-circle"></i> @Model.Status?.Name
-                        </span>
-                    </div>
-                    <div class="info-item full-width">
-                        <span class="info-label">Описание:</span>
-                        <span class="info-value">@Model.Details</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Цена:</span>
-                        <span class="info-value price">@Model.Price.ToString("C")</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Оператор:</span>
-                        <span class="info-value">@Model.Operator?.FullName</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Инженер:</span>
-                        <span class="info-value">@(Model.Engineer?.FullName ?? "не назначен")</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Дата создания:</span>
-                        <span class="info-value">@Model.CreationDate.ToString("dd.MM.yyyy HH:mm")</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Дата завершения:</span>
-                        <span class="info-value">@(Model.CompletionDate?.ToString("dd.MM.yyyy HH:mm") ?? "отсутствует")</span>
+                <div class="info-row">
+                    <span class="info-label">ФИО:</span>
+                    <span class="info-value">@Model.ClientFullName</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Контакты:</span>
+                    <div class="contact-info">
+                        <a href="tel:@Model.ClientPhone" class="contact-link">
+                            <i class="fas fa-phone"></i> @Model.ClientPhone
+                        </a>
+                        @if (!string.IsNullOrEmpty(Model.ClientEmail))
+                        {
+                            <a href="mailto:@Model.ClientEmail" class="contact-link">
+                                <i class="fas fa-envelope"></i> @Model.ClientEmail
+                            </a>
+                        }
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Фотографии -->
+        <!-- Карточка устройства -->
+        <div class="card device-card">
+            <div class="card-header">
+                <i class="fas fa-laptop"></i>
+                <h2>Устройство</h2>
+            </div>
+            <div class="card-body">
+                <div class="device-preview">
+                    @if (Model.Photos != null && Model.Photos.Any())
+                    {
+                        <div class="device-image">
+                            <img src="@Model.Photos.First().Link" alt="@Model.DeviceType?.Name">
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="device-image placeholder">
+                            <i class="fas fa-image"></i>
+                        </div>
+                    }
+                    <div class="device-info">
+                        <div class="info-row">
+                            <span class="info-label">Тип:</span>
+                            <span class="info-value">@Model.DeviceType?.Name</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Модель:</span>
+                            <span class="info-value">@Model.Model</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Услуга:</span>
+                            <span class="info-value">@Model.ServiceType?.Name</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Карточка описания проблемы -->
+        <div class="card description-card">
+            <div class="card-header">
+                <i class="fas fa-file-alt"></i>
+                <h2>Описание проблемы</h2>
+            </div>
+            <div class="card-body">
+                <div class="description-text">
+                    @Model.Details
+                </div>
+            </div>
+        </div>
+
+        <!-- Карточка дополнительной информации -->
+        <div class="card info-card">
+            <div class="card-header">
+                <i class="fas fa-info-circle"></i>
+                <h2>Информация о заказе</h2>
+            </div>
+            <div class="card-body grid-info">
+                <div class="info-row">
+                    <span class="info-label">Дата создания:</span>
+                    <span class="info-value">@Model.CreationDate.ToString("dd.MM.yyyy HH:mm")</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Дата завершения:</span>
+                    <span class="info-value">@(Model.CompletionDate?.ToString("dd.MM.yyyy HH:mm") ?? "—")</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Оператор:</span>
+                    <span class="info-value">@Model.Operator?.FullName</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Инженер:</span>
+                    <span class="info-value">@(Model.Engineer?.FullName ?? "не назначен")</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Стоимость:</span>
+                    <span class="info-value price">@Model.Price.ToString("C")</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Галерея фотографий -->
         @if (Model.Photos != null && Model.Photos.Count > 0)
         {
-            <div class="order-card">
+            <div class="card gallery-card">
                 <div class="card-header">
-                    <i class="fas fa-camera"></i> Фотографии
+                    <i class="fas fa-camera"></i>
+                    <h2>Фотографии (@Model.Photos.Count)</h2>
                 </div>
                 <div class="card-body">
-                    <div class="photos-grid">
+                    <div class="photo-grid">
                         @foreach (var photo in Model.Photos)
                         {
                             <div class="photo-item">
-                                <img src="@photo.Link" class="photo-thumbnail" alt="Фото заказа" data-bs-toggle="modal" data-bs-target="#photoModal" data-photo="@photo.Link">
+                                <img src="@photo.Link" alt="Фото устройства" data-src="@photo.Link">
+                                <div class="photo-hover">
+                                    <i class="fas fa-search-plus"></i>
+                                </div>
                             </div>
                         }
                     </div>
@@ -108,12 +177,12 @@
         }
     </div>
 
+    <!-- Действия с заказом -->
     <div class="order-actions-footer">
-        <!-- Логика отображения кнопок в зависимости от статуса -->
         @if (Model.StatusId == 1 && Model.EngineerId == null)
         {
             <!-- Кнопка "Принять заказ" -->
-            <form asp-action="AcceptOrder" method="post" class="d-inline">
+            <form asp-action="AcceptOrder" method="post" class="action-form">
                 <input type="hidden" name="id" value="@Model.OrderId" />
                 @Html.AntiForgeryToken()
                 <button type="submit" class="btn btn-action btn-accept">
@@ -126,7 +195,7 @@
             if (Model.StatusId == 2) // Принят инженером
             {
                 <!-- Кнопка "В работу" -->
-                <form asp-action="ChangeStatus" method="post" class="d-inline">
+                <form asp-action="ChangeStatus" method="post" class="action-form">
                     <input type="hidden" name="id" value="@Model.OrderId" />
                     <input type="hidden" name="newStatusId" value="3" />
                     @Html.AntiForgeryToken()
@@ -136,7 +205,7 @@
                 </form>
 
                 <!-- Кнопка "Отменить" -->
-                <form asp-action="CancelOrder" method="post" class="d-inline">
+                <form asp-action="CancelOrder" method="post" class="action-form">
                     <input type="hidden" name="id" value="@Model.OrderId" />
                     @Html.AntiForgeryToken()
                     <button type="submit" class="btn btn-action btn-cancel">
@@ -147,7 +216,7 @@
             else if (Model.StatusId == 3) // В процессе
             {
                 <!-- Кнопка "Завершить" -->
-                <form asp-action="ChangeStatus" method="post" class="d-inline">
+                <form asp-action="ChangeStatus" method="post" class="action-form">
                     <input type="hidden" name="id" value="@Model.OrderId" />
                     <input type="hidden" name="newStatusId" value="4" />
                     @Html.AntiForgeryToken()
@@ -157,7 +226,7 @@
                 </form>
 
                 <!-- Кнопка "Отменить" -->
-                <form asp-action="CancelOrder" method="post" class="d-inline">
+                <form asp-action="CancelOrder" method="post" class="action-form">
                     <input type="hidden" name="id" value="@Model.OrderId" />
                     @Html.AntiForgeryToken()
                     <button type="submit" class="btn btn-action btn-cancel">
@@ -166,247 +235,527 @@
                 </form>
             }
         }
-
-        <!-- Кнопка "Изменить" (для админов/операторов) -->
-        @if (User.IsInRole("Admin") || User.IsInRole("Operator"))
-        {
-            <a asp-action="Edit" asp-route-id="@Model.OrderId" class="btn btn-action btn-edit">
-                <i class="fas fa-edit"></i> Изменить
-            </a>
-        }
     </div>
 </div>
 
 <!-- Модальное окно для фото -->
-<div class="modal fade" id="photoModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-body text-center">
-                <img id="modalPhoto" src="" class="img-fluid" alt="Увеличенное фото">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-            </div>
-        </div>
+<div class="modal" id="photoModal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <img id="modalImage" src="" alt="Увеличенное фото">
     </div>
 </div>
 
+@functions {
+    string GetStatusClass(string statusName)
+    {
+        return statusName switch
+        {
+            "Принят оператором" => "status-blue",
+            "Принят инженером" => "status-green",
+            "В процессе" => "status-orange",
+            "Завершен" => "status-teal",
+            "Отменен" => "status-red",
+            _ => "status-gray"
+        };
+    }
+}
+
 @section Styles {
     <style>
-        /* Основные стили */
-        .order-details-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+        /* Базовые стили */
+        :root {
+            --primary-color: #2e7d32;
+            --primary-light: #9fceb6;
+            --text-dark: #2f4f4f;
+            --text-medium: #5a6d6d;
+            --text-light: #8e9e9e;
+            --border-color: #e0e7e7;
+            --bg-light: #f8fafb;
+            --white: #ffffff;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --transition: all 0.25s ease;
         }
 
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+            line-height: 1.5;
+        }
+
+        /* Контейнер */
+        .order-detail-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 16px;
+        }
+
+        /* Шапка заказа */
         .order-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 24px;
+            gap: 16px;
         }
 
-        .page-title {
-            font-size: 2rem;
-            color: #2f4f4f;
-            margin: 0;
-            font-weight: 600;
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
         }
+
+        .back-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--white);
+            color: var(--primary-color);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+            .back-button:hover {
+                background-color: var(--primary-light);
+                color: var(--white);
+                transform: translateX(-2px);
+            }
+
+        .order-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+            .order-title h1 {
+                font-size: 28px;
+                font-weight: 700;
+                margin: 0;
+                color: var(--text-dark);
+            }
+
+        .header-actions .btn-light {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background-color: var(--white);
+            color: var(--primary-color);
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            transition: var(--transition);
+            border: 1px solid var(--primary-light);
+        }
+
+            .header-actions .btn-light:hover {
+                background-color: var(--primary-light);
+                color: var(--white);
+            }
+
+        /* Статус */
+        .status-chip {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .status-blue {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .status-green {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-orange {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .status-teal {
+            background-color: #e0f7fa;
+            color: #00838f;
+        }
+
+        .status-red {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .status-gray {
+            background-color: #f5f5f5;
+            color: #616161;
+        }
+
+        /* Уведомление */
+        .notification {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 24px;
+            gap: 10px;
+        }
+
+            .notification.success {
+                background-color: #e8f5e9;
+                color: #2e7d32;
+                border-left: 4px solid #2e7d32;
+            }
+
+        .close-notification {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: var(--transition);
+        }
+
+            .close-notification:hover {
+                opacity: 1;
+            }
 
         /* Карточки */
-        .order-card {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        .card {
+            background-color: var(--white);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
             margin-bottom: 20px;
             overflow: hidden;
+            transition: var(--transition);
+            animation: fadeIn 0.4s ease-out forwards;
+            opacity: 0;
+        }
+
+            .card:hover {
+                box-shadow: var(--shadow-md);
+                transform: translateY(-2px);
+            }
+
+        /* Анимации */
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Задержки для последовательного появления */
+        .card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .card:nth-child(5) {
+            animation-delay: 0.5s;
         }
 
         .card-header {
-            background-color: #f8f9fa;
-            padding: 15px 20px;
-            border-bottom: 1px solid #eee;
-            font-weight: 600;
-            color: #2f4f4f;
             display: flex;
             align-items: center;
-            gap: 10px;
+            padding: 16px 20px;
+            background-color: var(--bg-light);
+            border-bottom: 1px solid var(--border-color);
+            gap: 12px;
         }
+
+            .card-header h2 {
+                font-size: 18px;
+                font-weight: 600;
+                margin: 0;
+                color: var(--text-dark);
+            }
+
+            .card-header i {
+                color: var(--primary-color);
+                font-size: 18px;
+            }
 
         .card-body {
             padding: 20px;
         }
 
-        /* Сетка информации */
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 15px;
-        }
-
-        .info-item {
+        /* Строки информации */
+        .info-row {
             display: flex;
-            flex-direction: column;
+            margin-bottom: 12px;
         }
-
-            .info-item.full-width {
-                grid-column: 1 / -1;
-            }
 
         .info-label {
-            font-weight: 600;
-            color: #6c757d;
-            font-size: 0.9rem;
-            margin-bottom: 3px;
+            min-width: 140px;
+            color: var(--text-medium);
+            font-weight: 500;
+            font-size: 15px;
         }
 
         .info-value {
-            color: #2f4f4f;
-            font-size: 1rem;
+            color: var(--text-dark);
+            font-size: 15px;
         }
 
             .info-value.price {
                 font-weight: 600;
-                color: #1d3c34;
-                font-size: 1.1rem;
+                color: var(--primary-color);
+                font-size: 16px;
             }
 
-        /* Статус */
-        .status-badge {
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
+        /* Контактная информация */
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
 
-            .status-badge.has-status {
-                background-color: #e6f4ec;
-                color: #1d3c34;
+        .contact-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-dark);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+            .contact-link:hover {
+                color: var(--primary-color);
             }
 
-            .status-badge.no-status {
-                background-color: #f5f5f5;
-                color: #777;
+            .contact-link i {
+                color: var(--primary-light);
+                width: 16px;
+                text-align: center;
             }
 
-            .status-badge i {
-                font-size: 0.6rem;
+        /* Превью устройства */
+        .device-preview {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .device-image {
+            width: 120px;
+            height: 120px;
+            border-radius: var(--radius-sm);
+            background-color: var(--bg-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+            .device-image.placeholder {
+                color: var(--primary-light);
+                font-size: 32px;
             }
 
-        /* Фотографии */
-        .photos-grid {
+            .device-image img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        /* Описание проблемы */
+        .description-text {
+            white-space: pre-wrap;
+            line-height: 1.6;
+            padding: 12px;
+            background-color: var(--bg-light);
+            border-radius: var(--radius-sm);
+        }
+
+        /* Сетка информации */
+        .grid-info {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        /* Галерея фотографий */
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
         }
 
         .photo-item {
+            position: relative;
             aspect-ratio: 1;
+            border-radius: var(--radius-sm);
             overflow: hidden;
-            border-radius: 8px;
-            transition: transform 0.2s ease;
-        }
-
-        .photo-thumbnail {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
             cursor: pointer;
-            transition: transform 0.3s ease;
         }
 
-            .photo-thumbnail:hover {
-                transform: scale(1.05);
+            .photo-item img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: var(--transition);
             }
 
-        /* Кнопки */
-        .btn-back {
-            background-color: #9fceb6;
-            color: #1d3c34;
-            padding: 8px 15px;
-            border-radius: 5px;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            border: none;
-        }
-
-            .btn-back:hover {
-                background-color: #8abda5;
-                color: #1d3c34;
-            }
-
-        /* Кнопки действий */
-        .order-actions-footer {
+        .photo-hover {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
             display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-
-        .btn-action {
-            padding: 8px 15px;
-            border-radius: 5px;
-            display: inline-flex;
             align-items: center;
-            gap: 5px;
-            border: none;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-
-        .btn-accept {
-            background-color: #4CAF50;
+            justify-content: center;
+            opacity: 0;
+            transition: var(--transition);
             color: white;
         }
 
+        .photo-item:hover .photo-hover {
+            opacity: 1;
+        }
+
+        .photo-item:hover img {
+            transform: scale(1.05);
+        }
+
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            overflow: auto;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+            .modal.show {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 1;
+            }
+
+        .modal-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+        }
+
+            .modal-content img {
+                max-width: 100%;
+                max-height: 80vh;
+                display: block;
+                border-radius: var(--radius-sm);
+            }
+
+        .close-modal {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* Действия с заказом */
+        .order-actions-footer {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+
+        .action-form {
+            margin: 0;
+        }
+
+        .btn-action {
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-accept {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
             .btn-accept:hover {
-                background-color: #3e8e41;
-                color: white;
+                background-color: #1e5a23;
+                transform: translateY(-1px);
+                box-shadow: var(--shadow-sm);
             }
 
         .btn-start {
             background-color: #2196F3;
-            color: white;
+            color: var(--white);
         }
 
             .btn-start:hover {
                 background-color: #0b7dda;
-                color: white;
+                transform: translateY(-1px);
+                box-shadow: var(--shadow-sm);
             }
 
         .btn-complete {
-            background-color: #4CAF50;
-            color: white;
+            background-color: var(--primary-color);
+            color: var(--white);
         }
 
             .btn-complete:hover {
-                background-color: #3e8e41;
-                color: white;
+                background-color: #1e5a23;
+                transform: translateY(-1px);
+                box-shadow: var(--shadow-sm);
             }
 
         .btn-cancel {
             background-color: #f44336;
-            color: white;
+            color: var(--white);
         }
 
             .btn-cancel:hover {
                 background-color: #d32f2f;
-                color: white;
-            }
-
-        .btn-edit {
-            background-color: #ff9800;
-            color: white;
-        }
-
-            .btn-edit:hover {
-                background-color: #e68a00;
-                color: white;
+                transform: translateY(-1px);
+                box-shadow: var(--shadow-sm);
             }
 
         /* Адаптивность */
@@ -414,14 +763,18 @@
             .order-header {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 15px;
             }
 
-            .info-grid {
+            .device-preview {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .grid-info {
                 grid-template-columns: 1fr;
             }
 
-            .photos-grid {
+            .photo-grid {
                 grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             }
 
@@ -429,10 +782,37 @@
                 flex-direction: column;
                 gap: 10px;
             }
+
+            .btn-action {
+                width: 100%;
+                justify-content: center;
+            }
         }
 
         @@media (max-width: 480px) {
-            .photos-grid {
+            .order-title h1 {
+                font-size: 24px;
+            }
+
+            .card-header {
+                padding: 12px 16px;
+            }
+
+            .card-body {
+                padding: 16px;
+            }
+
+            .info-row {
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .info-label {
+                min-width: auto;
+                font-size: 14px;
+            }
+
+            .photo-grid {
                 grid-template-columns: 1fr 1fr;
             }
         }
@@ -440,34 +820,76 @@
 }
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Обработка модального окна для фото
-            const photoModal = document.getElementById('photoModal');
-            if (photoModal) {
-                photoModal.addEventListener('show.bs.modal', function(event) {
-                    const button = event.relatedTarget;
-                    const photoUrl = button.getAttribute('data-photo');
-                    const modalImage = photoModal.querySelector('#modalPhoto');
-                    modalImage.src = photoUrl;
-                });
-            }
+            // Модальное окно для фотографий
+            const modal = document.getElementById('photoModal');
+            const modalImg = document.getElementById('modalImage');
+            const closeModal = document.querySelector('.close-modal');
 
-            // Закрытие алертов
-            const closeButtons = document.querySelectorAll('.close');
-            closeButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    this.closest('.alert').style.display = 'none';
+            document.querySelectorAll('.photo-item img').forEach(img => {
+                img.addEventListener('click', function() {
+                    modalImg.src = this.dataset.src;
+                    modal.classList.add('show');
                 });
             });
 
-            // Автоматическое закрытие алертов через 5 секунд
-            setTimeout(function() {
-                const alerts = document.querySelectorAll('.alert');
-                alerts.forEach(function(alert) {
-                    alert.style.display = 'none';
+            closeModal.addEventListener('click', function() {
+                modal.classList.remove('show');
+            });
+
+            window.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.classList.remove('show');
+                }
+            });
+
+            // Закрытие уведомления
+            const closeNotification = document.querySelector('.close-notification');
+            if (closeNotification) {
+                closeNotification.addEventListener('click', function() {
+                    this.closest('.notification').style.opacity = '0';
+                    setTimeout(() => {
+                        this.closest('.notification').remove();
+                    }, 300);
                 });
-            }, 5000);
+
+                // Автоматическое закрытие через 5 секунд
+                setTimeout(() => {
+                    const notification = document.querySelector('.notification');
+                    if (notification) {
+                        notification.style.opacity = '0';
+                        setTimeout(() => {
+                            notification.remove();
+                        }, 300);
+                    }
+                }, 5000);
+            }
+
+            // Подтверждение действий
+            document.querySelectorAll('.btn-cancel').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const form = this.closest('form');
+
+                    Swal.fire({
+                        title: 'Отменить заказ',
+                        text: 'Вы уверены, что хотите отменить этот заказ?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#9fceb6',
+                        confirmButtonText: 'Да, отменить',
+                        cancelButtonText: 'Отмена',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
         });
     </script>
 }
