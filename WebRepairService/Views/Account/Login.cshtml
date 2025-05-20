@@ -4,122 +4,134 @@
     Layout = "_Layout";
 }
 
-<div class="auth-wrapper">
-    <div class="auth-form-container">
-        <div class="auth-form">
-            <h2 class="text-center mb-4">@ViewData["Title"]</h2>
+<div class="login-page">
+    <div class="login-card">
+        <h2 class="text-center mb-4">@ViewData["Title"]</h2>
 
-            @if (ViewContext.ViewData.ModelState.ErrorCount > 0)
-            {
-                <div class="alert alert-danger">
-                    <div asp-validation-summary="All"></div>
-                </div>
-            }
+        @if (ViewContext.ViewData.ModelState.ErrorCount > 0)
+        {
+            <div class="alert alert-danger">
+                <div asp-validation-summary="All"></div>
+            </div>
+        }
 
-            <form asp-action="Login" method="post">
-                <div class="form-group mb-3">
-                    <label asp-for="UserName" class="form-label">Логин</label>
-                    <input asp-for="UserName" class="form-control" />
-                    <span asp-validation-for="UserName" class="text-danger"></span>
-                </div>
+        <form asp-action="Login" method="post">
+            <div class="mb-3">
+                <label asp-for="UserName" class="form-label">Логин</label>
+                <input asp-for="UserName" class="form-control" placeholder="Введите логин" />
+                <span asp-validation-for="UserName" class="text-danger small"></span>
+            </div>
 
-                <div class="form-group mb-3">
-                    <label asp-for="Password" class="form-label">Пароль</label>
-                    <input asp-for="Password" type="password" class="form-control" />
-                    <span asp-validation-for="Password" class="text-danger"></span>
-                </div>
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label">Пароль</label>
+                <input asp-for="Password" type="password" class="form-control" placeholder="Введите пароль" />
+                <span asp-validation-for="Password" class="text-danger small"></span>
+            </div>
 
-                <div class="form-group mb-3">
-                    <div class="form-check">
-                        <input asp-for="RememberMe" class="form-check-input" />
-                        <label asp-for="RememberMe" class="form-check-label">Запомнить меня</label>
-                    </div>
-                </div>
+            <button type="submit" class="btn btn-main w-100 mb-3">
+                <i class="fas fa-sign-in-alt me-2"></i> Войти
+            </button>
 
-                <div class="d-grid gap-2 mb-3">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-sign-in-alt me-2"></i> Войти
-                    </button>
-                </div>
-
-                <div class="d-grid gap-2">
-                    <a asp-controller="Account" asp-action="Register" class="btn btn-outline-secondary">
-                        <i class="fas fa-user-plus me-2"></i> Зарегистрироваться
-                    </a>
-                </div>
-            </form>
-        </div>
+            <a asp-controller="Account" asp-action="Register" class="btn btn-outline w-100">
+                <i class="fas fa-user-plus me-2"></i> Зарегистрироваться
+            </a>
+        </form>
     </div>
 </div>
 
 @section Styles {
     <style>
-        /* Основные стили для центрирования */
-        .auth-wrapper {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+
+        .login-page {
+            min-height: 80vh;
             display: flex;
-            justify-content: center;
             align-items: center;
-            background-color: #fcfdfc;
-            z-index: 1000;
+            justify-content: center;
+            padding: 2rem;
         }
 
-        .auth-form-container {
+        .login-card {
             width: 100%;
-            max-width: 500px;
-            padding: 20px;
-        }
-
-        .auth-form {
-            background-color: white;
+            max-width: 420px;
+            background-color: #fff;
+            border-radius: 16px;
             padding: 2.5rem;
-            border: 1px solid #c7e4d4;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+            border: 1px solid #cde3d7;
+            animation: fadeIn 0.6s ease;
         }
 
-            /* Стили элементов формы */
-            .auth-form h2 {
+            .login-card h2 {
                 color: #1d3c34;
-                margin-bottom: 1.5rem;
-                text-align: center;
+                font-weight: 600;
             }
 
-            .auth-form .form-control {
-                border: 1px solid #ddd;
-                border-radius: 0;
-                padding: 0.5rem 0.75rem;
+        .form-control {
+            border-radius: 8px;
+            padding: 0.6rem 0.75rem;
+            border: 1px solid #d0dcd5;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+            .form-control:focus {
+                border-color: #92cdb6;
+                box-shadow: 0 0 0 0.2rem rgba(146, 205, 182, 0.25);
             }
 
-                .auth-form .form-control:focus {
-                    border-color: #9fceb6;
-                    box-shadow: 0 0 0 0.25rem rgba(159, 206, 182, 0.25);
-                }
+        .form-check-input {
+            border-radius: 0.25rem;
+            border-color: #cde3d7;
+        }
 
-            .auth-form .btn-primary {
-                background-color: #9fceb6;
-                border-color: #9fceb6;
-                color: #1d3c34;
-                border-radius: 0;
-                padding: 0.5rem;
-            }
-
-            .auth-form .btn-outline-secondary {
-                color: #1d3c34;
-                border-color: #9fceb6;
-                border-radius: 0;
-                padding: 0.5rem;
-            }
-
-            .auth-form .form-check-input:checked {
+            .form-check-input:checked {
                 background-color: #9fceb6;
                 border-color: #9fceb6;
             }
+
+        .btn-main {
+            background-color: #9fceb6;
+            border: none;
+            color: #1d3c34;
+            padding: 0.6rem;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+            .btn-main:hover {
+                background-color: #8bc0a6;
+            }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #9fceb6;
+            color: #1d3c34;
+            padding: 0.6rem;
+            border-radius: 8px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+            .btn-outline:hover {
+                background-color: #9fceb6;
+                color: #fff;
+            }
+
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
     </style>
 }
+
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
