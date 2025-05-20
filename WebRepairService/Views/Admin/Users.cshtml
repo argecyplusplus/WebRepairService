@@ -1,5 +1,6 @@
 ﻿@using WebRepairService.Controllers
-@model List<UserRoleViewModel>
+@using WebRepairService.ViewModels
+@model List<UserEditViewModel>
 @{
     ViewData["Title"] = "Управление пользователями";
     var allRoles = ViewBag.AllRoles as List<string>;

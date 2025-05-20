@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using WebRepairService.Models;
+using WebRepairService.ViewModels;
 
 namespace WebRepairService.Controllers
 {
@@ -26,11 +27,11 @@ namespace WebRepairService.Controllers
         public async Task<IActionResult> Users()
         {
             var users = await _userManager.Users.ToListAsync();
-            var userRolesViewModel = new List<UserRoleViewModel>();
+            var userRolesViewModel = new List<UserEditViewModel>();
 
             foreach (var user in users)
             {
-                var thisViewModel = new UserRoleViewModel
+                var thisViewModel = new UserEditViewModel
                 {
                     Username = user.UserName,
                     UserId = user.Id,
@@ -123,25 +124,6 @@ namespace WebRepairService.Controllers
 
             return RedirectToAction("Users");
         }
-
-    }
-
-    public class UserRoleViewModel
-    {
-        public string UserId { get; set; }
-
-        public string Username {  get; set; }
-        public string Email { get; set; }
-        public string FullName { get; set; }
-
-        [Required]
-        [Phone]
-        [Display(Name = "Телефон")]
-        public string PhoneNumber { get; set; }
-
-        public DateTime RegistrationDate { get; set; }
-        public IList<string> Roles { get; set; }
-        public string ProfileImage { get; set; }
 
     }
 }
