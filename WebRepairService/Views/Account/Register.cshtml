@@ -16,7 +16,7 @@
         }
 
         <form asp-action="Register" method="post" class="mt-4" autocomplete="off">
-            <!-- Скрытые поля для обхода автозаполнения -->
+            
             <input type="text" name="prevent_autofill" style="display: none;" />
             <input type="password" name="password_fake" style="display: none;" />
 
@@ -73,15 +73,6 @@
 
 @section Styles {
     <style>
-        body {
-            background-color: #f8f9fa;
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
 
         .login-container {
             display: flex;

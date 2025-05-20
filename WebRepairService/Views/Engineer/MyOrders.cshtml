@@ -191,14 +191,6 @@
                                     </form>
                                 }
                             }
-
-                            <!-- Кнопка "Изменить" (для админов/операторов) -->
-                            @if (User.IsInRole("Admin") || User.IsInRole("Operator"))
-                            {
-                                <a asp-action="Edit" asp-route-id="@item.OrderId" class="btn btn-edit" title="Изменить">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                            }
                         </div>
                     </div>
                 </div>

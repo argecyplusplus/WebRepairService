@@ -6,7 +6,6 @@
 }
 
 <div class="order-detail-container">
-    <!-- Шапка с основной информацией -->
     <div class="order-header">
         <div class="header-left">
             <a href="javascript:history.back()" class="back-button">
@@ -181,7 +180,6 @@
     <div class="order-actions-footer">
         @if (Model.StatusId == 1 && Model.EngineerId == null)
         {
-            <!-- Кнопка "Принять заказ" -->
             <form asp-action="AcceptOrder" method="post" class="action-form">
                 <input type="hidden" name="id" value="@Model.OrderId" />
                 @Html.AntiForgeryToken()

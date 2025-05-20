@@ -630,6 +630,9 @@
 }
 
 @section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
         $(document).ready(function() {
             // Автоматическое скрытие алертов через 5 секунд
@@ -673,30 +676,6 @@
             $('.order-card').each(function(index) {
                 $(this).css('animation-delay', `${index * 0.05}s`);
             });
-
-            // Подтверждение удаления заказа
-            $('.btn-delete').click(function(e) {
-                e.preventDefault();
-                const deleteUrl = $(this).attr('href');
-                const orderId = $(this).closest('.order-card').find('.order-id span').text();
-
-                Swal.fire({
-                    title: 'Удаление заказа',
-                    html: `Вы уверены, что хотите удалить заказ <strong>#${orderId}</strong>?`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#9fceb6',
-                    confirmButtonText: 'Да, удалить',
-                    cancelButtonText: 'Отмена',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = deleteUrl;
-                    }
-                });
-            });
         });
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     </script>
 }

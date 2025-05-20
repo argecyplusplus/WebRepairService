@@ -4,9 +4,110 @@
     ViewData["Title"] = "Мой профиль";
 }
 
+<div class="profile-container">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas me-2"></i>@ViewData["Title"]
+        </h1>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <p class="mb-0">@error.ErrorMessage</p>
+            }
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="profile-card">
+                <div class="profile-avatar-container">
+                    @if (!string.IsNullOrEmpty(Model.CurrentImagePath))
+                    {
+                        <img src="@Url.Content(Model.CurrentImagePath)" class="profile-avatar" />
+                    }
+                    else
+                    {
+                        <div class="avatar-placeholder">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    }
+                </div>
+                <div class="profile-info">
+                    <h3 class="profile-name">@Model.FullName</h3>
+                    <p class="profile-email">@Model.Email</p>
+                    <a asp-action="ChangePassword" class="btn btn-outline-primary">
+                        <i class="fas fa-key"></i>Сменить пароль
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="profile-card">
+                <form asp-action="Profile" method="post" enctype="multipart/form-data" class="profile-form">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="mb-4">
+                        <label asp-for="FullName" class="form-label">
+                            Полное имя
+                        </label>
+                        <input asp-for="FullName" class="form-control" />
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Email" class="form-label">
+                            Email
+                        </label>
+                        <input asp-for="Email" type="email" class="form-control"
+                               placeholder="example@mail.ru" required />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="PhoneNumber" class="form-label">
+                            Номер телефона
+                        </label>
+                        <input asp-for="PhoneNumber" class="form-control" id="PhoneNumber"
+                               placeholder="+7 (XXX) XXX-XX-XX" required />
+                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="ProfileImage" class="form-label">
+                            </i>Фото профиля
+                        </label>
+                        <input asp-for="ProfileImage" type="file" class="form-control" accept="image/*" />
+                        <small class="text-muted">Рекомендуемый размер: 200x200 пикселей</small>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>Сохранить изменения
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Styles {
     <style>
-        /* Основные стили страницы профиля */
+        /* Основные стили */
         .profile-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -156,7 +257,7 @@
         }
 
         /* Иконки */
-        .fas {
+        .fa-key, .fa-save {
             margin-right: 0.5rem;
         }
 
@@ -186,107 +287,24 @@
             font-size: 0.85rem;
             color: #6c757d !important;
         }
+
+        /* Стили для валидации */
+        .field-validation-error {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .input-validation-error {
+            border-color: #dc3545 !important;
+        }
+
+            .input-validation-error:focus {
+                box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25) !important;
+            }
     </style>
 }
-
-<div class="profile-container">
-    <div class="page-header">
-        <h1 class="page-title">
-            <i class="fas me-2"></i>@ViewData["Title"]
-        </h1>
-    </div>
-
-    @if (!ViewData.ModelState.IsValid)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-circle me-2"></i>
-            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-            {
-                <p class="mb-0">@error.ErrorMessage</p>
-            }
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-
-    <div class="row g-4">
-        <div class="col-lg-4">
-            <div class="profile-card">
-                <div class="profile-avatar-container">
-                    @if (!string.IsNullOrEmpty(Model.CurrentImagePath))
-                    {
-                        <img src="@Url.Content(Model.CurrentImagePath)" class="profile-avatar" />
-                    }
-                    else
-                    {
-                        <div class="avatar-placeholder">
-                            <i class="fas fa-user"></i>
-                        </div>
-                    }
-                </div>
-                <div class="profile-info">
-                    <h3 class="profile-name">@Model.FullName</h3>
-                    <p class="profile-email">@Model.Email</p>
-                    <a asp-action="ChangePassword" class="btn btn-outline-primary">
-                        <i class="fas fa-key"></i>Сменить пароль
-                    </a>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-8">
-            <div class="profile-card">
-                <form asp-action="Profile" method="post" enctype="multipart/form-data" class="profile-form">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-                    <div class="mb-4">
-                        <label asp-for="FullName" class="form-label">
-                            Полное имя
-                        </label>
-                        <input asp-for="FullName" class="form-control" />
-                        <span asp-validation-for="FullName" class="text-danger"></span>
-                    </div>
-
-                    <div class="mb-4">
-                        <label asp-for="Email" class="form-label">
-                            Email
-                        </label>
-                        <input asp-for="Email" class="form-control" />
-                        <span asp-validation-for="Email" class="text-danger"></span>
-                    </div>
-
-                    <div class="mb-4">
-                        <label asp-for="PhoneNumber" class="form-label">
-                            Номер телефона
-                        </label>
-                        <input asp-for="PhoneNumber" class="form-control" />
-                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-                    </div>
-
-                    <div class="mb-4">
-                        <label asp-for="ProfileImage" class="form-label">
-                            </i>Фото профиля
-                        </label>
-                        <input asp-for="ProfileImage" type="file" class="form-control" accept="image/*" />
-                        <small class="text-muted">Рекомендуемый размер: 200x200 пикселей</small>
-                    </div>
-
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i>Сохранить изменения
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 
 @section Scripts {
     @{
@@ -314,6 +332,12 @@
 
                     reader.readAsDataURL(e.target.files[0]);
                 }
+            });
+
+            // Форматирование номера телефона
+            document.getElementById('PhoneNumber')?.addEventListener('input', function (e) {
+                let x = e.target.value.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
+                e.target.value = '+7 (' + (x[2] ? x[2] : '') + (x[3] ? ') ' + x[3] : '') + (x[4] ? '-' + x[4] : '') + (x[5] ? '-' + x[5] : '');
             });
         });
     </script>

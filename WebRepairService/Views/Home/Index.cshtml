@@ -5,75 +5,116 @@
 @inject UserManager<ApplicationUser> UserManager
 
 @{
-    ViewData["Title"] = "Главная страница";
+    ViewData["Title"] = "Ожидание подтверждения";
 }
 
-<div class="container mt-5">
-    <div class="card shadow-sm">
-        <div class="card-header">
-            <h1 class="text-center">Добро пожаловать в систему обработки заказов сервисного центра!</h1>
-        </div>
+@if (User?.Identity?.IsAuthenticated != true)
+{
+    <script>
+        window.location.href = '@Url.Action("Login", "Account")';
+    </script>
+    return;
+}
 
-        <div class="card-body">
-            @if (User?.Identity?.IsAuthenticated == true)
+<div class="confirmation-container">
+    <div class="confirmation-card shadow fade-in">
+        <h1 class="confirmation-title text-center">
+            Добро пожаловать!
+        </h1>
+        @{
+            var user = await UserManager.GetUserAsync(User);
+            if (user != null && await UserManager.HasNoRolesAsync(user))
             {
-
-                <ul class="nav flex-column">
-                    @{
-                        var user = await UserManager.GetUserAsync(User);
-                        if (user != null)
-                        {
-                            @if (await UserManager.IsInRoleAsync(user, "Admin"))
-                            {
-                                <!-- Меню администратора -->
-                            }
-                            @if (await UserManager.IsInRoleAsync(user, "Operator"))
-                            {
-                                <!-- Меню оператора -->
-                            }
-                            @if (await UserManager.IsInRoleAsync(user, "Engineer"))
-                            {
-                                <!-- Меню инженера -->
-                            }
-                            @if (await UserManager.HasNoRolesAsync(user))
-                            {
-                                <div class="text-center py-4">
-                                    <div class="alert alert-warning">
-                                        <h3 class="alert-heading">Ожидание подтверждения</h3>
-                                        <hr>
-                                        <p class="mb-0">
-                                            <i class="fas fa-user-clock fa-3x mb-3 text-warning"></i><br>
-                                            Администратор еще не назначил вам роль.<br>
-                                            Пожалуйста, подождите завершения проверки вашего аккаунта.
-                                        </p>
-                                    </div>
-                                    <div class="spinner-border text-primary mt-3" role="status">
-                                        <span class="visually-hidden">Загрузка...</span>
-                                    </div>
-                                </div>
-                            }
-                        }
-                    }
-                </ul>
-            }
-            else
-            {
-                <script>
-                    window.location.href = '@Url.Action("Login", "Account")';
-                </script>
-
-                <!-- Запасной вариант, если JavaScript отключен -->
-                <meta http-equiv="refresh" content="0;url=@Url.Action("Login", "Account")" />
-                <div class="text-center py-4">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Загрузка...</span>
-                    </div>
-                    <p class="mt-2">Перенаправление на страницу входа...</p>
+                <div class="alert alert-warning text-center mt-4">
+                    <i class="fas fa-user-clock fa-3x mb-3 text-warning animated-icon"></i>
+                    <h4 class="alert-heading">Ожидание подтверждения</h4>
+                    <p>Администратор еще не назначил вам роль.<br />Пожалуйста, дождитесь подтверждения аккаунта.</p>
                 </div>
             }
-        </div>
+        }
     </div>
 </div>
 
-<!-- Подключение иконок Font Awesome -->
+@section Styles {
+    <style>
+        .confirmation-container {
+            max-width: 800px;
+            margin: 4rem auto;
+            padding: 2rem;
+        }
+
+        .confirmation-card {
+            background-color: #ffffff;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .confirmation-title {
+            font-size: 1.75rem;
+            color: #2f4f4f;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .alert-warning {
+            background-color: #fffbe6;
+            border: 1px solid #ffe58f;
+            color: #614700;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+        }
+
+        .spinner-grow-custom {
+            width: 3rem;
+            height: 3rem;
+            animation: spinner-grow 1s linear infinite;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-in-out both;
+        }
+
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .animated-icon {
+            animation: pulse 2s infinite;
+        }
+
+        @@keyframes pulse {
+            0%
+
+        {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        50% {
+            transform: scale(1.15);
+            opacity: 0.7;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        }
+    </style>
+}
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">

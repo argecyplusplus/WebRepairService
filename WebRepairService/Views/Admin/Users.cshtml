@@ -176,7 +176,7 @@
             color: #1d3c34;
         }
 
-        /* аватарка */
+        /* Аватарки пользователей */
         .avatar-circle {
             width: 50px;
             height: 50px;
@@ -204,8 +204,6 @@
             border: 2px solid #ddd;
         }
 
-
-
         /* Стили для управления ролями */
         .role-control-group {
             display: flex;
@@ -214,7 +212,7 @@
         }
 
         .role-select {
-            width: 160px; /* Уменьшенная ширина */
+            width: 160px; 
             padding: 0.375rem 0.75rem;
             font-size: 0.9rem;
             border: 1px solid #ced4da;
@@ -222,7 +220,7 @@
             background-color: white;
             color: #495057;
             transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-            text-align: left; /* Выравнивание текста по левому краю */
+            text-align: left; 
         }
 
             .role-select:focus {
@@ -409,7 +407,7 @@
             display: flex;
             align-items: center;
             font-size: 0.95rem;
-            color: #555; /* Цвет текста */
+            color: #555; 
         }
 
             .contact-item a {
@@ -512,7 +510,6 @@
             animation: fadeIn 0.4s ease-out forwards;
         }
 
-            /* Скрытие карточек при фильтрации */
             .user-card.hidden {
                 display: none;
             }
@@ -537,6 +534,9 @@
 }
 
 @section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
         $(document).ready(function() {
             // Автоматическое скрытие алертов через 5 секунд
@@ -544,7 +544,7 @@
                 $('.alert').alert('close');
             }, 5000);
 
-            // Подтверждение удаления пользователя с модальным окном
+            // Подтверждение удаления пользователя
             $('.delete-user').click(function() {
                 const userId = $(this).data('userid');
                 const username = $(this).data('username');
